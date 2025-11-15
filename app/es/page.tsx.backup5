@@ -7,42 +7,26 @@ import { Landmark, Building2, Church, Palette, Music, UtensilsCrossed } from 'lu
 import Image from 'next/image';
 import Link from 'next/link';
 import { MapPin } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+export default function HomePage() {
+  const cities = [
+    { name: 'Roma', slug: 'roma', image: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=400' },
+    { name: 'París', slug: 'paris', image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400' },
+    { name: 'Madrid', slug: 'madrid', image: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=400' },
+    { name: 'Barcelona', slug: 'barcelona', image: 'https://images.unsplash.com/photo-1583422409516-2895a77efded?w=400' },
+    { name: 'Sevilla', slug: 'sevilla', image: 'https://images.unsplash.com/photo-1544985361-b420d7a77043?w=400' },
+    { name: 'Granada', slug: 'granada', image: 'https://images.unsplash.com/photo-1525088553531-80430aeeee0b?w=400' },
+    { name: 'Toledo', slug: 'toledo', image: 'https://images.unsplash.com/photo-1566988227519-2e4b8c46f3e1?w=400' },
+  ];
 
-export default async function HomePage() {
-  // Cargar ciudades desde Supabase
-  const { data: cities } = await supabase
-    .from('cities')
-    .select('name, slug, image')
-    .order('name');
-
-  // Cargar categorías desde Supabase
-  const { data: categoriesData } = await supabase
-    .from('categories')
-    .select('name, slug, count')
-    .order('name');
-
-  // Mapear categorías con iconos (por ahora hardcodeado, luego mejoramos)
-  const iconMap: any = {
-    'Monumentos': Landmark,
-    'Museos': Palette,
-    'Tours': Building2,
-    'Iglesias': Church,
-    'Gastronomía': UtensilsCrossed,
-    'Shows': Music,
-    'Catedrales': Church,
-  };
-
-  const categories = categoriesData?.map(cat => ({
-    name: cat.name,
-    icon: iconMap[cat.name] || Landmark,
-    count: cat.count || 0
-  })) || [];
+  const categories = [
+    { name: 'Monumentos', icon: Landmark, count: 24 },
+    { name: 'Museos', icon: Palette, count: 18 },
+    { name: 'Tours', icon: Building2, count: 32 },
+    { name: 'Iglesias', icon: Church, count: 15 },
+    { name: 'Gastronomía', icon: UtensilsCrossed, count: 28 },
+    { name: 'Shows', icon: Music, count: 12 },
+  ];
 
   // NUEVO: Actividades más populares
   const popularActivities = [
@@ -119,9 +103,9 @@ export default async function HomePage() {
           <p className="text-gray-600">Explora las ciudades más fascinantes de Europa</p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {cities?.map((city, i) => (
+          {cities.map((city, i) => (
             <Link key={i} href={`/es/${city.slug}`} className="group relative overflow-hidden rounded-xl border-2 border-gray-200 hover:border-blue-200 hover:shadow-xl transition-all aspect-[4/3]">
-              {city.image && <Image src={city.image} alt={city.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />}
+              <Image src={city.image} alt={city.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
               <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/60 to-transparent">
                 <div className="flex items-center gap-2 text-white">
                   <MapPin size={20} />
@@ -133,14 +117,15 @@ export default async function HomePage() {
         </div>
       </div>
 
+
+      {/* Continúa explorando - Solo si tiene historial */}
       {/* NUEVO: Actividades más populares */}
       <ExperienceCarousel 
         title="Las actividades más populares" 
         subtitle="Las experiencias más reservadas por nuestros viajeros" 
         experiences={popularActivities} 
         carouselId="popular" 
-        viewAllLink="/es/populares" 
-        lang="es" 
+        viewAllLink="/es/populares"
       />
 
       <ExperienceCarousel title="Las mejores cosas que hacer alrededor del mundo" subtitle="Descubre las maravillas de Europa" experiences={worldBest} carouselId="world" viewAllLink="/es/mundo" lang="es" />
