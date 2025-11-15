@@ -2,7 +2,6 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SearchBar from '@/components/SearchBar';
 import ExperienceCarousel from '@/components/ExperienceCarousel';
-import RecentlyViewedCarousel from '@/components/RecentlyViewedCarousel';
 import { Landmark, Building2, Church, Palette, Music, UtensilsCrossed } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -120,11 +119,7 @@ export default function HomePage() {
         subtitle="Las experiencias más reservadas por nuestros viajeros" 
         experiences={popularActivities} 
         carouselId="popular" 
-        viewAllLink="/es/populares"
-      />
-
-      {/* Continúa explorando - Solo si tiene historial */}
-      <RecentlyViewedCarousel lang="es" 
+        viewAllLink="/es/populares" 
         lang="es" 
       />
 
