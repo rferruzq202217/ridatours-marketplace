@@ -43,7 +43,7 @@ export default function SearchBar({ inHeader = false }: SearchBarProps) {
               placeholder="Buscar por destinos y experiencias"
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); setShowSuggestions(true); }}
-              className="flex-1 text-base font-medium focus:outline-none"
+              className="flex-1 text-base font-medium text-gray-900 placeholder-gray-600 focus:outline-none"
             />
             {searchTerm && <button type="button" onClick={() => { setSearchTerm(''); setShowSuggestions(false); }}><X size={20} /></button>}
             <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg"><Search size={20} /></button>

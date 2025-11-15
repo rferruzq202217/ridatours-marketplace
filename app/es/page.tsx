@@ -69,7 +69,7 @@ export default function HomePage() {
           {categories.map((category, i) => {
             const Icon = category.icon;
             return (
-              <button key={i} className="bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-blue-600 rounded-2xl p-6 transition-all hover:shadow-lg">
+              <button key={i} className="bg-white hover:bg-white border-2 border-gray-200 hover:border-blue-600 rounded-2xl p-6 transition-all hover:shadow-lg">
                 <div className="bg-blue-100 text-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
                   <Icon size={32} />
                 </div>
