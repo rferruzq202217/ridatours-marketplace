@@ -27,15 +27,67 @@ export default async function HomePage() {
     .select('name, slug, count')
     .order('name');
 
-  // Mapear categorías con iconos (por ahora hardcodeado, luego mejoramos)
+  // Cargar TODAS las experiencias activas
+  const { data: allExperiences } = await supabase
+    .from('experiences')
+    .select(`
+      id,
+      title,
+      slug,
+      description,
+      price,
+      rating,
+      reviews,
+      duration,
+      main_image,
+      featured,
+      city_id,
+      cities(slug, name)
+    `)
+    .eq('active', true)
+    .order('created_at', { ascending: false });
+
+  // Mapear a formato del componente
+  const experiences = allExperiences?.map(exp => ({
+    city: exp.cities?.slug || '',
+    slug: exp.slug,
+    title: exp.title,
+    cityName: exp.cities?.name || '',
+    image: exp.main_image || '',
+    price: exp.price,
+    rating: exp.rating,
+    reviews: exp.reviews,
+    duration: exp.duration || '',
+    featured: exp.featured
+  })) || [];
+
+  // LÓGICA INTELIGENTE DE CARRUSELES:
+
+  // 1. Actividades más populares: Featured o más reviews
+  const popularActivities = experiences
+    .filter(e => e.featured || e.reviews > 5000)
+    .sort((a, b) => b.reviews - a.reviews)
+    .slice(0, 6);
+
+  // 2. Las mejores del mundo: Rating alto
+  const worldBest = experiences
+    .filter(e => e.rating >= 4.7)
+    .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews)
+    .slice(0, 6);
+
+  // 3. Recomendaciones de Ridatours: Más recientes
+  const ridatoursRecommended = experiences
+    .slice(0, 6);
+
+  // Mapear categorías con iconos
   const iconMap: any = {
     'Monumentos': Landmark,
     'Museos': Palette,
     'Tours': Building2,
     'Iglesias': Church,
+    'Catedrales': Church,
     'Gastronomía': UtensilsCrossed,
     'Shows': Music,
-    'Catedrales': Church,
   };
 
   const categories = categoriesData?.map(cat => ({
@@ -43,30 +95,6 @@ export default async function HomePage() {
     icon: iconMap[cat.name] || Landmark,
     count: cat.count || 0
   })) || [];
-
-  // NUEVO: Actividades más populares
-  const popularActivities = [
-    { city: 'roma', slug: 'coliseo', title: 'Coliseo Romano con acceso prioritario', cityName: 'Roma', image: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800', price: 45, rating: 4.8, reviews: 12543, duration: '3h', featured: true },
-    { city: 'barcelona', slug: 'sagrada-familia', title: 'Sagrada Familia con audioguía', cityName: 'Barcelona', image: 'https://images.unsplash.com/photo-1583422409516-2895a77efded?w=800', price: 28, rating: 4.8, reviews: 11543, duration: '1.5h', featured: true },
-    { city: 'paris', slug: 'torre-eiffel', title: 'Torre Eiffel con acceso prioritario', cityName: 'París', image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800', price: 35, rating: 4.9, reviews: 15234, duration: '2h', featured: true },
-    { city: 'madrid', slug: 'museo-prado', title: 'Museo del Prado entrada prioritaria', cityName: 'Madrid', image: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800', price: 22, rating: 4.7, reviews: 8765, duration: '2h' },
-    { city: 'granada', slug: 'alhambra', title: 'La Alhambra y Jardines del Generalife', cityName: 'Granada', image: 'https://images.unsplash.com/photo-1525088553531-80430aeeee0b?w=800', price: 32, rating: 4.9, reviews: 9876, duration: '3h' },
-  ];
-
-  const ridatoursRecommended = [
-    { city: 'roma', slug: 'coliseo', title: 'Coliseo Romano con acceso prioritario', cityName: 'Roma', image: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800', price: 45, rating: 4.8, reviews: 12543, duration: '3h' },
-    { city: 'roma', slug: 'vaticano', title: 'Museos Vaticanos y Capilla Sixtina', cityName: 'Roma', image: 'https://images.unsplash.com/photo-1531572753322-ad063cecc140?w=800', price: 35, rating: 4.9, reviews: 8920, duration: '2h' },
-    { city: 'roma', slug: 'foro-romano', title: 'Foro Romano y Monte Palatino guiado', cityName: 'Roma', image: 'https://images.unsplash.com/photo-1525874684015-58379d421a52?w=800', price: 28, rating: 4.7, reviews: 6543, duration: '1.5h' },
-    { city: 'roma', slug: 'panteon', title: 'Tour guiado por el Panteón de Roma', cityName: 'Roma', image: 'https://images.unsplash.com/photo-1555992336-fb0d29498b13?w=800', price: 22, rating: 4.6, reviews: 5234, duration: '1h' },
-    { city: 'roma', slug: 'fontana-di-trevi', title: 'Fontana di Trevi y centro histórico', cityName: 'Roma', image: 'https://images.unsplash.com/photo-1548585744-8ab93d924e07?w=800', price: 18, rating: 4.5, reviews: 4321, duration: '45min' },
-  ];
-
-  const worldBest = [
-    { city: 'paris', slug: 'torre-eiffel', title: 'Torre Eiffel con acceso prioritario', cityName: 'París', image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800', price: 35, rating: 4.9, reviews: 15234, duration: '2h' },
-    { city: 'barcelona', slug: 'sagrada-familia', title: 'Sagrada Familia con audioguía', cityName: 'Barcelona', image: 'https://images.unsplash.com/photo-1583422409516-2895a77efded?w=800', price: 28, rating: 4.8, reviews: 11543, duration: '1.5h' },
-    { city: 'madrid', slug: 'museo-prado', title: 'Museo del Prado entrada prioritaria', cityName: 'Madrid', image: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800', price: 22, rating: 4.7, reviews: 8765, duration: '2h' },
-    { city: 'granada', slug: 'alhambra', title: 'La Alhambra y Jardines del Generalife', cityName: 'Granada', image: 'https://images.unsplash.com/photo-1525088553531-80430aeeee0b?w=800', price: 32, rating: 4.9, reviews: 9876, duration: '3h' },
-  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -133,18 +161,39 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* NUEVO: Actividades más populares */}
-      <ExperienceCarousel 
-        title="Las actividades más populares" 
-        subtitle="Las experiencias más reservadas por nuestros viajeros" 
-        experiences={popularActivities} 
-        carouselId="popular" 
-        viewAllLink="/es/populares" 
-        lang="es" 
-      />
+      {/* CARRUSELES DINÁMICOS */}
+      {popularActivities.length > 0 && (
+        <ExperienceCarousel 
+          title="Las actividades más populares" 
+          subtitle="Las experiencias más reservadas por nuestros viajeros" 
+          experiences={popularActivities} 
+          carouselId="popular" 
+          viewAllLink="/es/populares" 
+          lang="es" 
+        />
+      )}
 
-      <ExperienceCarousel title="Las mejores cosas que hacer alrededor del mundo" subtitle="Descubre las maravillas de Europa" experiences={worldBest} carouselId="world" viewAllLink="/es/mundo" lang="es" />
-      <ExperienceCarousel title="Principales recomendaciones de Ridatours" subtitle="Las experiencias que no puedes perderte" experiences={ridatoursRecommended} carouselId="recommended" viewAllLink="/es/recomendaciones" lang="es" />
+      {worldBest.length > 0 && (
+        <ExperienceCarousel 
+          title="Las mejores cosas que hacer alrededor del mundo" 
+          subtitle="Descubre las maravillas de Europa" 
+          experiences={worldBest} 
+          carouselId="world" 
+          viewAllLink="/es/mundo" 
+          lang="es" 
+        />
+      )}
+
+      {ridatoursRecommended.length > 0 && (
+        <ExperienceCarousel 
+          title="Principales recomendaciones de Ridatours" 
+          subtitle="Las experiencias que no puedes perderte" 
+          experiences={ridatoursRecommended} 
+          carouselId="recommended" 
+          viewAllLink="/es/recomendaciones" 
+          lang="es" 
+        />
+      )}
 
       <Footer lang="es" />
     </div>

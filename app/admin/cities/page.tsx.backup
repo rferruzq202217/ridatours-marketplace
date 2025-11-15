@@ -11,14 +11,13 @@ interface City {
   slug: string;
   country: string;
   image: string | null;
-  description: string | null;
 }
 
 export default function CitiesPage() {
   const [cities, setCities] = useState<City[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: '', slug: '', country: 'España', image: '', description: '' });
+  const [formData, setFormData] = useState({ name: '', slug: '', country: 'España', image: '' });
 
   useEffect(() => {
     loadCities();
@@ -45,8 +44,7 @@ export default function CitiesPage() {
             name: formData.name,
             slug: formData.slug,
             country: formData.country,
-            image: formData.image || null,
-            description: formData.description || null
+            image: formData.image || null
           })
           .eq('id', editingId);
         
@@ -61,8 +59,7 @@ export default function CitiesPage() {
             name: formData.name,
             slug: formData.slug,
             country: formData.country,
-            image: formData.image || null,
-            description: formData.description || null
+            image: formData.image || null
           }]);
         
         if (error) {
@@ -73,7 +70,7 @@ export default function CitiesPage() {
 
       setShowForm(false);
       setEditingId(null);
-      setFormData({ name: '', slug: '', country: 'España', image: '', description: '' });
+      setFormData({ name: '', slug: '', country: 'España', image: '' });
       loadCities();
     } catch (err) {
       console.error('Unexpected error:', err);
@@ -85,8 +82,7 @@ export default function CitiesPage() {
       name: city.name, 
       slug: city.slug, 
       country: city.country,
-      image: city.image || '',
-      description: city.description || ''
+      image: city.image || '' 
     });
     setEditingId(city.id);
     setShowForm(true);
@@ -129,7 +125,7 @@ export default function CitiesPage() {
               onClick={() => {
                 setShowForm(true);
                 setEditingId(null);
-                setFormData({ name: '', slug: '', country: 'España', image: '', description: '' });
+                setFormData({ name: '', slug: '', country: 'España', image: '' });
               }}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
             >
@@ -179,16 +175,6 @@ export default function CitiesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">Descripción</label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
-                  placeholder="Descripción de la ciudad que aparecerá en la página principal"
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none text-gray-900 font-medium"
-                />
-              </div>
-              <div>
                 <label className="block text-sm font-bold text-gray-900 mb-2">URL de Imagen</label>
                 <input
                   type="url"
@@ -208,7 +194,7 @@ export default function CitiesPage() {
                   onClick={() => {
                     setShowForm(false);
                     setEditingId(null);
-                    setFormData({ name: '', slug: '', country: 'España', image: '', description: '' });
+                    setFormData({ name: '', slug: '', country: 'España', image: '' });
                   }}
                   className="bg-gray-200 hover:bg-gray-300 text-gray-900 px-6 py-2 rounded-lg font-semibold"
                 >
@@ -231,10 +217,7 @@ export default function CitiesPage() {
               <div className="p-4">
                 <h3 className="text-xl font-bold text-gray-900 mb-1">{city.name}</h3>
                 <p className="text-sm text-gray-800 font-medium mb-1">{city.country}</p>
-                <p className="text-sm text-gray-600 mb-2">/{city.slug}</p>
-                {city.description && (
-                  <p className="text-sm text-gray-700 mb-4 line-clamp-2">{city.description}</p>
-                )}
+                <p className="text-sm text-gray-600 mb-4">/{city.slug}</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEdit(city)}
