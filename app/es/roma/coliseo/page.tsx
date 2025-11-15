@@ -1,5 +1,6 @@
 'use client';
 import { useEffect } from 'react';
+import { useRecentlyViewed } from '@/lib/useRecentlyViewed';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
@@ -7,6 +8,17 @@ import { Star, Clock, Users, Check, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 
 export default function ColiseoPage() {
+  const { addProduct } = useRecentlyViewed();
+
+  // Guardar en cookies cuando visitan esta página
+  useEffect(() => {
+    addProduct({
+      slug: 'coliseo',
+      city: 'roma',
+      title: 'Coliseo Romano con acceso prioritario'
+    });
+  }, [addProduct]);
+
   // Cargar el script del widget de Regiondo
   useEffect(() => {
     const script = document.createElement('script');

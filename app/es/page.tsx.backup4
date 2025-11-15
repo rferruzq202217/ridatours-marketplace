@@ -93,9 +93,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Continúa explorando - Solo si tiene historial */}
-      <RecentlyViewedCarousel lang="es" />
-
       {/* Destinos */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
@@ -117,8 +114,6 @@ export default function HomePage() {
         </div>
       </div>
 
-
-      {/* Continúa explorando - Solo si tiene historial */}
       {/* NUEVO: Actividades más populares */}
       <ExperienceCarousel 
         title="Las actividades más populares" 
@@ -127,6 +122,9 @@ export default function HomePage() {
         carouselId="popular" 
         viewAllLink="/es/populares"
       />
+
+      {/* Continúa explorando - Solo si tiene historial */}
+      <RecentlyViewedCarousel lang="es" />
 
       <ExperienceCarousel title="Las mejores cosas que hacer alrededor del mundo" subtitle="Descubre las maravillas de Europa" experiences={worldBest} carouselId="world" viewAllLink="/es/mundo" lang="es" />
       <ExperienceCarousel title="Principales recomendaciones de Ridatours" subtitle="Las experiencias que no puedes perderte" experiences={ridatoursRecommended} carouselId="recommended" viewAllLink="/es/recomendaciones" lang="es" />
