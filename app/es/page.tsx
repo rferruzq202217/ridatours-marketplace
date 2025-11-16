@@ -42,13 +42,13 @@ export default async function HomePage() {
       main_image,
       featured,
       city_id,
-      cities(slug, name)
+      cities!inner(slug, name)
     `)
     .eq('active', true)
     .order('created_at', { ascending: false });
 
   // Mapear a formato del componente
-  const experiences = allExperiences?.map(exp => ({
+  const experiences = allExperiences?.map((exp: any) => ({
     city: exp.cities?.slug || '',
     slug: exp.slug,
     title: exp.title,
@@ -149,7 +149,7 @@ export default async function HomePage() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {cities?.map((city, i) => (
             <Link key={i} href={`/es/${city.slug}`} className="group relative overflow-hidden rounded-xl border-2 border-gray-200 hover:border-blue-200 hover:shadow-xl transition-all aspect-[4/3]">
-              {city.image && <Image src={city.image} alt={city.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />}
+              {city.image && <Image src={city.image} alt={city.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" sizes="(max-width: 768px) 50vw, 25vw" />}
               <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/60 to-transparent">
                 <div className="flex items-center gap-2 text-white">
                   <MapPin size={20} />

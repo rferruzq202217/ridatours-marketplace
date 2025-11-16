@@ -1,18 +1,26 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
-import { Monument } from '@/lib/types';
-import { Language } from '@/lib/types';
+
+interface Monument {
+  name: string;
+  slug: string;
+  image: string;
+  rating: number;
+  reviews: number;
+  price: number;
+  duration: string;
+}
 
 interface MonumentCardProps {
   monument: Monument;
-  lang: Language;
+  lang: string;
 }
 
 export default function MonumentCard({ monument, lang }: MonumentCardProps) {
   return (
     <Link 
-      href={`/${lang}/roma/${monument.slug}`} 
+      href={`/${lang}/roma/${monument.slug}`}
       className="group bg-white rounded-3xl border-2 border-gray-200 overflow-hidden hover:shadow-2xl transition-all duration-300"
     >
       <div className="relative h-56">
@@ -20,38 +28,33 @@ export default function MonumentCard({ monument, lang }: MonumentCardProps) {
           src={monument.image} 
           alt={monument.name} 
           fill 
-          className="object-cover group-hover:scale-105 transition-transform duration-300" 
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        {monument.featured && (
-          <div className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold">
-            HASTA -30 %
-          </div>
-        )}
       </div>
       <div className="p-6">
-        <div className="text-xs font-bold text-gray-600 tracking-wider mb-2">
-          ROMA
-        </div>
-        <h3 className="font-bold text-2xl text-gray-900 mb-2 leading-tight">
+        <h3 className="font-bold text-xl text-gray-900 mb-3 line-clamp-2">
           {monument.name}
         </h3>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-          Explora este increíble monumento histórico
-        </p>
         
-        <div className="flex items-end justify-between pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <div className="flex items-center gap-2">
-            <Star size={20} className="text-yellow-400 fill-current" />
-            <span className="font-bold text-lg text-gray-900">{monument.rating}</span>
+            <Star size={18} className="text-yellow-400 fill-current" />
+            <span className="font-bold text-gray-900">{monument.rating}</span>
             <span className="text-sm text-gray-500">({monument.reviews.toLocaleString()})</span>
           </div>
           <div className="text-right">
-            <div className="text-xs text-gray-600 mb-1">Desde</div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-xs text-gray-600">Desde</div>
+            <div className="text-xl font-bold text-blue-600">
               €{monument.price}
             </div>
           </div>
         </div>
+        {monument.duration && (
+          <div className="text-sm text-gray-600 mt-2">
+            {monument.duration}
+          </div>
+        )}
       </div>
     </Link>
   );

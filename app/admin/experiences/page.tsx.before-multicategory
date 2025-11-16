@@ -12,6 +12,7 @@ interface Experience {
   description: string | null;
   long_description: string | null;
   city_id: string | null;
+  category_id: string | null;
   monument_id: string | null;
   price: number;
   rating: number;
@@ -33,8 +34,8 @@ interface Experience {
   restrictions: string | null;
   highlights: string[] | null;
   cities?: { name: string };
+  categories?: { name: string };
   monuments?: { name: string };
-  experience_categories?: Array<{ categories: { id: string; name: string } }>;
 }
 
 interface City {
@@ -69,8 +70,8 @@ export default function ExperiencesPage() {
     description: '',
     long_description: '',
     city_id: '',
+    category_id: '',
     monument_id: '',
-    selectedCategories: [] as string[],
     price: 0,
     rating: 4.5,
     reviews: 0,
@@ -99,7 +100,12 @@ export default function ExperiencesPage() {
   const loadData = async () => {
     const { data: expData } = await supabase
       .from('experiences')
-      .select('*, cities(name), monuments(name), experience_categories(categories(id, name))')
+      .select(`
+        *,
+        cities(name),
+        categories(name),
+        monuments(name)
+      `)
       .order('created_at', { ascending: false });
     
     if (expData) setExperiences(expData);
@@ -156,6 +162,7 @@ export default function ExperiencesPage() {
         description: formData.description || null,
         long_description: formData.long_description || null,
         city_id: formData.city_id || null,
+        category_id: formData.category_id || null,
         monument_id: formData.monument_id || null,
         price: parseFloat(formData.price.toString()),
         rating: parseFloat(formData.rating.toString()),
@@ -178,8 +185,6 @@ export default function ExperiencesPage() {
         highlights: highlightsArray.length > 0 ? highlightsArray : null
       };
 
-      let experienceId = editingId;
-
       if (editingId) {
         const { error } = await supabase
           .from('experiences')
@@ -190,38 +195,13 @@ export default function ExperiencesPage() {
           alert('Error al actualizar: ' + error.message);
           return;
         }
-
-        await supabase
-          .from('experience_categories')
-          .delete()
-          .eq('experience_id', editingId);
       } else {
-        const { data: newExp, error } = await supabase
+        const { error } = await supabase
           .from('experiences')
-          .insert([dataToSave])
-          .select()
-          .single();
+          .insert([dataToSave]);
         
         if (error) {
           alert('Error al crear: ' + error.message);
-          return;
-        }
-        
-        experienceId = newExp.id;
-      }
-
-      if (formData.selectedCategories.length > 0 && experienceId) {
-        const categoryRelations = formData.selectedCategories.map(catId => ({
-          experience_id: experienceId,
-          category_id: catId
-        }));
-
-        const { error: catError } = await supabase
-          .from('experience_categories')
-          .insert(categoryRelations);
-
-        if (catError) {
-          alert('Error al asignar categorías: ' + catError.message);
           return;
         }
       }
@@ -236,18 +216,14 @@ export default function ExperiencesPage() {
   };
 
   const handleEdit = (exp: Experience) => {
-    const categoryIds = exp.experience_categories?.map(
-      ec => ec.categories.id
-    ) || [];
-
     setFormData({
       title: exp.title,
       slug: exp.slug,
       description: exp.description || '',
       long_description: exp.long_description || '',
       city_id: exp.city_id || '',
+      category_id: exp.category_id || '',
       monument_id: exp.monument_id || '',
-      selectedCategories: categoryIds,
       price: exp.price,
       rating: exp.rating,
       reviews: exp.reviews,
@@ -291,8 +267,8 @@ export default function ExperiencesPage() {
       description: '',
       long_description: '',
       city_id: '',
+      category_id: '',
       monument_id: '',
-      selectedCategories: [],
       price: 0,
       rating: 4.5,
       reviews: 0,
@@ -324,15 +300,7 @@ export default function ExperiencesPage() {
       .replace(/^-+|-+$/g, '');
   };
 
-  const toggleCategory = (categoryId: string) => {
-    setFormData(prev => ({
-      ...prev,
-      selectedCategories: prev.selectedCategories.includes(categoryId)
-        ? prev.selectedCategories.filter(id => id !== categoryId)
-        : [...prev.selectedCategories, categoryId]
-    }));
-  };
-
+  // Filtrar monumentos por ciudad seleccionada
   const availableMonuments = formData.city_id 
     ? monuments.filter(m => m.city_id === formData.city_id)
     : [];
@@ -370,6 +338,7 @@ export default function ExperiencesPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">{editingId ? 'Editar' : 'Nueva'} Experiencia</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               
+              {/* INFORMACIÓN BÁSICA */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Información Básica</h3>
                 
@@ -396,7 +365,7 @@ export default function ExperiencesPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-gray-900 mb-2">Ciudad *</label>
                       <select
@@ -424,23 +393,22 @@ export default function ExperiencesPage() {
                           <option key={monument.id} value={monument.id}>{monument.name}</option>
                         ))}
                       </select>
+                      {!formData.city_id && (
+                        <p className="text-xs text-gray-600 mt-1">Selecciona una ciudad primero</p>
+                      )}
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-3">Categorías (múltiples)</label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {categories.map(cat => (
-                        <label key={cat.id} className="flex items-center gap-2 cursor-pointer p-3 border-2 border-gray-200 rounded-lg hover:border-purple-500 transition-colors">
-                          <input
-                            type="checkbox"
-                            checked={formData.selectedCategories.includes(cat.id)}
-                            onChange={() => toggleCategory(cat.id)}
-                            className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
-                          />
-                          <span className="text-sm font-medium text-gray-900">{cat.name}</span>
-                        </label>
-                      ))}
+                    <div>
+                      <label className="block text-sm font-bold text-gray-900 mb-2">Categoría</label>
+                      <select
+                        value={formData.category_id}
+                        onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
+                      >
+                        <option value="">Sin categoría</option>
+                        {categories.map(cat => (
+                          <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 
@@ -468,6 +436,7 @@ export default function ExperiencesPage() {
                 </div>
               </div>
 
+              {/* PRECIO Y DATOS */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Precio y Datos</h3>
                 
@@ -517,6 +486,7 @@ export default function ExperiencesPage() {
                 </div>
               </div>
 
+              {/* IMÁGENES */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Imágenes</h3>
                 
@@ -545,6 +515,166 @@ export default function ExperiencesPage() {
                 </div>
               </div>
 
+              {/* DETALLES DE LA EXPERIENCIA */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Detalles de la Experiencia</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Qué incluye (uno por línea)</label>
+                    <textarea
+                      value={formData.includes}
+                      onChange={(e) => setFormData({ ...formData, includes: e.target.value })}
+                      rows={4}
+                      placeholder="Acceso prioritario&#10;Guía experto&#10;Audioguía en español"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Qué NO incluye (uno por línea)</label>
+                    <textarea
+                      value={formData.not_includes}
+                      onChange={(e) => setFormData({ ...formData, not_includes: e.target.value })}
+                      rows={3}
+                      placeholder="Transporte&#10;Comida&#10;Propinas"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Punto de encuentro</label>
+                    <textarea
+                      value={formData.meeting_point}
+                      onChange={(e) => setFormData({ ...formData, meeting_point: e.target.value })}
+                      rows={2}
+                      placeholder="Plaza del Coliseo, junto a la entrada principal"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Información importante</label>
+                    <textarea
+                      value={formData.important_info}
+                      onChange={(e) => setFormData({ ...formData, important_info: e.target.value })}
+                      rows={3}
+                      placeholder="Llevar documento de identidad&#10;No permitido equipaje grande&#10;Accesible para sillas de ruedas"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Política de cancelación</label>
+                    <textarea
+                      value={formData.cancellation_policy}
+                      onChange={(e) => setFormData({ ...formData, cancellation_policy: e.target.value })}
+                      rows={2}
+                      placeholder="Cancelación gratuita hasta 24 horas antes del inicio de la actividad"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-900 mb-2">Idiomas disponibles (separados por comas)</label>
+                      <input
+                        type="text"
+                        value={formData.languages}
+                        onChange={(e) => setFormData({ ...formData, languages: e.target.value })}
+                        placeholder="Español, Inglés, Francés"
+                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-900 mb-2">Accesibilidad</label>
+                      <input
+                        type="text"
+                        value={formData.accessibility}
+                        onChange={(e) => setFormData({ ...formData, accessibility: e.target.value })}
+                        placeholder="Accesible para sillas de ruedas"
+                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-900 mb-2">Código de vestimenta</label>
+                      <input
+                        type="text"
+                        value={formData.dress_code}
+                        onChange={(e) => setFormData({ ...formData, dress_code: e.target.value })}
+                        placeholder="Ropa cómoda y calzado apropiado"
+                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-900 mb-2">Restricciones</label>
+                      <input
+                        type="text"
+                        value={formData.restrictions}
+                        onChange={(e) => setFormData({ ...formData, restrictions: e.target.value })}
+                        placeholder="No recomendado para menores de 12 años"
+                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* WIDGET Y OPCIONES */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Widget y Opciones</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Highlights del widget (uno por línea)</label>
+                    <textarea
+                      value={formData.highlights}
+                      onChange={(e) => setFormData({ ...formData, highlights: e.target.value })}
+                      rows={3}
+                      placeholder="Confirmación inmediata&#10;Entrada móvil&#10;Cancelación gratis 24h"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                    <p className="text-sm text-gray-600 mt-1">Los checkmarks verdes que aparecen sobre el widget de reserva</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Widget ID de Regiondo</label>
+                    <input
+                      type="text"
+                      value={formData.widget_id}
+                      onChange={(e) => setFormData({ ...formData, widget_id: e.target.value })}
+                      placeholder="748f3583-4051-439f-a6e4-a688c9b28354"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                    <p className="text-sm text-gray-600 mt-1">Solo el ID, no el código HTML completo</p>
+                  </div>
+
+                  <div className="flex gap-6">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.featured}
+                        onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                        className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
+                      />
+                      <span className="text-sm font-bold text-gray-900">Destacado (badge -30%)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.active}
+                        onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
+                        className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
+                      />
+                      <span className="text-sm font-bold text-gray-900">Activo (visible en web)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex gap-3 pt-4">
                 <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-semibold">
                   {editingId ? 'Actualizar' : 'Crear'} Experiencia
@@ -562,87 +692,81 @@ export default function ExperiencesPage() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {experiences.map((exp) => {
-            const categoryNames = exp.experience_categories?.map(
-              ec => ec.categories.name
-            ) || [];
-
-            return (
-              <div key={exp.id} className="bg-white rounded-xl border-2 border-gray-300 overflow-hidden hover:shadow-lg transition-all">
-                {exp.main_image && (
-                  <div className="relative h-48">
-                    <Image src={exp.main_image} alt={exp.title} fill className="object-cover" />
-                    {exp.featured && (
-                      <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                        DESTACADO
-                      </div>
-                    )}
-                    {!exp.active && (
-                      <div className="absolute top-3 right-3 bg-gray-800 text-white px-3 py-1 rounded-full text-xs font-bold">
-                        INACTIVO
-                      </div>
-                    )}
-                  </div>
-                )}
-                <div className="p-4">
-                  <div className="flex items-center gap-2 text-xs text-gray-600 mb-2 flex-wrap">
-                    <span className="font-semibold">{exp.cities?.name || 'Sin ciudad'}</span>
-                    {exp.monuments?.name && (
-                      <>
-                        <span>•</span>
-                        <span>{exp.monuments.name}</span>
-                      </>
-                    )}
-                    {categoryNames.length > 0 && (
-                      <>
-                        <span>•</span>
-                        <span>{categoryNames.join(', ')}</span>
-                      </>
-                    )}
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{exp.title}</h3>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="flex items-center gap-1">
-                      <Star size={16} className="text-yellow-400 fill-current" />
-                      <span className="text-sm font-bold text-gray-900">{exp.rating}</span>
-                      <span className="text-xs text-gray-600">({exp.reviews})</span>
+          {experiences.map((exp) => (
+            <div key={exp.id} className="bg-white rounded-xl border-2 border-gray-300 overflow-hidden hover:shadow-lg transition-all">
+              {exp.main_image && (
+                <div className="relative h-48">
+                  <Image src={exp.main_image} alt={exp.title} fill className="object-cover" />
+                  {exp.featured && (
+                    <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                      DESTACADO
                     </div>
-                    {exp.duration && (
-                      <span className="text-sm text-gray-600">{exp.duration}</span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between mb-4 pb-4 border-b">
-                    <div>
-                      <div className="text-xs text-gray-600">Desde</div>
-                      <div className="text-2xl font-bold text-purple-700">€{exp.price}</div>
+                  )}
+                  {!exp.active && (
+                    <div className="absolute top-3 right-3 bg-gray-800 text-white px-3 py-1 rounded-full text-xs font-bold">
+                      INACTIVO
                     </div>
-                    {exp.gallery && exp.gallery.length > 0 && (
-                      <div className="flex items-center gap-1 text-xs text-gray-600">
-                        <ImageIcon size={14} />
-                        <span>{exp.gallery.length} fotos</span>
-                      </div>
-                    )}
+                  )}
+                </div>
+              )}
+              <div className="p-4">
+                <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
+                  <span className="font-semibold">{exp.cities?.name || 'Sin ciudad'}</span>
+                  {exp.monuments?.name && (
+                    <>
+                      <span>•</span>
+                      <span>{exp.monuments.name}</span>
+                    </>
+                  )}
+                  {exp.categories?.name && (
+                    <>
+                      <span>•</span>
+                      <span>{exp.categories.name}</span>
+                    </>
+                  )}
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{exp.title}</h3>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-center gap-1">
+                    <Star size={16} className="text-yellow-400 fill-current" />
+                    <span className="text-sm font-bold text-gray-900">{exp.rating}</span>
+                    <span className="text-xs text-gray-600">({exp.reviews})</span>
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(exp)}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"
-                    >
-                      <Pencil size={16} />
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => handleDelete(exp.id)}
-                      className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"
-                    >
-                      <Trash2 size={16} />
-                      Eliminar
-                    </button>
+                  {exp.duration && (
+                    <span className="text-sm text-gray-600">{exp.duration}</span>
+                  )}
+                </div>
+                <div className="flex items-center justify-between mb-4 pb-4 border-b">
+                  <div>
+                    <div className="text-xs text-gray-600">Desde</div>
+                    <div className="text-2xl font-bold text-purple-700">€{exp.price}</div>
                   </div>
+                  {exp.gallery && exp.gallery.length > 0 && (
+                    <div className="flex items-center gap-1 text-xs text-gray-600">
+                      <ImageIcon size={14} />
+                      <span>{exp.gallery.length} fotos</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEdit(exp)}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"
+                  >
+                    <Pencil size={16} />
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => handleDelete(exp.id)}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"
+                  >
+                    <Trash2 size={16} />
+                    Eliminar
+                  </button>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
         
         {experiences.length === 0 && !showForm && (
