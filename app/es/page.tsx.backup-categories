@@ -15,16 +15,19 @@ const supabase = createClient(
 );
 
 export default async function HomePage() {
+  // Cargar ciudades desde Supabase
   const { data: cities } = await supabase
     .from('cities')
     .select('name, slug, image')
     .order('name');
 
+  // Cargar categorías desde Supabase
   const { data: categoriesData } = await supabase
     .from('categories')
     .select('name, slug, count')
     .order('name');
 
+  // Cargar TODAS las experiencias activas
   const { data: allExperiences } = await supabase
     .from('experiences')
     .select(`
@@ -39,12 +42,12 @@ export default async function HomePage() {
       main_image,
       featured,
       city_id,
-      cities!inner(slug, name),
-      experience_categories(categories(name))
+      cities!inner(slug, name)
     `)
     .eq('active', true)
     .order('created_at', { ascending: false });
 
+  // Mapear a formato del componente
   const experiences = allExperiences?.map((exp: any) => ({
     city: exp.cities?.slug || '',
     slug: exp.slug,
@@ -58,19 +61,25 @@ export default async function HomePage() {
     featured: exp.featured
   })) || [];
 
+  // LÓGICA INTELIGENTE DE CARRUSELES:
+
+  // 1. Actividades más populares: Featured o más reviews
   const popularActivities = experiences
     .filter(e => e.featured || e.reviews > 5000)
     .sort((a, b) => b.reviews - a.reviews)
     .slice(0, 6);
 
+  // 2. Las mejores del mundo: Rating alto
   const worldBest = experiences
     .filter(e => e.rating >= 4.7)
     .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews)
     .slice(0, 6);
 
+  // 3. Recomendaciones de Ridatours: Más recientes
   const ridatoursRecommended = experiences
     .slice(0, 6);
 
+  // Mapear categorías con iconos
   const iconMap: any = {
     'Monumentos': Landmark,
     'Museos': Palette,
@@ -91,6 +100,7 @@ export default async function HomePage() {
     <div className="min-h-screen bg-white">
       <Header lang="es" transparent={true} showSearch={true} />
       
+      {/* Hero */}
       <div className="relative h-[65vh] overflow-hidden">
         <iframe 
           className="absolute inset-0" 
@@ -106,6 +116,7 @@ export default async function HomePage() {
         </div>
       </div>
 
+      {/* Categorías */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-3xl font-bold text-gray-900 mb-8">Explora por categoría</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -126,8 +137,10 @@ export default async function HomePage() {
         </div>
       </div>
 
+      {/* Continúa explorando - Solo si tiene historial */}
       <RecentlyViewedCarousel lang="es" />
 
+      {/* Destinos */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Ciudades populares</h2>
@@ -148,6 +161,7 @@ export default async function HomePage() {
         </div>
       </div>
 
+      {/* CARRUSELES DINÁMICOS */}
       {popularActivities.length > 0 && (
         <ExperienceCarousel 
           title="Las actividades más populares" 

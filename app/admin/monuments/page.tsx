@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { Plus, Pencil, Trash2, ArrowLeft } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowLeft, GripVertical } from 'lucide-react';
 import Image from 'next/image';
 
 interface Monument {
@@ -12,6 +12,16 @@ interface Monument {
   city_id: string | null;
   description: string | null;
   image: string | null;
+  hero_title: string | null;
+  hero_subtitle: string | null;
+  why_visit: string[] | null;
+  what_to_see: string[] | null;
+  practical_tips: string[] | null;
+  faq: any | null;
+  gallery: string[] | null;
+  opening_hours: string | null;
+  address: string | null;
+  tickets_from: number | null;
   cities?: { name: string };
   monument_categories?: Array<{ categories: { id: string; name: string } }>;
 }
@@ -28,10 +38,17 @@ interface Category {
   slug: string;
 }
 
+interface Experience {
+  id: string;
+  title: string;
+  city_id: string;
+}
+
 export default function MonumentsPage() {
   const [monuments, setMonuments] = useState<Monument[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [experiences, setExperiences] = useState<Experience[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -40,7 +57,18 @@ export default function MonumentsPage() {
     city_id: '',
     description: '',
     image: '',
-    selectedCategories: [] as string[]
+    selectedCategories: [] as string[],
+    hero_title: '',
+    hero_subtitle: '',
+    why_visit: '',
+    what_to_see: '',
+    practical_tips: '',
+    faq: '',
+    gallery: '',
+    opening_hours: '',
+    address: '',
+    tickets_from: 0,
+    recommendedExperiences: [] as string[]
   });
 
   useEffect(() => {
@@ -72,18 +100,62 @@ export default function MonumentsPage() {
       .order('name');
     
     if (categoriesData) setCategories(categoriesData);
+
+    const { data: experiencesData } = await supabase
+      .from('experiences')
+      .select('id, title, city_id')
+      .eq('active', true)
+      .order('title');
+    
+    if (experiencesData) setExperiences(experiencesData);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
+      const whyVisitArray = formData.why_visit
+        ? formData.why_visit.split('\n').map(item => item.trim()).filter(item => item)
+        : [];
+
+      const whatToSeeArray = formData.what_to_see
+        ? formData.what_to_see.split('\n').map(item => item.trim()).filter(item => item)
+        : [];
+
+      const tipsArray = formData.practical_tips
+        ? formData.practical_tips.split('\n').map(item => item.trim()).filter(item => item)
+        : [];
+
+      const galleryArray = formData.gallery
+        ? formData.gallery.split(',').map(url => url.trim()).filter(url => url)
+        : [];
+
+      let faqData = null;
+      if (formData.faq.trim()) {
+        try {
+          faqData = JSON.parse(formData.faq);
+        } catch (e) {
+          alert('El FAQ debe ser JSON válido. Ejemplo: [{"question":"¿Horario?","answer":"9-17h"}]');
+          return;
+        }
+      }
+
       const dataToSave = {
         name: formData.name,
         slug: formData.slug,
         city_id: formData.city_id || null,
         description: formData.description || null,
-        image: formData.image || null
+        image: formData.image || null,
+        hero_title: formData.hero_title || null,
+        hero_subtitle: formData.hero_subtitle || null,
+        why_visit: whyVisitArray.length > 0 ? whyVisitArray : null,
+        what_to_see: whatToSeeArray.length > 0 ? whatToSeeArray : null,
+        practical_tips: tipsArray.length > 0 ? tipsArray : null,
+        faq: faqData,
+        gallery: galleryArray.length > 0 ? galleryArray : null,
+        opening_hours: formData.opening_hours || null,
+        address: formData.address || null,
+        tickets_from: formData.tickets_from > 0 ? parseFloat(formData.tickets_from.toString()) : null
       };
 
       let monumentId = editingId;
@@ -101,6 +173,11 @@ export default function MonumentsPage() {
 
         await supabase
           .from('monument_categories')
+          .delete()
+          .eq('monument_id', editingId);
+
+        await supabase
+          .from('monument_recommended_experiences')
           .delete()
           .eq('monument_id', editingId);
       } else {
@@ -134,6 +211,23 @@ export default function MonumentsPage() {
         }
       }
 
+      if (formData.recommendedExperiences.length > 0 && monumentId) {
+        const recommendedRelations = formData.recommendedExperiences.map((expId, index) => ({
+          monument_id: monumentId,
+          experience_id: expId,
+          display_order: index
+        }));
+
+        const { error: recError } = await supabase
+          .from('monument_recommended_experiences')
+          .insert(recommendedRelations);
+
+        if (recError) {
+          alert('Error al asignar experiencias recomendadas: ' + recError.message);
+          return;
+        }
+      }
+
       setShowForm(false);
       resetForm();
       loadData();
@@ -143,10 +237,18 @@ export default function MonumentsPage() {
     }
   };
 
-  const handleEdit = (monument: Monument) => {
+  const handleEdit = async (monument: Monument) => {
     const categoryIds = monument.monument_categories?.map(
       mc => mc.categories.id
     ) || [];
+
+    const { data: recommended } = await supabase
+      .from('monument_recommended_experiences')
+      .select('experience_id')
+      .eq('monument_id', monument.id)
+      .order('display_order');
+
+    const recommendedIds = recommended?.map(r => r.experience_id) || [];
 
     setFormData({
       name: monument.name,
@@ -154,7 +256,18 @@ export default function MonumentsPage() {
       city_id: monument.city_id || '',
       description: monument.description || '',
       image: monument.image || '',
-      selectedCategories: categoryIds
+      selectedCategories: categoryIds,
+      hero_title: monument.hero_title || '',
+      hero_subtitle: monument.hero_subtitle || '',
+      why_visit: monument.why_visit?.join('\n') || '',
+      what_to_see: monument.what_to_see?.join('\n') || '',
+      practical_tips: monument.practical_tips?.join('\n') || '',
+      faq: monument.faq ? JSON.stringify(monument.faq, null, 2) : '',
+      gallery: monument.gallery?.join(', ') || '',
+      opening_hours: monument.opening_hours || '',
+      address: monument.address || '',
+      tickets_from: monument.tickets_from || 0,
+      recommendedExperiences: recommendedIds
     });
     setEditingId(monument.id);
     setShowForm(true);
@@ -179,7 +292,18 @@ export default function MonumentsPage() {
       city_id: '',
       description: '',
       image: '',
-      selectedCategories: []
+      selectedCategories: [],
+      hero_title: '',
+      hero_subtitle: '',
+      why_visit: '',
+      what_to_see: '',
+      practical_tips: '',
+      faq: '',
+      gallery: '',
+      opening_hours: '',
+      address: '',
+      tickets_from: 0,
+      recommendedExperiences: []
     });
   };
 
@@ -201,6 +325,19 @@ export default function MonumentsPage() {
     }));
   };
 
+  const toggleRecommendedExperience = (expId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      recommendedExperiences: prev.recommendedExperiences.includes(expId)
+        ? prev.recommendedExperiences.filter(id => id !== expId)
+        : [...prev.recommendedExperiences, expId]
+    }));
+  };
+
+  const availableExperiences = formData.city_id
+    ? experiences.filter(e => e.city_id === formData.city_id)
+    : [];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b">
@@ -212,7 +349,7 @@ export default function MonumentsPage() {
                 Volver al panel
               </Link>
               <h1 className="text-3xl font-bold text-gray-900">Monumentos</h1>
-              <p className="text-gray-800 font-medium">Gestiona los lugares emblemáticos</p>
+              <p className="text-gray-800 font-medium">Gestiona las landing pages de monumentos</p>
             </div>
             <button
               onClick={() => {
@@ -230,93 +367,273 @@ export default function MonumentsPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {showForm && (
-          <div className="bg-white rounded-xl border-2 border-gray-300 p-6 mb-6">
+          <div className="bg-white rounded-xl border-2 border-gray-300 p-6 mb-6 max-h-[80vh] overflow-y-auto">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">{editingId ? 'Editar' : 'Nuevo'} Monumento</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">Nombre *</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value, slug: generateSlug(e.target.value) })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
-                  required
-                />
-              </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              
+              {/* INFORMACIÓN BÁSICA */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Información Básica</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Nombre *</label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value, slug: generateSlug(e.target.value) })}
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                      required
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">Slug *</label>
-                <input
-                  type="text"
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
-                  required
-                />
-              </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Slug *</label>
+                    <input
+                      type="text"
+                      value={formData.slug}
+                      onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                      required
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">Ciudad *</label>
-                <select
-                  value={formData.city_id}
-                  onChange={(e) => setFormData({ ...formData, city_id: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
-                  required
-                >
-                  <option value="">Seleccionar ciudad</option>
-                  {cities.map(city => (
-                    <option key={city.id} value={city.id}>{city.name}</option>
-                  ))}
-                </select>
-              </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Ciudad *</label>
+                    <select
+                      value={formData.city_id}
+                      onChange={(e) => setFormData({ ...formData, city_id: e.target.value })}
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                      required
+                    >
+                      <option value="">Seleccionar ciudad</option>
+                      {cities.map(city => (
+                        <option key={city.id} value={city.id}>{city.name}</option>
+                      ))}
+                    </select>
+                  </div>
 
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-3">Categorías (múltiples)</label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {categories.map(cat => (
-                    <label key={cat.id} className="flex items-center gap-2 cursor-pointer p-3 border-2 border-gray-200 rounded-lg hover:border-amber-500 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={formData.selectedCategories.includes(cat.id)}
-                        onChange={() => toggleCategory(cat.id)}
-                        className="w-5 h-5 text-amber-600 rounded focus:ring-amber-500"
-                      />
-                      <span className="text-sm font-medium text-gray-900">{cat.name}</span>
-                    </label>
-                  ))}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-3">Categorías (múltiples)</label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {categories.map(cat => (
+                        <label key={cat.id} className="flex items-center gap-2 cursor-pointer p-3 border-2 border-gray-200 rounded-lg hover:border-amber-500 transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={formData.selectedCategories.includes(cat.id)}
+                            onChange={() => toggleCategory(cat.id)}
+                            className="w-5 h-5 text-amber-600 rounded focus:ring-amber-500"
+                          />
+                          <span className="text-sm font-medium text-gray-900">{cat.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Descripción breve</label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      rows={3}
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                      placeholder="Descripción corta que aparecerá en listados y tarjetas"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">Descripción</label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={4}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
-                  placeholder="Descripción del monumento que aparecerá en su página"
-                />
+              {/* HERO SECTION */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Sección Hero</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Título Hero</label>
+                    <input
+                      type="text"
+                      value={formData.hero_title}
+                      onChange={(e) => setFormData({ ...formData, hero_title: e.target.value })}
+                      placeholder="Ej: Descubre el Coliseo Romano"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Subtítulo Hero</label>
+                    <input
+                      type="text"
+                      value={formData.hero_subtitle}
+                      onChange={(e) => setFormData({ ...formData, hero_subtitle: e.target.value })}
+                      placeholder="Ej: El anfiteatro más grande del mundo"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Precio desde (€)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.tickets_from}
+                      onChange={(e) => setFormData({ ...formData, tickets_from: parseFloat(e.target.value) })}
+                      placeholder="19.50"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">URL de Imagen</label>
-                <input
-                  type="url"
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
-                />
+              {/* IMÁGENES */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Imágenes</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Imagen Principal</label>
+                    <input
+                      type="url"
+                      value={formData.image}
+                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                      placeholder="https://images.unsplash.com/..."
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Galería (URLs separadas por comas)</label>
+                    <textarea
+                      value={formData.gallery}
+                      onChange={(e) => setFormData({ ...formData, gallery: e.target.value })}
+                      rows={2}
+                      placeholder="https://image1.jpg, https://image2.jpg, https://image3.jpg"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="flex gap-3">
-                <button type="submit" className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg font-semibold">
-                  {editingId ? 'Actualizar' : 'Crear'}
+              {/* CONTENIDO LANDING */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Contenido de Landing</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">¿Por qué visitar? (uno por línea)</label>
+                    <textarea
+                      value={formData.why_visit}
+                      onChange={(e) => setFormData({ ...formData, why_visit: e.target.value })}
+                      rows={4}
+                      placeholder="Patrimonio UNESCO&#10;Arquitectura impresionante&#10;Historia milenaria"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Qué ver (uno por línea)</label>
+                    <textarea
+                      value={formData.what_to_see}
+                      onChange={(e) => setFormData({ ...formData, what_to_see: e.target.value })}
+                      rows={4}
+                      placeholder="La Arena&#10;El Hipogeo&#10;Los pisos superiores"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Consejos prácticos (uno por línea)</label>
+                    <textarea
+                      value={formData.practical_tips}
+                      onChange={(e) => setFormData({ ...formData, practical_tips: e.target.value })}
+                      rows={4}
+                      placeholder="Compra con antelación&#10;Llega temprano&#10;Lleva agua"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">FAQ (JSON)</label>
+                    <textarea
+                      value={formData.faq}
+                      onChange={(e) => setFormData({ ...formData, faq: e.target.value })}
+                      rows={6}
+                      placeholder='[{"question":"¿Cuál es el horario?","answer":"9:00 - 17:00"},{"question":"¿Hay descuentos?","answer":"Sí, para menores de 18"}]'
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium font-mono text-sm"
+                    />
+                    <p className="text-xs text-gray-600 mt-1">Formato JSON con question y answer</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* INFORMACIÓN PRÁCTICA */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Información Práctica</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Horarios</label>
+                    <input
+                      type="text"
+                      value={formData.opening_hours}
+                      onChange={(e) => setFormData({ ...formData, opening_hours: e.target.value })}
+                      placeholder="Lunes a Domingo: 9:00 - 17:00"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Dirección</label>
+                    <input
+                      type="text"
+                      value={formData.address}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      placeholder="Piazza del Colosseo, 1, 00184 Roma"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* CROSS-SELLING */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Cross-Selling (Experiencias Recomendadas)</h3>
+                <p className="text-sm text-gray-600 mb-4">Selecciona experiencias de otras ciudades para mostrar como recomendaciones</p>
+                
+                {!formData.city_id && (
+                  <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
+                    Selecciona primero una ciudad arriba
+                  </p>
+                )}
+
+                {formData.city_id && availableExperiences.length > 0 && (
+                  <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto border-2 border-gray-200 rounded-lg p-4">
+                    {availableExperiences.map(exp => (
+                      <label key={exp.id} className="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded">
+                        <input
+                          type="checkbox"
+                          checked={formData.recommendedExperiences.includes(exp.id)}
+                          onChange={() => toggleRecommendedExperience(exp.id)}
+                          className="w-5 h-5 text-amber-600 rounded focus:ring-amber-500"
+                        />
+                        <span className="text-sm font-medium text-gray-900">{exp.title}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+
+                {formData.city_id && availableExperiences.length === 0 && (
+                  <p className="text-sm text-gray-600">No hay experiencias disponibles para esta ciudad</p>
+                )}
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button type="submit" className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-lg font-semibold">
+                  {editingId ? 'Actualizar' : 'Crear'} Monumento
                 </button>
                 <button
                   type="button"
                   onClick={() => { setShowForm(false); resetForm(); }}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-900 px-6 py-2 rounded-lg font-semibold"
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-900 px-8 py-3 rounded-lg font-semibold"
                 >
                   Cancelar
                 </button>
@@ -343,6 +660,9 @@ export default function MonumentsPage() {
                   <p className="text-sm text-gray-800 font-medium mb-1">{monument.cities?.name || 'Sin ciudad'}</p>
                   {categoryNames.length > 0 && (
                     <p className="text-xs text-gray-600 mb-2">{categoryNames.join(', ')}</p>
+                  )}
+                  {monument.tickets_from && (
+                    <p className="text-sm font-bold text-amber-600 mb-2">Desde €{monument.tickets_from}</p>
                   )}
                   <p className="text-sm text-gray-600 mb-2">/{monument.slug}</p>
                   {monument.description && (

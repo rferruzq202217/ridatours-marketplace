@@ -4,6 +4,8 @@ import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
 import MonumentCard from '@/components/MonumentCard';
 import Image from 'next/image';
+import Link from 'next/link';
+import { Star, Landmark } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -35,13 +37,22 @@ export default async function CityPage({ params }: PageProps) {
     .eq('active', true)
     .order('rating', { ascending: false });
 
+  const { data: monumentsData } = await supabase
+    .from('monuments')
+    .select(`
+      *,
+      monument_categories(categories(name))
+    `)
+    .eq('city_id', city.id)
+    .order('name');
+
   const totalExperiences = experiences?.length || 0;
   const avgRating = experiences?.length 
     ? (experiences.reduce((sum, exp) => sum + exp.rating, 0) / experiences.length).toFixed(1)
     : '0.0';
   const totalReviews = experiences?.reduce((sum, exp) => sum + exp.reviews, 0) || 0;
 
-  const monuments = experiences?.map(exp => ({
+  const experienceCards = experiences?.map(exp => ({
     name: exp.title,
     slug: exp.slug,
     image: exp.main_image || '',
@@ -98,13 +109,65 @@ export default async function CityPage({ params }: PageProps) {
             )}
           </div>
 
-          {monuments.length > 0 ? (
+          {monumentsData && monumentsData.length > 0 && (
+            <div className="mb-16">
+              <div className="flex items-center gap-3 mb-6">
+                <Landmark className="text-amber-600" size={32} />
+                <h2 className="text-3xl font-bold text-gray-900">
+                  Monumentos emblemáticos
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {monumentsData.map((monument) => {
+                  const categoryNames = monument.monument_categories?.map(
+                    (mc: any) => mc.categories.name
+                  ) || [];
+
+                  return (
+                    <Link
+                      key={monument.id}
+                      href={`/es/${city.slug}/monumentos/${monument.slug}`}
+                      className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-amber-500 hover:shadow-xl transition-all group"
+                    >
+                      {monument.image && (
+                        <div className="relative h-56">
+                          <Image 
+                            src={monument.image} 
+                            alt={monument.name} 
+                            fill 
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      )}
+                      <div className="p-6">
+                        {categoryNames.length > 0 && (
+                          <div className="text-xs font-bold text-amber-600 tracking-wider mb-2">
+                            {categoryNames.join(' • ')}
+                          </div>
+                        )}
+                        <h3 className="font-bold text-xl text-gray-900 mb-2 leading-tight">
+                          {monument.name}
+                        </h3>
+                        {monument.description && (
+                          <p className="text-gray-600 text-sm line-clamp-2">
+                            {monument.description}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {experienceCards.length > 0 ? (
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 Todas las experiencias en {city.name}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {monuments.map((monument, i) => (
+                {experienceCards.map((monument, i) => (
                   <MonumentCard 
                     key={i} 
                     monument={monument} 
