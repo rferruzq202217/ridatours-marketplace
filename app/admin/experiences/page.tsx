@@ -308,6 +308,8 @@ export default function ExperiencesPage() {
       main_image: '',
       gallery: '',
       widget_id: '',
+      tiqets_venue_id: '',
+      tiqets_campaign: '',
       featured: false,
       active: true,
       includes: '',
