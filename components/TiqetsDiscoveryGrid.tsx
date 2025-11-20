@@ -16,12 +16,14 @@ export default function TiqetsDiscoveryGrid({
 }: TiqetsDiscoveryGridProps) {
   
   useEffect(() => {
+    console.log('🎯 TiqetsDiscoveryGrid props:', { destinationType, destinationId, campaign, itemCount });
+    
     if ((window as any).tiqets) {
       setTimeout(() => {
         (window as any).tiqets.init();
       }, 100);
     }
-  }, [destinationId, campaign]);
+  }, [destinationId, campaign, itemCount, destinationType]);
 
   return (
     <div 
