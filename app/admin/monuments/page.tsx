@@ -25,7 +25,6 @@ interface Monument {
   tiqets_venue_id: string | null;
   tiqets_campaign: string | null;
   tiqets_item_count: number | null;
-  tiqets_item_count: number | null;
   cities?: { name: string };
   monument_categories?: Array<{ categories: { id: string; name: string } }>;
 }
@@ -74,7 +73,6 @@ export default function MonumentsPage() {
     tickets_from: 0,
     tiqets_venue_id: '',
     tiqets_campaign: '',
-    tiqets_item_count: 12,
     tiqets_item_count: 12,
     recommendedExperiences: [] as string[]
   });
@@ -281,7 +279,6 @@ export default function MonumentsPage() {
       tickets_from: monument.tickets_from || 0,
       tiqets_venue_id: monument.tiqets_venue_id || '',
       tiqets_campaign: monument.tiqets_campaign || '',
-      tiqets_item_count: monument.tiqets_item_count || 12,
       tiqets_item_count: monument.tiqets_item_count || 12,
       recommendedExperiences: recommendedIds
     });
