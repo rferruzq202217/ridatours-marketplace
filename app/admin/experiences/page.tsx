@@ -82,8 +82,6 @@ export default function ExperiencesPage() {
     widget_id: '',
       tiqets_venue_id: '',
       tiqets_campaign: '',
-    tiqets_venue_id: '',
-    tiqets_campaign: '',
     featured: false,
     active: true,
     includes: '',
