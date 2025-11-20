@@ -40,6 +40,8 @@ export default async function MonumentPage({ params }: PageProps) {
     .eq('city_id', city.id)
     .single();
 
+  console.log('🔍 Monument item count:', monument.tiqets_item_count);
+  
   if (!monument) {
     notFound();
   }
