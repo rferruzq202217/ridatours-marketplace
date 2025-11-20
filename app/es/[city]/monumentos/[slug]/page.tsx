@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
-import TiqetsDiscoveryWidget from '@/components/TiqetsDiscoveryWidget';
+import TiqetsDiscoveryGrid from '@/components/TiqetsDiscoveryGrid';
 import { Star, MapPin, Clock, Check, Calendar, Info, HelpCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -176,12 +176,11 @@ export default async function MonumentPage({ params }: PageProps) {
                 Reserva tu visita a {monument.name}
               </h2>
               <p className="text-gray-600 mb-6">Elige la experiencia que mejor se adapte a ti</p>
-              <TiqetsDiscoveryWidget
+              <TiqetsDiscoveryGrid
                 destinationType="venue"
                 destinationId={monument.tiqets_venue_id}
                 campaign={monument.tiqets_campaign || ''}
                 itemCount={12}
-                layout="grid"
               />
             </div>
           )}
@@ -256,12 +255,11 @@ export default async function MonumentPage({ params }: PageProps) {
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">También te puede interesar en {city.name}</h2>
               <p className="text-gray-600 mb-6">Descubre otras experiencias increíbles</p>
-              <TiqetsDiscoveryWidget
+              <TiqetsDiscoveryGrid
                 destinationType="city"
                 destinationId={city.slug}
                 campaign={city.name}
                 itemCount={8}
-                layout="grid"
               />
             </div>
           )}
