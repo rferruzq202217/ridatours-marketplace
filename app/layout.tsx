@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import TiqetsScriptLoader from "@/components/TiqetsScriptLoader";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,6 +16,7 @@ export default function RootLayout({
     <html lang="es">
       <body>
         {children}
+        <TiqetsScriptLoader />
       </body>
     </html>
   );

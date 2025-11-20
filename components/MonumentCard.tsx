@@ -10,17 +10,21 @@ interface Monument {
   reviews: number;
   price: number;
   duration: string;
+  citySlug?: string;
 }
 
 interface MonumentCardProps {
   monument: Monument;
   lang: string;
+  citySlug?: string;
 }
 
-export default function MonumentCard({ monument, lang }: MonumentCardProps) {
+export default function MonumentCard({ monument, lang, citySlug }: MonumentCardProps) {
+  const city = monument.citySlug || citySlug || 'roma';
+  
   return (
     <Link 
-      href={`/${lang}/roma/${monument.slug}`}
+      href={`/${lang}/${city}/${monument.slug}`}
       className="group bg-white rounded-3xl border-2 border-gray-200 overflow-hidden hover:shadow-2xl transition-all duration-300"
     >
       <div className="relative h-56">

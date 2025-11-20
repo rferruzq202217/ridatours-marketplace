@@ -55,6 +55,7 @@ export default async function CityPage({ params }: PageProps) {
   const experienceCards = experiences?.map(exp => ({
     name: exp.title,
     slug: exp.slug,
+    citySlug: city.slug,
     image: exp.main_image || '',
     rating: exp.rating,
     reviews: exp.reviews,
@@ -172,6 +173,7 @@ export default async function CityPage({ params }: PageProps) {
                     key={i} 
                     monument={monument} 
                     lang="es"
+                    citySlug={city.slug}
                   />
                 ))}
               </div>

@@ -20,8 +20,6 @@ interface Experience {
   main_image: string | null;
   gallery: string[];
   widget_id: string | null;
-  tiqets_venue_id: string | null;
-  tiqets_campaign: string | null;
   featured: boolean;
   active: boolean;
   includes: string[] | null;
@@ -80,10 +78,6 @@ export default function ExperiencesPage() {
     main_image: '',
     gallery: '',
     widget_id: '',
-      tiqets_venue_id: '',
-      tiqets_campaign: '',
-    tiqets_venue_id: '',
-    tiqets_campaign: '',
     featured: false,
     active: true,
     includes: '',
@@ -170,8 +164,6 @@ export default function ExperiencesPage() {
         main_image: formData.main_image || null,
         gallery: galleryArray,
         widget_id: formData.widget_id || null,
-        tiqets_venue_id: formData.tiqets_venue_id || null,
-        tiqets_campaign: formData.tiqets_campaign || null,
         featured: formData.featured,
         active: formData.active,
         includes: includesArray.length > 0 ? includesArray : null,
@@ -263,8 +255,6 @@ export default function ExperiencesPage() {
       main_image: exp.main_image || '',
       gallery: exp.gallery?.join(', ') || '',
       widget_id: exp.widget_id || '',
-      tiqets_venue_id: exp.tiqets_venue_id || '',
-      tiqets_campaign: exp.tiqets_campaign || '',
       featured: exp.featured,
       active: exp.active,
       includes: exp.includes?.join('\n') || '',
@@ -711,34 +701,6 @@ export default function ExperiencesPage() {
                       className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                     />
                     <p className="text-sm text-gray-600 mt-1">ID del widget de Regiondo para reservas</p>
-                  </div>
-
-                  <div className="border-t pt-4">
-                    <h4 className="text-md font-bold text-gray-900 mb-3">O usa Tiqets</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-bold text-gray-900 mb-2">Tiqets Venue ID</label>
-                        <input
-                          type="text"
-                          value={formData.tiqets_venue_id}
-                          onChange={(e) => setFormData({ ...formData, tiqets_venue_id: e.target.value })}
-                          placeholder="142007"
-                          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                        />
-                        <p className="text-sm text-gray-600 mt-1">ID del venue en Tiqets</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-bold text-gray-900 mb-2">Tiqets Campaign</label>
-                        <input
-                          type="text"
-                          value={formData.tiqets_campaign}
-                          onChange={(e) => setFormData({ ...formData, tiqets_campaign: e.target.value })}
-                          placeholder="Pantheon"
-                          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                        />
-                        <p className="text-sm text-gray-600 mt-1">Nombre de la campaña</p>
-                      </div>
-                    </div>
                   </div>
 
                   <div className="flex items-center gap-6">

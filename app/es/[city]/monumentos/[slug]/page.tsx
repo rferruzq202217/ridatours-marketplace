@@ -320,15 +320,15 @@ export default async function MonumentPage({ params }: PageProps) {
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">También te puede interesar</h2>
               <p className="text-gray-600 mb-6">Descubre otras experiencias increíbles en {city.name}</p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {recommendedExperiences.map((exp: any) => (
                   <Link
                     key={exp.id}
                     href={`/es/${city.slug}/${exp.slug}`}
-                    className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden hover:border-blue-500 hover:shadow-lg transition-all"
+                    className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-blue-500 hover:shadow-xl transition-all group"
                   >
                     {exp.main_image && (
-                      <div className="relative h-48">
+                      <div className="relative h-56">
                         <Image 
                           src={exp.main_image} 
                           alt={exp.title} 

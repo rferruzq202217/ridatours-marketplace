@@ -3,42 +3,39 @@
 import { useState, useEffect } from 'react';
 
 interface ViewedProduct {
-  slug: string;
+  id: string;
   city: string;
+  slug: string;
   title: string;
-  timestamp: number;
+  image: string;
+  price: number;
+  rating: number;
+  reviews: number;
+  duration: string;
 }
 
 export function useRecentlyViewed() {
   const [viewed, setViewed] = useState<ViewedProduct[]>([]);
 
   useEffect(() => {
-    // Leer cookies al cargar
-    const cookies = document.cookie;
-    const match = cookies.match(/recentlyViewed=([^;]+)/);
-    if (match) {
+    // Leer cookie
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return null;
+    };
+
+    const cookieValue = getCookie('recentlyViewed');
+    if (cookieValue) {
       try {
-        const data = JSON.parse(decodeURIComponent(match[1]));
+        const data = JSON.parse(decodeURIComponent(cookieValue));
         setViewed(data);
       } catch (e) {
-        console.error('Error parsing cookies:', e);
+        console.error('Error parsing recentlyViewed cookie:', e);
       }
     }
   }, []);
 
-  const addProduct = (product: { slug: string; city: string; title: string }) => {
-    const newViewed = [
-      { ...product, timestamp: Date.now() },
-      ...viewed.filter(v => v.slug !== product.slug) // Evitar duplicados
-    ].slice(0, 10); // Máximo 10 productos
-
-    setViewed(newViewed);
-    
-    // Guardar en cookie (expira en 30 días)
-    const expires = new Date();
-    expires.setDate(expires.getDate() + 30);
-    document.cookie = `recentlyViewed=${encodeURIComponent(JSON.stringify(newViewed))}; expires=${expires.toUTCString()}; path=/`;
-  };
-
-  return { viewed, addProduct };
+  return { viewed };
 }

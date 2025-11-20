@@ -20,8 +20,6 @@ interface Experience {
   main_image: string | null;
   gallery: string[];
   widget_id: string | null;
-  tiqets_venue_id: string | null;
-  tiqets_campaign: string | null;
   featured: boolean;
   active: boolean;
   includes: string[] | null;
@@ -80,10 +78,6 @@ export default function ExperiencesPage() {
     main_image: '',
     gallery: '',
     widget_id: '',
-      tiqets_venue_id: '',
-      tiqets_campaign: '',
-    tiqets_venue_id: '',
-    tiqets_campaign: '',
     featured: false,
     active: true,
     includes: '',
@@ -105,7 +99,7 @@ export default function ExperiencesPage() {
   const loadData = async () => {
     const { data: expData } = await supabase
       .from('experiences')
-      .select('*, cities(name)')
+      .select('*, cities(name), monuments(name), experience_categories(categories(id, name))')
       .order('created_at', { ascending: false });
     
     if (expData) setExperiences(expData);
@@ -170,8 +164,6 @@ export default function ExperiencesPage() {
         main_image: formData.main_image || null,
         gallery: galleryArray,
         widget_id: formData.widget_id || null,
-        tiqets_venue_id: formData.tiqets_venue_id || null,
-        tiqets_campaign: formData.tiqets_campaign || null,
         featured: formData.featured,
         active: formData.active,
         includes: includesArray.length > 0 ? includesArray : null,
@@ -263,8 +255,6 @@ export default function ExperiencesPage() {
       main_image: exp.main_image || '',
       gallery: exp.gallery?.join(', ') || '',
       widget_id: exp.widget_id || '',
-      tiqets_venue_id: exp.tiqets_venue_id || '',
-      tiqets_campaign: exp.tiqets_campaign || '',
       featured: exp.featured,
       active: exp.active,
       includes: exp.includes?.join('\n') || '',
@@ -380,7 +370,6 @@ export default function ExperiencesPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">{editingId ? 'Editar' : 'Nueva'} Experiencia</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               
-              {/* INFORMACIÓN BÁSICA */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Información Básica</h3>
                 
@@ -479,7 +468,6 @@ export default function ExperiencesPage() {
                 </div>
               </div>
 
-              {/* PRECIO Y DATOS */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Precio y Datos</h3>
                 
@@ -529,7 +517,6 @@ export default function ExperiencesPage() {
                 </div>
               </div>
 
-              {/* IMÁGENES */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Imágenes</h3>
                 
@@ -558,220 +545,6 @@ export default function ExperiencesPage() {
                 </div>
               </div>
 
-              {/* HIGHLIGHTS */}
-              <div className="border-b pb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Highlights (lo mejor)</h3>
-                <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-2">
-                    Highlights (uno por línea)
-                  </label>
-                  <textarea
-                    value={formData.highlights}
-                    onChange={(e) => setFormData({ ...formData, highlights: e.target.value })}
-                    rows={4}
-                    placeholder="Confirmación inmediata&#10;Entrada móvil&#10;Cancelación gratis 24h&#10;Disponibilidad flexible"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                  />
-                  <p className="text-sm text-gray-600 mt-1">Escribe un highlight por línea</p>
-                </div>
-              </div>
-
-              {/* QUÉ INCLUYE / NO INCLUYE */}
-              <div className="border-b pb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Qué Incluye / No Incluye</h3>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
-                      Qué incluye (uno por línea)
-                    </label>
-                    <textarea
-                      value={formData.includes}
-                      onChange={(e) => setFormData({ ...formData, includes: e.target.value })}
-                      rows={5}
-                      placeholder="Entrada sin colas&#10;Guía profesional&#10;Audioguía en español"
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
-                      Qué NO incluye (uno por línea)
-                    </label>
-                    <textarea
-                      value={formData.not_includes}
-                      onChange={(e) => setFormData({ ...formData, not_includes: e.target.value })}
-                      rows={5}
-                      placeholder="Transporte al lugar&#10;Comida y bebida&#10;Propinas"
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* INFORMACIÓN ADICIONAL */}
-              <div className="border-b pb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Información Adicional</h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Punto de encuentro</label>
-                    <textarea
-                      value={formData.meeting_point}
-                      onChange={(e) => setFormData({ ...formData, meeting_point: e.target.value })}
-                      rows={2}
-                      placeholder="Ubicación exacta donde se reúnen los participantes"
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Información importante</label>
-                    <textarea
-                      value={formData.important_info}
-                      onChange={(e) => setFormData({ ...formData, important_info: e.target.value })}
-                      rows={3}
-                      placeholder="Información crítica que el cliente debe saber"
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Política de cancelación</label>
-                    <textarea
-                      value={formData.cancellation_policy}
-                      onChange={(e) => setFormData({ ...formData, cancellation_policy: e.target.value })}
-                      rows={3}
-                      placeholder="Condiciones de cancelación y reembolso"
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-900 mb-2">
-                        Idiomas disponibles (separados por comas)
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.languages}
-                        onChange={(e) => setFormData({ ...formData, languages: e.target.value })}
-                        placeholder="Español, Inglés, Francés"
-                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-gray-900 mb-2">Accesibilidad</label>
-                      <input
-                        type="text"
-                        value={formData.accessibility}
-                        onChange={(e) => setFormData({ ...formData, accessibility: e.target.value })}
-                        placeholder="Accesible para silla de ruedas"
-                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-900 mb-2">Código de vestimenta</label>
-                      <textarea
-                        value={formData.dress_code}
-                        onChange={(e) => setFormData({ ...formData, dress_code: e.target.value })}
-                        rows={2}
-                        placeholder="Ropa cómoda, zapatos cerrados..."
-                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-gray-900 mb-2">Restricciones</label>
-                      <textarea
-                        value={formData.restrictions}
-                        onChange={(e) => setFormData({ ...formData, restrictions: e.target.value })}
-                        rows={2}
-                        placeholder="No apto para menores de 12 años..."
-                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* CONFIGURACIÓN */}
-              <div className="border-b pb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Configuración</h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Widget ID (Regiondo)</label>
-                    <input
-                      type="text"
-                      value={formData.widget_id}
-                      onChange={(e) => setFormData({ ...formData, widget_id: e.target.value })}
-                      placeholder="748f3583-4051-439f-a6e4-a688c9b28354"
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                    <p className="text-sm text-gray-600 mt-1">ID del widget de Regiondo para reservas</p>
-                  </div>
-
-                  <div className="border-t pt-4">
-                    <h4 className="text-md font-bold text-gray-900 mb-3">O usa Tiqets</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-bold text-gray-900 mb-2">Tiqets Venue ID</label>
-                        <input
-                          type="text"
-                          value={formData.tiqets_venue_id}
-                          onChange={(e) => setFormData({ ...formData, tiqets_venue_id: e.target.value })}
-                          placeholder="142007"
-                          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                        />
-                        <p className="text-sm text-gray-600 mt-1">ID del venue en Tiqets</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-bold text-gray-900 mb-2">Tiqets Campaign</label>
-                        <input
-                          type="text"
-                          value={formData.tiqets_campaign}
-                          onChange={(e) => setFormData({ ...formData, tiqets_campaign: e.target.value })}
-                          placeholder="Pantheon"
-                          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                        />
-                        <p className="text-sm text-gray-600 mt-1">Nombre de la campaña</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-6">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.featured}
-                        onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                        className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
-                      />
-                      <div>
-                        <span className="text-sm font-bold text-gray-900">Destacado</span>
-                        <p className="text-xs text-gray-600">Aparecerá en la página principal</p>
-                      </div>
-                    </label>
-
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.active}
-                        onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                        className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
-                      />
-                      <div>
-                        <span className="text-sm font-bold text-gray-900">Activo</span>
-                        <p className="text-xs text-gray-600">Visible en el sitio web</p>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              {/* BOTONES */}
               <div className="flex gap-3 pt-4">
                 <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-semibold">
                   {editingId ? 'Actualizar' : 'Crear'} Experiencia
@@ -788,7 +561,6 @@ export default function ExperiencesPage() {
           </div>
         )}
 
-        {/* LISTADO DE EXPERIENCIAS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {experiences.map((exp) => {
             const categoryNames = exp.experience_categories?.map(
