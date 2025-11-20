@@ -42,7 +42,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
   const experiences = experienceCategories
     ?.map(ec => ec.experiences)
-    .filter(exp => exp && exp.active) || [];
+    .filter((exp: any) => exp?.active) || [];
 
   return (
     <div className="min-h-screen bg-white">
