@@ -24,6 +24,7 @@ interface Monument {
   tickets_from: number | null;
   tiqets_venue_id: string | null;
   tiqets_campaign: string | null;
+  tiqets_item_count: number | null;
   cities?: { name: string };
   monument_categories?: Array<{ categories: { id: string; name: string } }>;
 }
@@ -72,6 +73,7 @@ export default function MonumentsPage() {
     tickets_from: 0,
     tiqets_venue_id: '',
     tiqets_campaign: '',
+    tiqets_item_count: 12,
     recommendedExperiences: [] as string[]
   });
 
@@ -161,7 +163,8 @@ export default function MonumentsPage() {
         address: formData.address || null,
         tickets_from: formData.tickets_from > 0 ? parseFloat(formData.tickets_from.toString()) : null,
         tiqets_venue_id: formData.tiqets_venue_id || null,
-        tiqets_campaign: formData.tiqets_campaign || null
+        tiqets_campaign: formData.tiqets_campaign || null,
+        tiqets_item_count: formData.tiqets_item_count > 0 ? parseInt(formData.tiqets_item_count.toString()) : 12
       };
 
       let monumentId = editingId;
@@ -275,6 +278,7 @@ export default function MonumentsPage() {
       tickets_from: monument.tickets_from || 0,
       tiqets_venue_id: monument.tiqets_venue_id || '',
       tiqets_campaign: monument.tiqets_campaign || '',
+      tiqets_item_count: monument.tiqets_item_count || 12,
       recommendedExperiences: recommendedIds
     });
     setEditingId(monument.id);
@@ -313,6 +317,7 @@ export default function MonumentsPage() {
       tickets_from: 0,
       tiqets_venue_id: '',
       tiqets_campaign: '',
+      tiqets_item_count: 12,
       recommendedExperiences: []
     });
   };
@@ -631,6 +636,18 @@ export default function MonumentsPage() {
                       className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
                     />
                     <p className="text-sm text-gray-600 mt-1">Nombre de la campaña</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Productos a mostrar</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={formData.tiqets_item_count}
+                      onChange={(e) => setFormData({ ...formData, tiqets_item_count: parseInt(e.target.value) || 12 })}
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                    <p className="text-sm text-gray-600 mt-1">Número de tarjetas (1-20)</p>
                   </div>
                 </div>
               </div>
