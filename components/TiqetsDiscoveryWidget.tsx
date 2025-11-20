@@ -6,7 +6,7 @@ interface TiqetsDiscoveryWidgetProps {
   destinationId: string;
   campaign?: string;
   itemCount?: number;
-  layout?: 'carousel' | 'responsive' | 'grid';
+  layout?: 'responsive' | 'grid' | 'carousel';
   contentType?: 'product' | 'collection';
 }
 
@@ -15,14 +15,16 @@ export default function TiqetsDiscoveryWidget({
   destinationId,
   campaign = '',
   itemCount = 12,
-  layout = 'carousel',
+  layout = 'responsive',
   contentType = 'product'
 }: TiqetsDiscoveryWidgetProps) {
   
   useEffect(() => {
     // Forzar reinicialización del widget cuando cambia
     if ((window as any).tiqets) {
-      (window as any).tiqets.init();
+      setTimeout(() => {
+        (window as any).tiqets.init();
+      }, 100);
     }
   }, [destinationId, campaign]);
 
@@ -37,7 +39,7 @@ export default function TiqetsDiscoveryWidget({
       data-slug-ids=""
       data-partner="rida_tours_llc-181548"
       data-tq-campaign={campaign}
-      className="tiqets-discovery-widget"
+      className="w-full"
     />
   );
 }
