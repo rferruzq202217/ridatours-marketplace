@@ -169,21 +169,20 @@ export default async function MonumentPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* RESERVA TU VISITA - WIDGET TIQETS PRINCIPAL */}
+          {/* RESERVA TU VISITA - CARRUSEL TIQETS */}
           {monument.tiqets_venue_id && (
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
                 Reserva tu visita a {monument.name}
               </h2>
               <p className="text-gray-600 mb-6">Elige la experiencia que mejor se adapte a ti</p>
-              <div className="bg-white rounded-2xl border-2 border-gray-200 p-6">
-                <TiqetsDiscoveryWidget
-                  destinationType="venue"
-                  destinationId={monument.tiqets_venue_id}
-                  campaign={monument.tiqets_campaign || ''}
-                  itemCount={12}
-                />
-              </div>
+              <TiqetsDiscoveryWidget
+                destinationType="venue"
+                destinationId={monument.tiqets_venue_id}
+                campaign={monument.tiqets_campaign || ''}
+                itemCount={12}
+                layout="carousel"
+              />
             </div>
           )}
 
@@ -252,19 +251,18 @@ export default async function MonumentPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* CROSS-SELLING - WIDGET TIQETS CIUDAD */}
+          {/* CROSS-SELLING - CARRUSEL CIUDAD */}
           {monument.tiqets_venue_id && (
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">También te puede interesar en {city.name}</h2>
               <p className="text-gray-600 mb-6">Descubre otras experiencias increíbles</p>
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-100">
-                <TiqetsDiscoveryWidget
-                  destinationType="city"
-                  destinationId={city.slug}
-                  campaign={city.name}
-                  itemCount={6}
-                />
-              </div>
+              <TiqetsDiscoveryWidget
+                destinationType="city"
+                destinationId={city.slug}
+                campaign={city.name}
+                itemCount={8}
+                layout="carousel"
+              />
             </div>
           )}
         </div>
