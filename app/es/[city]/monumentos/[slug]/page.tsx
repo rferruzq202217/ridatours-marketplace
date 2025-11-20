@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
-import RegiondoWidget from '@/components/RegiondoWidget';
+import TiqetsDiscoveryWidget from '@/components/TiqetsDiscoveryWidget';
 import { Star, MapPin, Clock, Check, Calendar, Info, HelpCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -43,23 +43,6 @@ export default async function MonumentPage({ params }: PageProps) {
   if (!monument) {
     notFound();
   }
-
-  const { data: monumentExperiences } = await supabase
-    .from('experiences')
-    .select('*')
-    .eq('monument_id', monument.id)
-    .eq('active', true)
-    .order('rating', { ascending: false });
-
-  const { data: recommendedData } = await supabase
-    .from('monument_recommended_experiences')
-    .select(`
-      experiences(*)
-    `)
-    .eq('monument_id', monument.id)
-    .order('display_order');
-
-  const recommendedExperiences = recommendedData?.map(r => r.experiences).filter(Boolean) || [];
 
   const categoryNames = monument.monument_categories?.map(
     (mc: any) => mc.categories.name
@@ -186,66 +169,20 @@ export default async function MonumentPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* EXPERIENCIAS DEL MONUMENTO */}
-          {monumentExperiences && monumentExperiences.length > 0 && (
+          {/* RESERVA TU VISITA - WIDGET TIQETS PRINCIPAL */}
+          {monument.tiqets_venue_id && (
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
                 Reserva tu visita a {monument.name}
               </h2>
               <p className="text-gray-600 mb-6">Elige la experiencia que mejor se adapte a ti</p>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {monumentExperiences.map((exp: any) => (
-                  <div key={exp.id} className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-blue-500 hover:shadow-xl transition-all">
-                    {exp.main_image && (
-                      <div className="relative h-56">
-                        <Image 
-                          src={exp.main_image} 
-                          alt={exp.title} 
-                          fill 
-                          className="object-cover"
-                        />
-                        {exp.featured && (
-                          <div className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold">
-                            HASTA -30%
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    <div className="p-6">
-                      <h3 className="font-bold text-xl text-gray-900 mb-3 leading-tight">
-                        {exp.title}
-                      </h3>
-                      {exp.description && (
-                        <p className="text-gray-600 text-sm mb-4">
-                          {exp.description}
-                        </p>
-                      )}
-                      
-                      <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
-                        <div className="flex items-center gap-2">
-                          <Star size={20} className="text-yellow-400 fill-current" />
-                          <span className="font-bold text-lg text-gray-900">{exp.rating}</span>
-                          <span className="text-sm text-gray-500">({exp.reviews.toLocaleString()})</span>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-xs text-gray-600 mb-1">Desde</div>
-                          <div className="text-2xl font-bold text-blue-600">€{exp.price}</div>
-                        </div>
-                      </div>
-
-                      {exp.duration && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-                          <Clock size={16} />
-                          <span>{exp.duration}</span>
-                        </div>
-                      )}
-
-                      {exp.widget_id && (
-                        <RegiondoWidget widgetId={exp.widget_id} />
-                      )}
-                    </div>
-                  </div>
-                ))}
+              <div className="bg-white rounded-2xl border-2 border-gray-200 p-6">
+                <TiqetsDiscoveryWidget
+                  destinationType="venue"
+                  destinationId={monument.tiqets_venue_id}
+                  campaign={monument.tiqets_campaign || ''}
+                  itemCount={12}
+                />
               </div>
             </div>
           )}
@@ -315,44 +252,18 @@ export default async function MonumentPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* CROSS-SELLING - EXPERIENCIAS RECOMENDADAS */}
-          {recommendedExperiences.length > 0 && (
+          {/* CROSS-SELLING - WIDGET TIQETS CIUDAD */}
+          {monument.tiqets_venue_id && (
             <div className="mb-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">También te puede interesar</h2>
-              <p className="text-gray-600 mb-6">Descubre otras experiencias increíbles en {city.name}</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recommendedExperiences.map((exp: any) => (
-                  <Link
-                    key={exp.id}
-                    href={`/es/${city.slug}/${exp.slug}`}
-                    className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-blue-500 hover:shadow-xl transition-all group"
-                  >
-                    {exp.main_image && (
-                      <div className="relative h-56">
-                        <Image 
-                          src={exp.main_image} 
-                          alt={exp.title} 
-                          fill 
-                          className="object-cover"
-                        />
-                      </div>
-                    )}
-                    <div className="p-4">
-                      <h3 className="font-bold text-gray-900 mb-2 line-clamp-2">
-                        {exp.title}
-                      </h3>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1">
-                          <Star size={16} className="text-yellow-400 fill-current" />
-                          <span className="text-sm font-bold">{exp.rating}</span>
-                        </div>
-                        <div className="text-xl font-bold text-blue-600">
-                          €{exp.price}
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">También te puede interesar en {city.name}</h2>
+              <p className="text-gray-600 mb-6">Descubre otras experiencias increíbles</p>
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-100">
+                <TiqetsDiscoveryWidget
+                  destinationType="city"
+                  destinationId={city.slug}
+                  campaign={city.name}
+                  itemCount={6}
+                />
               </div>
             </div>
           )}

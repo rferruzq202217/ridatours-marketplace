@@ -22,6 +22,8 @@ interface Monument {
   opening_hours: string | null;
   address: string | null;
   tickets_from: number | null;
+  tiqets_venue_id: string | null;
+  tiqets_campaign: string | null;
   cities?: { name: string };
   monument_categories?: Array<{ categories: { id: string; name: string } }>;
 }
@@ -68,6 +70,8 @@ export default function MonumentsPage() {
     opening_hours: '',
     address: '',
     tickets_from: 0,
+    tiqets_venue_id: '',
+    tiqets_campaign: '',
     recommendedExperiences: [] as string[]
   });
 
@@ -155,7 +159,9 @@ export default function MonumentsPage() {
         gallery: galleryArray.length > 0 ? galleryArray : null,
         opening_hours: formData.opening_hours || null,
         address: formData.address || null,
-        tickets_from: formData.tickets_from > 0 ? parseFloat(formData.tickets_from.toString()) : null
+        tickets_from: formData.tickets_from > 0 ? parseFloat(formData.tickets_from.toString()) : null,
+        tiqets_venue_id: formData.tiqets_venue_id || null,
+        tiqets_campaign: formData.tiqets_campaign || null
       };
 
       let monumentId = editingId;
@@ -267,6 +273,8 @@ export default function MonumentsPage() {
       opening_hours: monument.opening_hours || '',
       address: monument.address || '',
       tickets_from: monument.tickets_from || 0,
+      tiqets_venue_id: monument.tiqets_venue_id || '',
+      tiqets_campaign: monument.tiqets_campaign || '',
       recommendedExperiences: recommendedIds
     });
     setEditingId(monument.id);
@@ -303,6 +311,8 @@ export default function MonumentsPage() {
       opening_hours: '',
       address: '',
       tickets_from: 0,
+      tiqets_venue_id: '',
+      tiqets_campaign: '',
       recommendedExperiences: []
     });
   };
@@ -594,10 +604,41 @@ export default function MonumentsPage() {
                 </div>
               </div>
 
+              {/* WIDGET TIQETS */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Widget Tiqets (Discovery)</h3>
+                <p className="text-sm text-gray-600 mb-4">Muestra productos de Tiqets relacionados con este monumento</p>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Tiqets Venue ID</label>
+                    <input
+                      type="text"
+                      value={formData.tiqets_venue_id}
+                      onChange={(e) => setFormData({ ...formData, tiqets_venue_id: e.target.value })}
+                      placeholder="142007"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                    <p className="text-sm text-gray-600 mt-1">ID del venue en Tiqets</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Tiqets Campaign</label>
+                    <input
+                      type="text"
+                      value={formData.tiqets_campaign}
+                      onChange={(e) => setFormData({ ...formData, tiqets_campaign: e.target.value })}
+                      placeholder="Pantheon"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none text-gray-900 font-medium"
+                    />
+                    <p className="text-sm text-gray-600 mt-1">Nombre de la campaña</p>
+                  </div>
+                </div>
+              </div>
+
               {/* CROSS-SELLING */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Cross-Selling (Experiencias Recomendadas)</h3>
-                <p className="text-sm text-gray-600 mb-4">Selecciona experiencias de otras ciudades para mostrar como recomendaciones</p>
+                <p className="text-sm text-gray-600 mb-4">Selecciona experiencias propias para mostrar como recomendaciones</p>
                 
                 {!formData.city_id && (
                   <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
@@ -663,6 +704,9 @@ export default function MonumentsPage() {
                   )}
                   {monument.tickets_from && (
                     <p className="text-sm font-bold text-amber-600 mb-2">Desde €{monument.tickets_from}</p>
+                  )}
+                  {monument.tiqets_venue_id && (
+                    <p className="text-xs text-green-600 mb-2">✓ Widget Tiqets configurado</p>
                   )}
                   <p className="text-sm text-gray-600 mb-2">/{monument.slug}</p>
                   {monument.description && (
