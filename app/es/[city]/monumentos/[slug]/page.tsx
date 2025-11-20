@@ -181,7 +181,7 @@ export default async function MonumentPage({ params }: PageProps) {
                 destinationId={monument.tiqets_venue_id}
                 campaign={monument.tiqets_campaign || ''}
                 itemCount={12}
-                layout="carousel"
+                layout="grid"
               />
             </div>
           )}
@@ -261,7 +261,7 @@ export default async function MonumentPage({ params }: PageProps) {
                 destinationId={city.slug}
                 campaign={city.name}
                 itemCount={8}
-                layout="carousel"
+                layout="grid"
               />
             </div>
           )}
