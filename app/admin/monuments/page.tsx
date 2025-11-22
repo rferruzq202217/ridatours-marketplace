@@ -164,7 +164,6 @@ export default function MonumentsPage() {
         tickets_from: formData.tickets_from > 0 ? parseFloat(formData.tickets_from.toString()) : null,
         tiqets_venue_id: formData.tiqets_venue_id || null,
         tiqets_campaign: formData.tiqets_campaign || null,
-        tiqets_item_count: formData.tiqets_item_count > 0 ? parseInt(formData.tiqets_item_count.toString()) : 12,
         tiqets_item_count: formData.tiqets_item_count > 0 ? parseInt(formData.tiqets_item_count.toString()) : 12
       };
 
