@@ -2,13 +2,12 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SearchBar from '@/components/SearchBar';
 import ExperienceCarousel from '@/components/ExperienceCarousel';
-import CategoryCarousel from '@/components/CategoryCarousel';
 import RecentlyViewedCarousel from '@/components/RecentlyViewedCarousel';
-import { Landmark, Building2, Church, Palette, Music, UtensilsCrossed } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+import CategoryCarousel from '@/components/CategoryCarousel';
 import { MapPin } from 'lucide-react';
 import { AVAILABLE_ICONS } from '@/components/IconPicker';
+import Image from 'next/image';
+import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -88,8 +87,6 @@ export default async function HomePage() {
   const ridatoursRecommended = experiences
     .slice(0, 6);
 
-  // Iconos dinámicos desde la BD
-
   const categories = categoriesWithCount.map(cat => {
     const iconData = AVAILABLE_ICONS.find(i => i.name === cat.icon_name);
     return {
@@ -120,11 +117,6 @@ export default async function HomePage() {
       </div>
 
       <CategoryCarousel categories={categories} />
-              </Link>
-            );
-          })}
-        </div>
-      </div>
 
       <RecentlyViewedCarousel lang="es" />
 
