@@ -51,7 +51,8 @@ export default function CategoriesPage() {
           .eq('id', editingId);
         
         if (error) {
-          alert('Error al actualizar: ' + error.message);
+        console.error('Error completo:', error);
+        alert('Error al actualizar: ' + error.message + '\n\nRevisa la consola (F12) para más detalles.');
           return;
         }
       } else {
@@ -64,7 +65,8 @@ export default function CategoriesPage() {
           }]);
         
         if (error) {
-          alert('Error al crear: ' + error.message);
+        console.error('Error completo:', error);
+        alert('Error al crear: ' + error.message + '\n\nRevisa la consola (F12) para más detalles.');
           return;
         }
       }
