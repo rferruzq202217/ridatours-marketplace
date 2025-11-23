@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { Plus, Pencil, Trash2, ArrowLeft } from 'lucide-react';
-import IconPicker, { AVAILABLE_ICONS } from '@/components/IconPicker';
+import IconPicker, { AVAILABLE_ICONS } from '@/lib/icons';
 
 interface Category {
   id: string;

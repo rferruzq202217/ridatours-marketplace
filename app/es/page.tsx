@@ -5,7 +5,7 @@ import ExperienceCarousel from '@/components/ExperienceCarousel';
 import RecentlyViewedCarousel from '@/components/RecentlyViewedCarousel';
 import CategoryCarousel from '@/components/CategoryCarousel';
 import { MapPin } from 'lucide-react';
-import { AVAILABLE_ICONS } from '@/components/IconPicker';
+import { AVAILABLE_ICONS } from '@/lib/icons';
 import Image from 'next/image';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
