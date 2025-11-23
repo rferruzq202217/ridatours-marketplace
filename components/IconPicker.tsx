@@ -3,13 +3,13 @@ import { useState } from 'react';
 import { 
   Landmark, Building2, Church, Palette, Music, UtensilsCrossed,
   Plane, Camera, Mountain, Waves, Trees, Sun, Moon, Star,
-  Coffee, Wine, Pizza, IceCream, Utensils, ShoppingBag,
+  Coffee, Wine, Pizza, Utensils, ShoppingBag,
   Theater, Briefcase, GraduationCap, Heart, Sparkles,
-  Bike, Ticket, Train, Bus, Ship, Ferry, Map, Compass,
-  Luggage, Hotel, Key, Phone, Info, Backpack, Castle,
-  Tent, Anchor, Flag, Fish, PartyPopper, Gift, Trophy,
+  Bike, Ticket, Train, Bus, Ship, Map, Compass,
+  Luggage, Hotel, Key, Info, Backpack,
+  Tent, Anchor, Flag, Trophy,
   Crown, Zap, Flame, Droplet, Wind, Leaf, Globe,
-  Users, User, Baby, Dog, Cat, Bird
+  Users, User, Baby, Dog
 } from 'lucide-react';
 
 const AVAILABLE_ICONS = [
@@ -17,7 +17,6 @@ const AVAILABLE_ICONS = [
   { name: 'Landmark', icon: Landmark, label: 'Monumento' },
   { name: 'Building2', icon: Building2, label: 'Edificio' },
   { name: 'Church', icon: Church, label: 'Iglesia' },
-  { name: 'Castle', icon: Castle, label: 'Castillo' },
   { name: 'Mountain', icon: Mountain, label: 'Montaña' },
   { name: 'Waves', icon: Waves, label: 'Playa/Agua' },
   { name: 'Trees', icon: Trees, label: 'Naturaleza' },
@@ -28,7 +27,6 @@ const AVAILABLE_ICONS = [
   { name: 'Train', icon: Train, label: 'Tren' },
   { name: 'Bus', icon: Bus, label: 'Autobús' },
   { name: 'Ship', icon: Ship, label: 'Barco' },
-  { name: 'Ferry', icon: Ferry, label: 'Ferry' },
   { name: 'Bike', icon: Bike, label: 'Bicicleta' },
   
   // Turismo y viajes
@@ -48,7 +46,6 @@ const AVAILABLE_ICONS = [
   { name: 'Palette', icon: Palette, label: 'Arte' },
   { name: 'Music', icon: Music, label: 'Música' },
   { name: 'Theater', icon: Theater, label: 'Teatro' },
-  { name: 'PartyPopper', icon: PartyPopper, label: 'Fiesta' },
   
   // Gastronomía
   { name: 'UtensilsCrossed', icon: UtensilsCrossed, label: 'Gastronomía' },
@@ -56,17 +53,14 @@ const AVAILABLE_ICONS = [
   { name: 'Coffee', icon: Coffee, label: 'Café' },
   { name: 'Wine', icon: Wine, label: 'Vino' },
   { name: 'Pizza', icon: Pizza, label: 'Comida' },
-  { name: 'IceCream', icon: IceCream, label: 'Helado' },
   
   // Actividades
-  { name: 'Anchor', icon: Anchor, label: 'Actividades acuáticas' },
-  { name: 'Flag', icon: Flag, label: 'Golf/Deporte' },
-  { name: 'Trophy', icon: Trophy, label: 'Competición' },
-  { name: 'Fish', icon: Fish, label: 'Pesca/Acuario' },
+  { name: 'Anchor', icon: Anchor, label: 'Náutica' },
+  { name: 'Flag', icon: Flag, label: 'Tours' },
+  { name: 'Trophy', icon: Trophy, label: 'Deportes' },
   
   // Compras y servicios
   { name: 'ShoppingBag', icon: ShoppingBag, label: 'Compras' },
-  { name: 'Gift', icon: Gift, label: 'Regalos' },
   { name: 'Briefcase', icon: Briefcase, label: 'Negocios' },
   { name: 'GraduationCap', icon: GraduationCap, label: 'Educación' },
   
@@ -74,11 +68,7 @@ const AVAILABLE_ICONS = [
   { name: 'Users', icon: Users, label: 'Grupos' },
   { name: 'User', icon: User, label: 'Individual' },
   { name: 'Baby', icon: Baby, label: 'Niños/Familia' },
-  
-  // Animales
-  { name: 'Dog', icon: Dog, label: 'Perros/Zoo' },
-  { name: 'Cat', icon: Cat, label: 'Gatos' },
-  { name: 'Bird', icon: Bird, label: 'Aves' },
+  { name: 'Dog', icon: Dog, label: 'Mascotas' },
   
   // Elementos naturales
   { name: 'Sun', icon: Sun, label: 'Sol/Día' },
@@ -87,15 +77,14 @@ const AVAILABLE_ICONS = [
   { name: 'Leaf', icon: Leaf, label: 'Ecológico' },
   { name: 'Droplet', icon: Droplet, label: 'Agua' },
   { name: 'Wind', icon: Wind, label: 'Viento' },
-  { name: 'Flame', icon: Flame, label: 'Fuego' },
-  { name: 'Zap', icon: Zap, label: 'Rápido/Energía' },
+  { name: 'Flame', icon: Flame, label: 'Popular' },
+  { name: 'Zap', icon: Zap, label: 'Rápido' },
   
   // Otros
   { name: 'Heart', icon: Heart, label: 'Favorito' },
   { name: 'Sparkles', icon: Sparkles, label: 'Especial' },
   { name: 'Crown', icon: Crown, label: 'Premium' },
   { name: 'Info', icon: Info, label: 'Información' },
-  { name: 'Phone', icon: Phone, label: 'Contacto' },
 ];
 
 interface IconPickerProps {
