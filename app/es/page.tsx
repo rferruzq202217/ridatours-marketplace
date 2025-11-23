@@ -5,7 +5,6 @@ import ExperienceCarousel from '@/components/ExperienceCarousel';
 import RecentlyViewedCarousel from '@/components/RecentlyViewedCarousel';
 import CategoryCarousel from '@/components/CategoryCarousel';
 import { MapPin } from 'lucide-react';
-import { AVAILABLE_ICONS } from '@/lib/icons';
 import Image from 'next/image';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
@@ -87,15 +86,12 @@ export default async function HomePage() {
   const ridatoursRecommended = experiences
     .slice(0, 6);
 
-  const categories = categoriesWithCount.map(cat => {
-    const iconData = AVAILABLE_ICONS.find(i => i.name === cat.icon_name);
-    return {
-      name: cat.name,
-      slug: cat.slug,
-      icon: iconData?.icon || AVAILABLE_ICONS[0].icon,
-      count: cat.count
-    };
-  });
+  const categories = categoriesWithCount.map(cat => ({
+    name: cat.name,
+    slug: cat.slug,
+    icon_name: cat.icon_name || 'Landmark',
+    count: cat.count
+  }));
 
   return (
     <div className="min-h-screen bg-white">

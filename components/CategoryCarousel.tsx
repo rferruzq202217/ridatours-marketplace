@@ -2,12 +2,12 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import type { LucideIcon } from 'lucide-react';
+import { AVAILABLE_ICONS } from '@/lib/icons';
 
 interface Category {
   name: string;
   slug: string;
-  icon: LucideIcon;
+  icon_name: string;
   count: number;
 }
 
@@ -56,7 +56,9 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
       
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {visibleCategories.map((category) => {
-          const Icon = category.icon;
+          const iconData = AVAILABLE_ICONS.find(i => i.name === category.icon_name);
+          const Icon = iconData?.icon || AVAILABLE_ICONS[0].icon;
+          
           return (
             <Link 
               key={category.slug} 
