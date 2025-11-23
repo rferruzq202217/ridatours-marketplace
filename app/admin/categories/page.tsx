@@ -3,20 +3,24 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { Plus, Pencil, Trash2, ArrowLeft } from 'lucide-react';
+import IconPicker, { AVAILABLE_ICONS } from '@/components/IconPicker';
 
 interface Category {
   id: string;
   name: string;
   slug: string;
-  icon: string | null;
-  count: number;
+  icon_name: string;
 }
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: '', slug: '', icon: '', count: 0 });
+  const [formData, setFormData] = useState({ 
+    name: '', 
+    slug: '',
+    icon_name: 'Landmark'
+  });
 
   useEffect(() => {
     loadCategories();
@@ -28,9 +32,7 @@ export default function CategoriesPage() {
       .select('*')
       .order('name');
     
-    if (error) {
-      console.error('Error loading categories:', error);
-    }
+    if (error) console.error('Error loading categories:', error);
     if (data) setCategories(data);
   };
 
@@ -39,35 +41,29 @@ export default function CategoriesPage() {
     
     try {
       if (editingId) {
-        // Actualizar
         const { error } = await supabase
           .from('categories')
           .update({
             name: formData.name,
             slug: formData.slug,
-            icon: formData.icon || null,
-            count: formData.count
+            icon_name: formData.icon_name
           })
           .eq('id', editingId);
         
         if (error) {
-          console.error('Error updating:', error);
           alert('Error al actualizar: ' + error.message);
           return;
         }
       } else {
-        // Crear nuevo
         const { error } = await supabase
           .from('categories')
           .insert([{
             name: formData.name,
             slug: formData.slug,
-            icon: formData.icon || null,
-            count: formData.count
+            icon_name: formData.icon_name
           }]);
         
         if (error) {
-          console.error('Error inserting:', error);
           alert('Error al crear: ' + error.message);
           return;
         }
@@ -75,16 +71,20 @@ export default function CategoriesPage() {
 
       setShowForm(false);
       setEditingId(null);
-      setFormData({ name: '', slug: '', icon: '', count: 0 });
+      setFormData({ name: '', slug: '', icon_name: 'Landmark' });
       loadCategories();
     } catch (err) {
       console.error('Unexpected error:', err);
     }
   };
 
-  const handleEdit = (cat: Category) => {
-    setFormData({ name: cat.name, slug: cat.slug, icon: cat.icon || '', count: cat.count });
-    setEditingId(cat.id);
+  const handleEdit = (category: Category) => {
+    setFormData({ 
+      name: category.name, 
+      slug: category.slug,
+      icon_name: category.icon_name || 'Landmark'
+    });
+    setEditingId(category.id);
     setShowForm(true);
   };
 
@@ -125,9 +125,9 @@ export default function CategoriesPage() {
               onClick={() => {
                 setShowForm(true);
                 setEditingId(null);
-                setFormData({ name: '', slug: '', icon: '', count: 0 });
+                setFormData({ name: '', slug: '', icon_name: 'Landmark' });
               }}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
             >
               <Plus size={20} />
               Nueva Categoría
@@ -150,7 +150,7 @@ export default function CategoriesPage() {
                   onChange={(e) => {
                     setFormData({ ...formData, name: e.target.value, slug: generateSlug(e.target.value) });
                   }}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-gray-900 font-medium"
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                   required
                 />
               </div>
@@ -160,31 +160,18 @@ export default function CategoriesPage() {
                   type="text"
                   value={formData.slug}
                   onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-gray-900 font-medium"
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                   required
                 />
               </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">Icono (opcional)</label>
-                <input
-                  type="text"
-                  value={formData.icon}
-                  onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                  placeholder="Ej: Landmark, Museum, etc"
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-gray-900 font-medium"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">Cantidad de opciones</label>
-                <input
-                  type="number"
-                  value={formData.count}
-                  onChange={(e) => setFormData({ ...formData, count: parseInt(e.target.value) || 0 })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-gray-900 font-medium"
-                />
-              </div>
+              
+              <IconPicker
+                value={formData.icon_name}
+                onChange={(iconName) => setFormData({ ...formData, icon_name: iconName })}
+              />
+
               <div className="flex gap-3">
-                <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold">
+                <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold">
                   {editingId ? 'Actualizar' : 'Crear'}
                 </button>
                 <button
@@ -192,7 +179,7 @@ export default function CategoriesPage() {
                   onClick={() => {
                     setShowForm(false);
                     setEditingId(null);
-                    setFormData({ name: '', slug: '', icon: '', count: 0 });
+                    setFormData({ name: '', slug: '', icon_name: 'Landmark' });
                   }}
                   className="bg-gray-200 hover:bg-gray-300 text-gray-900 px-6 py-2 rounded-lg font-semibold"
                 >
@@ -204,48 +191,52 @@ export default function CategoriesPage() {
         )}
 
         {/* Lista de categorías */}
-        <div className="bg-white rounded-xl border-2 border-gray-300 overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b-2 border-gray-300">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-bold text-gray-900">Nombre</th>
-                <th className="px-6 py-3 text-left text-sm font-bold text-gray-900">Slug</th>
-                <th className="px-6 py-3 text-left text-sm font-bold text-gray-900">Opciones</th>
-                <th className="px-6 py-3 text-right text-sm font-bold text-gray-900">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((cat) => (
-                <tr key={cat.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="px-6 py-4 font-semibold text-gray-900">{cat.name}</td>
-                  <td className="px-6 py-4 text-gray-800 font-medium">{cat.slug}</td>
-                  <td className="px-6 py-4 text-gray-800 font-medium">{cat.count}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => handleEdit(cat)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
-                      >
-                        <Pencil size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(cat.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {categories.map((category) => {
+            const iconData = AVAILABLE_ICONS.find(i => i.name === category.icon_name);
+            const IconComponent = iconData?.icon;
+            
+            return (
+              <div key={category.id} className="bg-white rounded-xl border-2 border-gray-300 overflow-hidden hover:shadow-lg transition-all">
+                <div className="p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    {IconComponent && (
+                      <div className="bg-purple-100 text-purple-600 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <IconComponent size={32} />
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-1">{category.name}</h3>
+                      <p className="text-sm text-gray-600">/{category.slug}</p>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {categories.length === 0 && (
-            <div className="text-center py-12 text-gray-800 font-semibold">
-              No hay categorías creadas aún
-            </div>
-          )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEdit(category)}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"
+                    >
+                      <Pencil size={16} />
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => handleDelete(category.id)}
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"
+                    >
+                      <Trash2 size={16} />
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
+        
+        {categories.length === 0 && (
+          <div className="bg-white rounded-xl border-2 border-gray-300 p-12 text-center">
+            <p className="text-gray-800 font-semibold">No hay categorías creadas aún</p>
+          </div>
+        )}
       </div>
     </div>
   );
