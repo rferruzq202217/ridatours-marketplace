@@ -353,7 +353,8 @@ export default function ExperiencesPage() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <Link href="/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-2 font-semibold">
+              <Link href="/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4 font-semibold text-2xl">
+                <span className="font-bold">RIDATOURS</span> /
                 <ArrowLeft size={20} />
                 Volver al panel
               </Link>

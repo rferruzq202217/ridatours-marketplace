@@ -6,7 +6,8 @@ export default function AdminPanel() {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Panel de Administración</h1>
+          <h1 className="text-3xl font-bold text-blue-600">RIDATOURS</h1>
+              <p className="text-gray-600 font-medium">Panel de Administración</p>
           <p className="text-gray-800 font-medium">Gestiona tu marketplace</p>
         </div>
       </div>
