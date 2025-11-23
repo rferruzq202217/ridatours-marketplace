@@ -9,7 +9,7 @@ const supabase = createClient(
 async function check() {
   const { data, error } = await supabase
     .from('cities')
-    .select('id, name, slug, image, hero_image, description')
+    .select('id, name, slug, image, description')
     .order('name');
   
   if (error) {
@@ -21,7 +21,7 @@ async function check() {
   data.forEach(city => {
     console.log('- ' + city.name + ' (/' + city.slug + ')');
     console.log('  Image: ' + (city.image ? '✓' : '✗'));
-    console.log('  Hero Image: ' + (city.hero_image ? '✓' : '✗'));
+    console.log('  Description: ' + (city.description ? '✓' : '✗'));
     console.log('');
   });
   
