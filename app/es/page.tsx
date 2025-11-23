@@ -2,11 +2,13 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SearchBar from '@/components/SearchBar';
 import ExperienceCarousel from '@/components/ExperienceCarousel';
+import CategoryCarousel from '@/components/CategoryCarousel';
 import RecentlyViewedCarousel from '@/components/RecentlyViewedCarousel';
 import { Landmark, Building2, Church, Palette, Music, UtensilsCrossed } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { MapPin } from 'lucide-react';
+import { AVAILABLE_ICONS } from '@/components/IconPicker';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -22,7 +24,7 @@ export default async function HomePage() {
 
   const { data: categoriesData } = await supabase
     .from('categories')
-    .select('id, name, slug')
+    .select('id, name, slug, icon_name')
     .order('name');
 
   // Contar experiencias por categoría
@@ -86,22 +88,17 @@ export default async function HomePage() {
   const ridatoursRecommended = experiences
     .slice(0, 6);
 
-  const iconMap: any = {
-    'Monumentos': Landmark,
-    'Museos': Palette,
-    'Tours': Building2,
-    'Iglesias': Church,
-    'Catedrales': Church,
-    'Gastronomía': UtensilsCrossed,
-    'Shows': Music,
-  };
+  // Iconos dinámicos desde la BD
 
-  const categories = categoriesWithCount.map(cat => ({
-    name: cat.name,
-    slug: cat.slug,
-    icon: iconMap[cat.name] || Landmark,
-    count: cat.count
-  }));
+  const categories = categoriesWithCount.map(cat => {
+    const iconData = AVAILABLE_ICONS.find(i => i.name === cat.icon_name);
+    return {
+      name: cat.name,
+      slug: cat.slug,
+      icon: iconData?.icon || AVAILABLE_ICONS[0].icon,
+      count: cat.count
+    };
+  });
 
   return (
     <div className="min-h-screen bg-white">
@@ -122,24 +119,7 @@ export default async function HomePage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">Explora por categoría</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories.map((category, i) => {
-            const Icon = category.icon;
-            return (
-              <Link 
-                key={i} 
-                href={`/es/categoria/${category.slug}`}
-                className="bg-white hover:bg-white border-2 border-gray-200 hover:border-blue-600 rounded-2xl p-6 transition-all hover:shadow-lg group"
-              >
-                <div className="bg-blue-100 text-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                  <Icon size={32} />
-                </div>
-                <div className="text-center">
-                  <div className="font-semibold text-gray-900 mb-1">{category.name}</div>
-                  <div className="text-sm text-gray-500">{category.count} {category.count === 1 ? 'opción' : 'opciones'}</div>
-                </div>
+      <CategoryCarousel categories={categories} />
               </Link>
             );
           })}
