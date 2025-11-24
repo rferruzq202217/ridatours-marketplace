@@ -80,8 +80,8 @@ export default function ExperiencesPage() {
     main_image: '',
     gallery: '',
     widget_id: '',
-      tiqets_venue_id: '',
-      tiqets_campaign: '',
+    tiqets_venue_id: '',
+    tiqets_campaign: '',
     featured: false,
     active: true,
     includes: '',
@@ -101,9 +101,10 @@ export default function ExperiencesPage() {
   }, []);
 
   const loadData = async () => {
+    // IMPORTANTE: Incluir experience_categories con categories para cargar las categorías
     const { data: expData } = await supabase
       .from('experiences')
-      .select('*, cities(name)')
+      .select('*, cities(name), monuments(name), experience_categories(categories(id, name))')
       .order('created_at', { ascending: false });
     
     if (expData) setExperiences(expData);
@@ -242,6 +243,7 @@ export default function ExperiencesPage() {
   };
 
   const handleEdit = (exp: Experience) => {
+    // Extraer IDs de categorías de la relación
     const categoryIds = exp.experience_categories?.map(
       ec => ec.categories.id
     ) || [];
@@ -282,6 +284,9 @@ export default function ExperiencesPage() {
 
   const handleDelete = async (id: string) => {
     if (confirm('¿Eliminar esta experiencia?')) {
+      // Primero eliminar las relaciones de categorías
+      await supabase.from('experience_categories').delete().eq('experience_id', id);
+      
       const { error } = await supabase.from('experiences').delete().eq('id', id);
       if (error) {
         alert('Error al eliminar: ' + error.message);
@@ -362,10 +367,7 @@ export default function ExperiencesPage() {
               <p className="text-gray-800 font-medium">Gestiona tus productos del marketplace</p>
             </div>
             <button
-              onClick={() => {
-                resetForm();
-                setShowForm(true);
-              }}
+              onClick={() => { resetForm(); setShowForm(true); }}
               className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
             >
               <Plus size={20} />
@@ -443,7 +445,7 @@ export default function ExperiencesPage() {
                     <label className="block text-sm font-bold text-gray-900 mb-3">Categorías (múltiples)</label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {categories.map(cat => (
-                        <label key={cat.id} className="flex items-center gap-2 cursor-pointer p-3 border-2 border-gray-200 rounded-lg hover:border-purple-500 transition-colors">
+                        <label key={cat.id} className={`flex items-center gap-2 cursor-pointer p-3 border-2 rounded-lg transition-colors ${formData.selectedCategories.includes(cat.id) ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-purple-300'}`}>
                           <input
                             type="checkbox"
                             checked={formData.selectedCategories.includes(cat.id)}
@@ -454,6 +456,11 @@ export default function ExperiencesPage() {
                         </label>
                       ))}
                     </div>
+                    {formData.selectedCategories.length > 0 && (
+                      <p className="text-sm text-purple-600 mt-2 font-medium">
+                        {formData.selectedCategories.length} categoría(s) seleccionada(s)
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -552,7 +559,7 @@ export default function ExperiencesPage() {
                       value={formData.gallery}
                       onChange={(e) => setFormData({ ...formData, gallery: e.target.value })}
                       rows={2}
-                      placeholder="https://image1.jpg, https://image2.jpg, https://image3.jpg"
+                      placeholder="https://image1.jpg, https://image2.jpg"
                       className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                     />
                   </div>
@@ -561,48 +568,38 @@ export default function ExperiencesPage() {
 
               {/* HIGHLIGHTS */}
               <div className="border-b pb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Highlights (lo mejor)</h3>
-                <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-2">
-                    Highlights (uno por línea)
-                  </label>
-                  <textarea
-                    value={formData.highlights}
-                    onChange={(e) => setFormData({ ...formData, highlights: e.target.value })}
-                    rows={4}
-                    placeholder="Confirmación inmediata&#10;Entrada móvil&#10;Cancelación gratis 24h&#10;Disponibilidad flexible"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                  />
-                  <p className="text-sm text-gray-600 mt-1">Escribe un highlight por línea</p>
-                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Highlights</h3>
+                <textarea
+                  value={formData.highlights}
+                  onChange={(e) => setFormData({ ...formData, highlights: e.target.value })}
+                  rows={4}
+                  placeholder="Confirmación inmediata&#10;Entrada móvil&#10;Cancelación gratis 24h"
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
+                />
+                <p className="text-sm text-gray-600 mt-1">Uno por línea</p>
               </div>
 
-              {/* QUÉ INCLUYE / NO INCLUYE */}
+              {/* QUÉ INCLUYE */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Qué Incluye / No Incluye</h3>
-                
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
-                      Qué incluye (uno por línea)
-                    </label>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Qué incluye (uno por línea)</label>
                     <textarea
                       value={formData.includes}
                       onChange={(e) => setFormData({ ...formData, includes: e.target.value })}
                       rows={5}
-                      placeholder="Entrada sin colas&#10;Guía profesional&#10;Audioguía en español"
+                      placeholder="Entrada sin colas&#10;Guía profesional"
                       className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
-                      Qué NO incluye (uno por línea)
-                    </label>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Qué NO incluye (uno por línea)</label>
                     <textarea
                       value={formData.not_includes}
                       onChange={(e) => setFormData({ ...formData, not_includes: e.target.value })}
                       rows={5}
-                      placeholder="Transporte al lugar&#10;Comida y bebida&#10;Propinas"
+                      placeholder="Transporte&#10;Comida y bebida"
                       className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                     />
                   </div>
@@ -612,7 +609,6 @@ export default function ExperiencesPage() {
               {/* INFORMACIÓN ADICIONAL */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Información Adicional</h3>
-                
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Punto de encuentro</label>
@@ -620,38 +616,30 @@ export default function ExperiencesPage() {
                       value={formData.meeting_point}
                       onChange={(e) => setFormData({ ...formData, meeting_point: e.target.value })}
                       rows={2}
-                      placeholder="Ubicación exacta donde se reúnen los participantes"
                       className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Información importante</label>
                     <textarea
                       value={formData.important_info}
                       onChange={(e) => setFormData({ ...formData, important_info: e.target.value })}
                       rows={3}
-                      placeholder="Información crítica que el cliente debe saber"
                       className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Política de cancelación</label>
                     <textarea
                       value={formData.cancellation_policy}
                       onChange={(e) => setFormData({ ...formData, cancellation_policy: e.target.value })}
                       rows={3}
-                      placeholder="Condiciones de cancelación y reembolso"
                       className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                     />
                   </div>
-
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-bold text-gray-900 mb-2">
-                        Idiomas disponibles (separados por comas)
-                      </label>
+                      <label className="block text-sm font-bold text-gray-900 mb-2">Idiomas (separados por comas)</label>
                       <input
                         type="text"
                         value={formData.languages}
@@ -666,12 +654,10 @@ export default function ExperiencesPage() {
                         type="text"
                         value={formData.accessibility}
                         onChange={(e) => setFormData({ ...formData, accessibility: e.target.value })}
-                        placeholder="Accesible para silla de ruedas"
                         className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                       />
                     </div>
                   </div>
-
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-gray-900 mb-2">Código de vestimenta</label>
@@ -679,7 +665,6 @@ export default function ExperiencesPage() {
                         value={formData.dress_code}
                         onChange={(e) => setFormData({ ...formData, dress_code: e.target.value })}
                         rows={2}
-                        placeholder="Ropa cómoda, zapatos cerrados..."
                         className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                       />
                     </div>
@@ -689,7 +674,6 @@ export default function ExperiencesPage() {
                         value={formData.restrictions}
                         onChange={(e) => setFormData({ ...formData, restrictions: e.target.value })}
                         rows={2}
-                        placeholder="No apto para menores de 12 años..."
                         className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                       />
                     </div>
@@ -700,7 +684,6 @@ export default function ExperiencesPage() {
               {/* CONFIGURACIÓN */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Configuración</h3>
-                
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Widget ID (Regiondo)</label>
@@ -708,12 +691,9 @@ export default function ExperiencesPage() {
                       type="text"
                       value={formData.widget_id}
                       onChange={(e) => setFormData({ ...formData, widget_id: e.target.value })}
-                      placeholder="748f3583-4051-439f-a6e4-a688c9b28354"
                       className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                     />
-                    <p className="text-sm text-gray-600 mt-1">ID del widget de Regiondo para reservas</p>
                   </div>
-
                   <div className="border-t pt-4">
                     <h4 className="text-md font-bold text-gray-900 mb-3">O usa Tiqets</h4>
                     <div className="grid grid-cols-2 gap-4">
@@ -723,10 +703,8 @@ export default function ExperiencesPage() {
                           type="text"
                           value={formData.tiqets_venue_id}
                           onChange={(e) => setFormData({ ...formData, tiqets_venue_id: e.target.value })}
-                          placeholder="142007"
                           className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                         />
-                        <p className="text-sm text-gray-600 mt-1">ID del venue en Tiqets</p>
                       </div>
                       <div>
                         <label className="block text-sm font-bold text-gray-900 mb-2">Tiqets Campaign</label>
@@ -734,14 +712,11 @@ export default function ExperiencesPage() {
                           type="text"
                           value={formData.tiqets_campaign}
                           onChange={(e) => setFormData({ ...formData, tiqets_campaign: e.target.value })}
-                          placeholder="Pantheon"
                           className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
                         />
-                        <p className="text-sm text-gray-600 mt-1">Nombre de la campaña</p>
                       </div>
                     </div>
                   </div>
-
                   <div className="flex items-center gap-6">
                     <label className="flex items-center gap-3 cursor-pointer">
                       <input
@@ -755,7 +730,6 @@ export default function ExperiencesPage() {
                         <p className="text-xs text-gray-600">Aparecerá en la página principal</p>
                       </div>
                     </label>
-
                     <label className="flex items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
@@ -789,45 +763,25 @@ export default function ExperiencesPage() {
           </div>
         )}
 
-        {/* LISTADO DE EXPERIENCIAS */}
+        {/* LISTADO */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {experiences.map((exp) => {
-            const categoryNames = exp.experience_categories?.map(
-              ec => ec.categories.name
-            ) || [];
+            const categoryNames = exp.experience_categories?.map(ec => ec.categories.name) || [];
 
             return (
               <div key={exp.id} className="bg-white rounded-xl border-2 border-gray-300 overflow-hidden hover:shadow-lg transition-all">
                 {exp.main_image && (
                   <div className="relative h-48">
                     <Image src={exp.main_image} alt={exp.title} fill className="object-cover" />
-                    {exp.featured && (
-                      <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                        DESTACADO
-                      </div>
-                    )}
-                    {!exp.active && (
-                      <div className="absolute top-3 right-3 bg-gray-800 text-white px-3 py-1 rounded-full text-xs font-bold">
-                        INACTIVO
-                      </div>
-                    )}
+                    {exp.featured && <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">DESTACADO</div>}
+                    {!exp.active && <div className="absolute top-3 right-3 bg-gray-800 text-white px-3 py-1 rounded-full text-xs font-bold">INACTIVO</div>}
                   </div>
                 )}
                 <div className="p-4">
                   <div className="flex items-center gap-2 text-xs text-gray-600 mb-2 flex-wrap">
                     <span className="font-semibold">{exp.cities?.name || 'Sin ciudad'}</span>
-                    {exp.monuments?.name && (
-                      <>
-                        <span>•</span>
-                        <span>{exp.monuments.name}</span>
-                      </>
-                    )}
-                    {categoryNames.length > 0 && (
-                      <>
-                        <span>•</span>
-                        <span>{categoryNames.join(', ')}</span>
-                      </>
-                    )}
+                    {exp.monuments?.name && <><span>•</span><span>{exp.monuments.name}</span></>}
+                    {categoryNames.length > 0 && <><span>•</span><span className="text-purple-600">{categoryNames.join(', ')}</span></>}
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{exp.title}</h3>
                   <div className="flex items-center gap-3 mb-3">
@@ -836,9 +790,7 @@ export default function ExperiencesPage() {
                       <span className="text-sm font-bold text-gray-900">{exp.rating}</span>
                       <span className="text-xs text-gray-600">({exp.reviews})</span>
                     </div>
-                    {exp.duration && (
-                      <span className="text-sm text-gray-600">{exp.duration}</span>
-                    )}
+                    {exp.duration && <span className="text-sm text-gray-600">{exp.duration}</span>}
                   </div>
                   <div className="flex items-center justify-between mb-4 pb-4 border-b">
                     <div>
@@ -853,19 +805,11 @@ export default function ExperiencesPage() {
                     )}
                   </div>
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(exp)}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"
-                    >
-                      <Pencil size={16} />
-                      Editar
+                    <button onClick={() => handleEdit(exp)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1">
+                      <Pencil size={16} /> Editar
                     </button>
-                    <button
-                      onClick={() => handleDelete(exp.id)}
-                      className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"
-                    >
-                      <Trash2 size={16} />
-                      Eliminar
+                    <button onClick={() => handleDelete(exp.id)} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1">
+                      <Trash2 size={16} /> Eliminar
                     </button>
                   </div>
                 </div>
@@ -877,12 +821,8 @@ export default function ExperiencesPage() {
         {experiences.length === 0 && !showForm && (
           <div className="bg-white rounded-xl border-2 border-gray-300 p-12 text-center">
             <p className="text-gray-800 font-semibold mb-4">No hay experiencias creadas aún</p>
-            <button
-              onClick={() => { resetForm(); setShowForm(true); }}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2"
-            >
-              <Plus size={20} />
-              Crear Primera Experiencia
+            <button onClick={() => { resetForm(); setShowForm(true); }} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2">
+              <Plus size={20} /> Crear Primera Experiencia
             </button>
           </div>
         )}
