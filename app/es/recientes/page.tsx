@@ -13,6 +13,11 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+const breadcrumbItems = [
+  { label: 'Inicio', href: '/es' },
+  { label: 'Vistos recientemente' }
+];
+
 interface Experience {
   city: string;
   slug: string;
@@ -50,10 +55,7 @@ export default function RecientesPage() {
 
         const { data } = await supabase
           .from('experiences')
-          .select(`
-            id, title, slug, price, rating, reviews, duration, main_image,
-            cities!inner(slug, name)
-          `)
+          .select(`id, title, slug, price, rating, reviews, duration, main_image, cities!inner(slug, name)`)
           .in('slug', slugs)
           .eq('active', true);
 
@@ -70,11 +72,7 @@ export default function RecientesPage() {
             duration: exp.duration || ''
           }));
           
-          // Mantener el orden de las cookies (más reciente primero)
-          const ordered = slugs
-            .map((slug: string) => mapped.find(e => e.slug === slug))
-            .filter(Boolean) as Experience[];
-          
+          const ordered = slugs.map((slug: string) => mapped.find(e => e.slug === slug)).filter(Boolean) as Experience[];
           setExperiences(ordered);
         }
       } catch (e) {
@@ -85,11 +83,6 @@ export default function RecientesPage() {
 
     loadRecentlyViewed();
   }, []);
-
-  const breadcrumbItems = [
-    { label: 'Inicio', href: '/es' },
-    { label: 'Vistos recientemente' }
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -105,13 +98,9 @@ export default function RecientesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3 mb-4">
             <History size={40} />
-            <h1 className="text-4xl md:text-5xl font-bold">
-              Continúa explorando tus destinos favoritos
-            </h1>
+            <h1 className="text-4xl md:text-5xl font-bold">Continúa explorando tus destinos favoritos</h1>
           </div>
-          <p className="text-xl text-amber-100 max-w-2xl">
-            Las experiencias que has visitado recientemente. Retoma donde lo dejaste.
-          </p>
+          <p className="text-xl text-amber-100 max-w-2xl">Las experiencias que has visitado recientemente. Retoma donde lo dejaste.</p>
         </div>
       </div>
 
@@ -129,27 +118,16 @@ export default function RecientesPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {experiences.map((exp) => (
-                <Link 
-                  key={exp.slug} 
-                  href={`/es/${exp.city}/${exp.slug}`}
-                  className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all"
-                >
+                <Link key={exp.slug} href={`/es/${exp.city}/${exp.slug}`} className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all">
                   <div className="relative h-48">
                     <Image src={exp.image} alt={exp.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 768px) 100vw, 25vw" />
-                    <div className="absolute top-3 left-3 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                      <History size={12} /> VISTO RECIENTEMENTE
-                    </div>
+                    <div className="absolute top-3 left-3 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><History size={12} /> VISTO RECIENTEMENTE</div>
                   </div>
                   <div className="p-4">
                     <p className="text-xs font-semibold text-gray-500 mb-1">{exp.cityName.toUpperCase()}</p>
                     <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem]">{exp.title}</h3>
                     <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-                      {exp.duration && (
-                        <>
-                          <Clock size={14} />
-                          <span>{exp.duration}</span>
-                        </>
-                      )}
+                      {exp.duration && <><Clock size={14} /><span>{exp.duration}</span></>}
                     </div>
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                       <div className="flex items-center gap-1">
@@ -172,9 +150,7 @@ export default function RecientesPage() {
             <div className="text-6xl mb-4">👀</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No has visitado ninguna experiencia todavía</h3>
             <p className="text-gray-600 mb-6">Explora nuestras experiencias y volverán a aparecer aquí</p>
-            <Link href="/es" className="inline-flex bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700">
-              Explorar experiencias
-            </Link>
+            <Link href="/es" className="inline-flex bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700">Explorar experiencias</Link>
           </div>
         )}
       </div>

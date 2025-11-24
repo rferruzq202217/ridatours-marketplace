@@ -11,6 +11,11 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+const breadcrumbItems = [
+  { label: 'Inicio', href: '/es' },
+  { label: 'Mejores del mundo' }
+];
+
 export default async function MundoPage() {
   const { data: allExperiences } = await supabase
     .from('experiences')
@@ -35,11 +40,6 @@ export default async function MundoPage() {
     featured: exp.featured
   }));
 
-  const breadcrumbItems = [
-    { label: 'Inicio', href: '/es' },
-    { label: 'Mejores del mundo' }
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Header lang="es" transparent={false} showSearch={true} />
@@ -52,12 +52,8 @@ export default async function MundoPage() {
 
       <div className="bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Las mejores cosas que hacer alrededor del mundo
-          </h1>
-          <p className="text-xl text-emerald-100 max-w-2xl">
-            Experiencias con las mejores valoraciones. Solo lo mejor de lo mejor, seleccionado para ti.
-          </p>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Las mejores cosas que hacer alrededor del mundo</h1>
+          <p className="text-xl text-emerald-100 max-w-2xl">Experiencias con las mejores valoraciones. Solo lo mejor de lo mejor.</p>
         </div>
       </div>
 
@@ -68,27 +64,16 @@ export default async function MundoPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {experiences.map((exp) => (
-            <Link 
-              key={exp.slug} 
-              href={`/es/${exp.city}/${exp.slug}`}
-              className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all"
-            >
+            <Link key={exp.slug} href={`/es/${exp.city}/${exp.slug}`} className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all">
               <div className="relative h-48">
                 <Image src={exp.image} alt={exp.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 768px) 100vw, 25vw" />
-                <div className="absolute top-3 left-3 bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                  <Star size={12} className="fill-current" /> TOP RATED
-                </div>
+                <div className="absolute top-3 left-3 bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><Star size={12} className="fill-current" /> TOP RATED</div>
               </div>
               <div className="p-4">
                 <p className="text-xs font-semibold text-gray-500 mb-1">{exp.cityName.toUpperCase()}</p>
                 <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem]">{exp.title}</h3>
                 <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-                  {exp.duration && (
-                    <>
-                      <Clock size={14} />
-                      <span>{exp.duration}</span>
-                    </>
-                  )}
+                  {exp.duration && <><Clock size={14} /><span>{exp.duration}</span></>}
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                   <div className="flex items-center gap-1">
@@ -110,9 +95,7 @@ export default async function MundoPage() {
           <div className="text-center py-16">
             <div className="text-6xl mb-4">🌍</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No hay experiencias top todavía</h3>
-            <Link href="/es" className="inline-flex bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700">
-              Explorar experiencias
-            </Link>
+            <Link href="/es" className="inline-flex bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700">Explorar experiencias</Link>
           </div>
         )}
       </div>
