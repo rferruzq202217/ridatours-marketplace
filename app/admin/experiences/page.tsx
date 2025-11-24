@@ -36,27 +36,12 @@ interface Experience {
   highlights: string[] | null;
   cities?: { name: string };
   monuments?: { name: string };
-  experience_categories?: Array<{ categories: { id: string; name: string } }>;
+  experience_categories?: Array<{ category_id: string; categories: { id: string; name: string } }>;
 }
 
-interface City {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-interface Monument {
-  id: string;
-  name: string;
-  slug: string;
-  city_id: string;
-}
+interface City { id: string; name: string; slug: string; }
+interface Category { id: string; name: string; slug: string; }
+interface Monument { id: string; name: string; slug: string; city_id: string; }
 
 export default function ExperiencesPage() {
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -66,217 +51,107 @@ export default function ExperiencesPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    title: '',
-    slug: '',
-    description: '',
-    long_description: '',
-    city_id: '',
-    monument_id: '',
-    selectedCategories: [] as string[],
-    price: 0,
-    rating: 4.5,
-    reviews: 0,
-    duration: '',
-    main_image: '',
-    gallery: '',
-    widget_id: '',
-    tiqets_venue_id: '',
-    tiqets_campaign: '',
-    featured: false,
-    active: true,
-    includes: '',
-    not_includes: '',
-    meeting_point: '',
-    important_info: '',
-    cancellation_policy: '',
-    languages: '',
-    accessibility: '',
-    dress_code: '',
-    restrictions: '',
-    highlights: ''
+    title: '', slug: '', description: '', long_description: '', city_id: '', monument_id: '',
+    selectedCategories: [] as string[], price: 0, rating: 4.5, reviews: 0, duration: '',
+    main_image: '', gallery: '', widget_id: '', tiqets_venue_id: '', tiqets_campaign: '',
+    featured: false, active: true, includes: '', not_includes: '', meeting_point: '',
+    important_info: '', cancellation_policy: '', languages: '', accessibility: '',
+    dress_code: '', restrictions: '', highlights: ''
   });
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
-    // IMPORTANTE: Incluir experience_categories con categories para cargar las categorías
-    const { data: expData } = await supabase
+    // Cargar experiencias
+    const { data: expData, error: expError } = await supabase
       .from('experiences')
-      .select('*, cities(name), monuments(name), experience_categories(categories(id, name))')
+      .select('*, cities(name), monuments(name)')
       .order('created_at', { ascending: false });
     
-    if (expData) setExperiences(expData);
-
-    const { data: citiesData } = await supabase
-      .from('cities')
-      .select('id, name, slug')
-      .order('name');
+    if (expError) console.error('Error experiences:', expError);
     
+    // Cargar categorías de cada experiencia por separado
+    if (expData) {
+      const expWithCategories = await Promise.all(expData.map(async (exp) => {
+        const { data: catData } = await supabase
+          .from('experience_categories')
+          .select('category_id, categories(id, name)')
+          .eq('experience_id', exp.id);
+        return { ...exp, experience_categories: catData || [] };
+      }));
+      setExperiences(expWithCategories);
+    }
+
+    const { data: citiesData } = await supabase.from('cities').select('id, name, slug').order('name');
     if (citiesData) setCities(citiesData);
 
-    const { data: categoriesData } = await supabase
-      .from('categories')
-      .select('id, name, slug')
-      .order('name');
-    
+    const { data: categoriesData } = await supabase.from('categories').select('id, name, slug').order('name');
     if (categoriesData) setCategories(categoriesData);
 
-    const { data: monumentsData } = await supabase
-      .from('monuments')
-      .select('id, name, slug, city_id')
-      .order('name');
-    
+    const { data: monumentsData } = await supabase.from('monuments').select('id, name, slug, city_id').order('name');
     if (monumentsData) setMonuments(monumentsData);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     try {
-      const galleryArray = formData.gallery
-        ? formData.gallery.split(',').map(url => url.trim()).filter(url => url)
-        : [];
-
-      const includesArray = formData.includes
-        ? formData.includes.split('\n').map(item => item.trim()).filter(item => item)
-        : [];
-
-      const notIncludesArray = formData.not_includes
-        ? formData.not_includes.split('\n').map(item => item.trim()).filter(item => item)
-        : [];
-
-      const languagesArray = formData.languages
-        ? formData.languages.split(',').map(lang => lang.trim()).filter(lang => lang)
-        : [];
-
-      const highlightsArray = formData.highlights
-        ? formData.highlights.split('\n').map(item => item.trim()).filter(item => item)
-        : [];
-
       const dataToSave = {
-        title: formData.title,
-        slug: formData.slug,
-        description: formData.description || null,
-        long_description: formData.long_description || null,
-        city_id: formData.city_id || null,
-        monument_id: formData.monument_id || null,
-        price: parseFloat(formData.price.toString()),
-        rating: parseFloat(formData.rating.toString()),
-        reviews: parseInt(formData.reviews.toString()),
-        duration: formData.duration || null,
+        title: formData.title, slug: formData.slug,
+        description: formData.description || null, long_description: formData.long_description || null,
+        city_id: formData.city_id || null, monument_id: formData.monument_id || null,
+        price: parseFloat(formData.price.toString()), rating: parseFloat(formData.rating.toString()),
+        reviews: parseInt(formData.reviews.toString()), duration: formData.duration || null,
         main_image: formData.main_image || null,
-        gallery: galleryArray,
-        widget_id: formData.widget_id || null,
-        tiqets_venue_id: formData.tiqets_venue_id || null,
-        tiqets_campaign: formData.tiqets_campaign || null,
-        featured: formData.featured,
-        active: formData.active,
-        includes: includesArray.length > 0 ? includesArray : null,
-        not_includes: notIncludesArray.length > 0 ? notIncludesArray : null,
-        meeting_point: formData.meeting_point || null,
-        important_info: formData.important_info || null,
+        gallery: formData.gallery ? formData.gallery.split(',').map(u => u.trim()).filter(u => u) : [],
+        widget_id: formData.widget_id || null, tiqets_venue_id: formData.tiqets_venue_id || null,
+        tiqets_campaign: formData.tiqets_campaign || null, featured: formData.featured, active: formData.active,
+        includes: formData.includes ? formData.includes.split('\n').map(i => i.trim()).filter(i => i) : null,
+        not_includes: formData.not_includes ? formData.not_includes.split('\n').map(i => i.trim()).filter(i => i) : null,
+        meeting_point: formData.meeting_point || null, important_info: formData.important_info || null,
         cancellation_policy: formData.cancellation_policy || null,
-        languages: languagesArray.length > 0 ? languagesArray : null,
-        accessibility: formData.accessibility || null,
-        dress_code: formData.dress_code || null,
+        languages: formData.languages ? formData.languages.split(',').map(l => l.trim()).filter(l => l) : null,
+        accessibility: formData.accessibility || null, dress_code: formData.dress_code || null,
         restrictions: formData.restrictions || null,
-        highlights: highlightsArray.length > 0 ? highlightsArray : null
+        highlights: formData.highlights ? formData.highlights.split('\n').map(h => h.trim()).filter(h => h) : null
       };
 
       let experienceId = editingId;
 
       if (editingId) {
-        const { error } = await supabase
-          .from('experiences')
-          .update(dataToSave)
-          .eq('id', editingId);
-        
-        if (error) {
-          alert('Error al actualizar: ' + error.message);
-          return;
-        }
-
-        await supabase
-          .from('experience_categories')
-          .delete()
-          .eq('experience_id', editingId);
+        const { error } = await supabase.from('experiences').update(dataToSave).eq('id', editingId);
+        if (error) { alert('Error al actualizar: ' + error.message); return; }
+        await supabase.from('experience_categories').delete().eq('experience_id', editingId);
       } else {
-        const { data: newExp, error } = await supabase
-          .from('experiences')
-          .insert([dataToSave])
-          .select()
-          .single();
-        
-        if (error) {
-          alert('Error al crear: ' + error.message);
-          return;
-        }
-        
+        const { data: newExp, error } = await supabase.from('experiences').insert([dataToSave]).select().single();
+        if (error) { alert('Error al crear: ' + error.message); return; }
         experienceId = newExp.id;
       }
 
       if (formData.selectedCategories.length > 0 && experienceId) {
-        const categoryRelations = formData.selectedCategories.map(catId => ({
-          experience_id: experienceId,
-          category_id: catId
-        }));
-
-        const { error: catError } = await supabase
-          .from('experience_categories')
-          .insert(categoryRelations);
-
-        if (catError) {
-          alert('Error al asignar categorías: ' + catError.message);
-          return;
-        }
+        const relations = formData.selectedCategories.map(catId => ({ experience_id: experienceId, category_id: catId }));
+        const { error: catError } = await supabase.from('experience_categories').insert(relations);
+        if (catError) { alert('Error categorías: ' + catError.message); return; }
       }
 
       setShowForm(false);
       resetForm();
       loadData();
-    } catch (err) {
-      console.error('Unexpected error:', err);
-      alert('Error inesperado');
-    }
+    } catch (err) { console.error(err); alert('Error inesperado'); }
   };
 
   const handleEdit = (exp: Experience) => {
-    // Extraer IDs de categorías de la relación
-    const categoryIds = exp.experience_categories?.map(
-      ec => ec.categories.id
-    ) || [];
-
+    const categoryIds = exp.experience_categories?.map(ec => ec.categories?.id || ec.category_id).filter(Boolean) || [];
     setFormData({
-      title: exp.title,
-      slug: exp.slug,
-      description: exp.description || '',
-      long_description: exp.long_description || '',
-      city_id: exp.city_id || '',
-      monument_id: exp.monument_id || '',
-      selectedCategories: categoryIds,
-      price: exp.price,
-      rating: exp.rating,
-      reviews: exp.reviews,
-      duration: exp.duration || '',
-      main_image: exp.main_image || '',
-      gallery: exp.gallery?.join(', ') || '',
-      widget_id: exp.widget_id || '',
-      tiqets_venue_id: exp.tiqets_venue_id || '',
-      tiqets_campaign: exp.tiqets_campaign || '',
-      featured: exp.featured,
-      active: exp.active,
-      includes: exp.includes?.join('\n') || '',
-      not_includes: exp.not_includes?.join('\n') || '',
-      meeting_point: exp.meeting_point || '',
-      important_info: exp.important_info || '',
-      cancellation_policy: exp.cancellation_policy || '',
-      languages: exp.languages?.join(', ') || '',
-      accessibility: exp.accessibility || '',
-      dress_code: exp.dress_code || '',
-      restrictions: exp.restrictions || '',
-      highlights: exp.highlights?.join('\n') || ''
+      title: exp.title, slug: exp.slug, description: exp.description || '', long_description: exp.long_description || '',
+      city_id: exp.city_id || '', monument_id: exp.monument_id || '', selectedCategories: categoryIds,
+      price: exp.price, rating: exp.rating, reviews: exp.reviews, duration: exp.duration || '',
+      main_image: exp.main_image || '', gallery: exp.gallery?.join(', ') || '',
+      widget_id: exp.widget_id || '', tiqets_venue_id: exp.tiqets_venue_id || '', tiqets_campaign: exp.tiqets_campaign || '',
+      featured: exp.featured, active: exp.active, includes: exp.includes?.join('\n') || '',
+      not_includes: exp.not_includes?.join('\n') || '', meeting_point: exp.meeting_point || '',
+      important_info: exp.important_info || '', cancellation_policy: exp.cancellation_policy || '',
+      languages: exp.languages?.join(', ') || '', accessibility: exp.accessibility || '',
+      dress_code: exp.dress_code || '', restrictions: exp.restrictions || '', highlights: exp.highlights?.join('\n') || ''
     });
     setEditingId(exp.id);
     setShowForm(true);
@@ -284,14 +159,9 @@ export default function ExperiencesPage() {
 
   const handleDelete = async (id: string) => {
     if (confirm('¿Eliminar esta experiencia?')) {
-      // Primero eliminar las relaciones de categorías
       await supabase.from('experience_categories').delete().eq('experience_id', id);
-      
       const { error } = await supabase.from('experiences').delete().eq('id', id);
-      if (error) {
-        alert('Error al eliminar: ' + error.message);
-        return;
-      }
+      if (error) { alert('Error: ' + error.message); return; }
       loadData();
     }
   };
@@ -299,58 +169,17 @@ export default function ExperiencesPage() {
   const resetForm = () => {
     setEditingId(null);
     setFormData({
-      title: '',
-      slug: '',
-      description: '',
-      long_description: '',
-      city_id: '',
-      monument_id: '',
-      selectedCategories: [],
-      price: 0,
-      rating: 4.5,
-      reviews: 0,
-      duration: '',
-      main_image: '',
-      gallery: '',
-      widget_id: '',
-      tiqets_venue_id: '',
-      tiqets_campaign: '',
-      featured: false,
-      active: true,
-      includes: '',
-      not_includes: '',
-      meeting_point: '',
-      important_info: '',
-      cancellation_policy: '',
-      languages: '',
-      accessibility: '',
-      dress_code: '',
-      restrictions: '',
-      highlights: ''
+      title: '', slug: '', description: '', long_description: '', city_id: '', monument_id: '',
+      selectedCategories: [], price: 0, rating: 4.5, reviews: 0, duration: '', main_image: '', gallery: '',
+      widget_id: '', tiqets_venue_id: '', tiqets_campaign: '', featured: false, active: true,
+      includes: '', not_includes: '', meeting_point: '', important_info: '', cancellation_policy: '',
+      languages: '', accessibility: '', dress_code: '', restrictions: '', highlights: ''
     });
   };
 
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  };
-
-  const toggleCategory = (categoryId: string) => {
-    setFormData(prev => ({
-      ...prev,
-      selectedCategories: prev.selectedCategories.includes(categoryId)
-        ? prev.selectedCategories.filter(id => id !== categoryId)
-        : [...prev.selectedCategories, categoryId]
-    }));
-  };
-
-  const availableMonuments = formData.city_id 
-    ? monuments.filter(m => m.city_id === formData.city_id)
-    : [];
+  const generateSlug = (title: string) => title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const toggleCategory = (id: string) => setFormData(p => ({ ...p, selectedCategories: p.selectedCategories.includes(id) ? p.selectedCategories.filter(i => i !== id) : [...p.selectedCategories, id] }));
+  const availableMonuments = formData.city_id ? monuments.filter(m => m.city_id === formData.city_id) : [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -359,19 +188,12 @@ export default function ExperiencesPage() {
           <div className="flex items-center justify-between">
             <div>
               <Link href="/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4 font-semibold text-2xl">
-                <span className="font-bold">RIDATOURS</span> /
-                <ArrowLeft size={20} />
-                Volver al panel
+                <span className="font-bold">RIDATOURS</span> / <ArrowLeft size={20} /> Volver
               </Link>
               <h1 className="text-3xl font-bold text-gray-900">Experiencias y Tours</h1>
-              <p className="text-gray-800 font-medium">Gestiona tus productos del marketplace</p>
             </div>
-            <button
-              onClick={() => { resetForm(); setShowForm(true); }}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
-            >
-              <Plus size={20} />
-              Nueva Experiencia
+            <button onClick={() => { resetForm(); setShowForm(true); }} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2">
+              <Plus size={20} /> Nueva Experiencia
             </button>
           </div>
         </div>
@@ -382,392 +204,130 @@ export default function ExperiencesPage() {
           <div className="bg-white rounded-xl border-2 border-gray-300 p-6 mb-6 max-h-[80vh] overflow-y-auto">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">{editingId ? 'Editar' : 'Nueva'} Experiencia</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
-              
-              {/* INFORMACIÓN BÁSICA */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Información Básica</h3>
-                
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Título *</label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value, slug: generateSlug(e.target.value) })}
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                      required
-                    />
+                    <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value, slug: generateSlug(e.target.value) })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" required />
                   </div>
-
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Slug *</label>
-                    <input
-                      type="text"
-                      value={formData.slug}
-                      onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                      required
-                    />
+                    <input type="text" value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" required />
                   </div>
-
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-gray-900 mb-2">Ciudad *</label>
-                      <select
-                        value={formData.city_id}
-                        onChange={(e) => setFormData({ ...formData, city_id: e.target.value, monument_id: '' })}
-                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                        required
-                      >
-                        <option value="">Seleccionar ciudad</option>
-                        {cities.map(city => (
-                          <option key={city.id} value={city.id}>{city.name}</option>
-                        ))}
+                      <select value={formData.city_id} onChange={(e) => setFormData({ ...formData, city_id: e.target.value, monument_id: '' })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" required>
+                        <option value="">Seleccionar</option>
+                        {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-gray-900 mb-2">Monumento (opcional)</label>
-                      <select
-                        value={formData.monument_id}
-                        onChange={(e) => setFormData({ ...formData, monument_id: e.target.value })}
-                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                        disabled={!formData.city_id}
-                      >
+                      <label className="block text-sm font-bold text-gray-900 mb-2">Monumento</label>
+                      <select value={formData.monument_id} onChange={(e) => setFormData({ ...formData, monument_id: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" disabled={!formData.city_id}>
                         <option value="">Sin monumento</option>
-                        {availableMonuments.map(monument => (
-                          <option key={monument.id} value={monument.id}>{monument.name}</option>
-                        ))}
+                        {availableMonuments.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                       </select>
                     </div>
                   </div>
-
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-3">Categorías (múltiples)</label>
+                    <label className="block text-sm font-bold text-gray-900 mb-3">Categorías</label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {categories.map(cat => (
                         <label key={cat.id} className={`flex items-center gap-2 cursor-pointer p-3 border-2 rounded-lg transition-colors ${formData.selectedCategories.includes(cat.id) ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-purple-300'}`}>
-                          <input
-                            type="checkbox"
-                            checked={formData.selectedCategories.includes(cat.id)}
-                            onChange={() => toggleCategory(cat.id)}
-                            className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
-                          />
+                          <input type="checkbox" checked={formData.selectedCategories.includes(cat.id)} onChange={() => toggleCategory(cat.id)} className="w-5 h-5 text-purple-600 rounded" />
                           <span className="text-sm font-medium text-gray-900">{cat.name}</span>
                         </label>
                       ))}
                     </div>
-                    {formData.selectedCategories.length > 0 && (
-                      <p className="text-sm text-purple-600 mt-2 font-medium">
-                        {formData.selectedCategories.length} categoría(s) seleccionada(s)
-                      </p>
-                    )}
+                    {formData.selectedCategories.length > 0 && <p className="text-sm text-purple-600 mt-2 font-medium">{formData.selectedCategories.length} seleccionada(s)</p>}
                   </div>
-
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Descripción corta</label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      rows={2}
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                      placeholder="Para tarjetas y listados"
-                    />
+                    <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={2} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" />
                   </div>
-
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Descripción larga</label>
-                    <textarea
-                      value={formData.long_description}
-                      onChange={(e) => setFormData({ ...formData, long_description: e.target.value })}
-                      rows={4}
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                      placeholder="Para la página del producto"
-                    />
+                    <textarea value={formData.long_description} onChange={(e) => setFormData({ ...formData, long_description: e.target.value })} rows={4} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" />
                   </div>
                 </div>
               </div>
 
-              {/* PRECIO Y DATOS */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Precio y Datos</h3>
-                
                 <div className="grid grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Precio (€) *</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Rating</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="5"
-                      value={formData.rating}
-                      onChange={(e) => setFormData({ ...formData, rating: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Reviews</label>
-                    <input
-                      type="number"
-                      value={formData.reviews}
-                      onChange={(e) => setFormData({ ...formData, reviews: parseInt(e.target.value) })}
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Duración</label>
-                    <input
-                      type="text"
-                      value={formData.duration}
-                      onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                      placeholder="Ej: 2h, 3h 30m"
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
+                  <div><label className="block text-sm font-bold text-gray-900 mb-2">Precio € *</label><input type="number" step="0.01" value={formData.price} onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" required /></div>
+                  <div><label className="block text-sm font-bold text-gray-900 mb-2">Rating</label><input type="number" step="0.1" min="0" max="5" value={formData.rating} onChange={(e) => setFormData({ ...formData, rating: parseFloat(e.target.value) })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
+                  <div><label className="block text-sm font-bold text-gray-900 mb-2">Reviews</label><input type="number" value={formData.reviews} onChange={(e) => setFormData({ ...formData, reviews: parseInt(e.target.value) })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
+                  <div><label className="block text-sm font-bold text-gray-900 mb-2">Duración</label><input type="text" value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: e.target.value })} placeholder="2h 30m" className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
                 </div>
               </div>
 
-              {/* IMÁGENES */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Imágenes</h3>
-                
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">URL Imagen Principal</label>
-                    <input
-                      type="url"
-                      value={formData.main_image}
-                      onChange={(e) => setFormData({ ...formData, main_image: e.target.value })}
-                      placeholder="https://images.unsplash.com/..."
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Galería (URLs separadas por comas)</label>
-                    <textarea
-                      value={formData.gallery}
-                      onChange={(e) => setFormData({ ...formData, gallery: e.target.value })}
-                      rows={2}
-                      placeholder="https://image1.jpg, https://image2.jpg"
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
+                  <div><label className="block text-sm font-bold text-gray-900 mb-2">URL Imagen Principal</label><input type="url" value={formData.main_image} onChange={(e) => setFormData({ ...formData, main_image: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
+                  <div><label className="block text-sm font-bold text-gray-900 mb-2">Galería (URLs separadas por comas)</label><textarea value={formData.gallery} onChange={(e) => setFormData({ ...formData, gallery: e.target.value })} rows={2} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
                 </div>
               </div>
 
-              {/* HIGHLIGHTS */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Highlights</h3>
-                <textarea
-                  value={formData.highlights}
-                  onChange={(e) => setFormData({ ...formData, highlights: e.target.value })}
-                  rows={4}
-                  placeholder="Confirmación inmediata&#10;Entrada móvil&#10;Cancelación gratis 24h"
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                />
-                <p className="text-sm text-gray-600 mt-1">Uno por línea</p>
+                <textarea value={formData.highlights} onChange={(e) => setFormData({ ...formData, highlights: e.target.value })} rows={4} placeholder="Uno por línea" className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" />
               </div>
 
-              {/* QUÉ INCLUYE */}
               <div className="border-b pb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Qué Incluye / No Incluye</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Incluye / No Incluye</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Qué incluye (uno por línea)</label>
-                    <textarea
-                      value={formData.includes}
-                      onChange={(e) => setFormData({ ...formData, includes: e.target.value })}
-                      rows={5}
-                      placeholder="Entrada sin colas&#10;Guía profesional"
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Qué NO incluye (uno por línea)</label>
-                    <textarea
-                      value={formData.not_includes}
-                      onChange={(e) => setFormData({ ...formData, not_includes: e.target.value })}
-                      rows={5}
-                      placeholder="Transporte&#10;Comida y bebida"
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
+                  <div><label className="block text-sm font-bold text-gray-900 mb-2">Incluye (uno por línea)</label><textarea value={formData.includes} onChange={(e) => setFormData({ ...formData, includes: e.target.value })} rows={5} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
+                  <div><label className="block text-sm font-bold text-gray-900 mb-2">No Incluye (uno por línea)</label><textarea value={formData.not_includes} onChange={(e) => setFormData({ ...formData, not_includes: e.target.value })} rows={5} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
                 </div>
               </div>
 
-              {/* INFORMACIÓN ADICIONAL */}
               <div className="border-b pb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Información Adicional</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Info Adicional</h3>
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Punto de encuentro</label>
-                    <textarea
-                      value={formData.meeting_point}
-                      onChange={(e) => setFormData({ ...formData, meeting_point: e.target.value })}
-                      rows={2}
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Información importante</label>
-                    <textarea
-                      value={formData.important_info}
-                      onChange={(e) => setFormData({ ...formData, important_info: e.target.value })}
-                      rows={3}
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Política de cancelación</label>
-                    <textarea
-                      value={formData.cancellation_policy}
-                      onChange={(e) => setFormData({ ...formData, cancellation_policy: e.target.value })}
-                      rows={3}
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
+                  <div><label className="block text-sm font-bold text-gray-900 mb-2">Punto de encuentro</label><textarea value={formData.meeting_point} onChange={(e) => setFormData({ ...formData, meeting_point: e.target.value })} rows={2} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
+                  <div><label className="block text-sm font-bold text-gray-900 mb-2">Info importante</label><textarea value={formData.important_info} onChange={(e) => setFormData({ ...formData, important_info: e.target.value })} rows={3} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
+                  <div><label className="block text-sm font-bold text-gray-900 mb-2">Política cancelación</label><textarea value={formData.cancellation_policy} onChange={(e) => setFormData({ ...formData, cancellation_policy: e.target.value })} rows={3} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><label className="block text-sm font-bold text-gray-900 mb-2">Idiomas (comas)</label><input type="text" value={formData.languages} onChange={(e) => setFormData({ ...formData, languages: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
+                    <div><label className="block text-sm font-bold text-gray-900 mb-2">Accesibilidad</label><input type="text" value={formData.accessibility} onChange={(e) => setFormData({ ...formData, accessibility: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-900 mb-2">Idiomas (separados por comas)</label>
-                      <input
-                        type="text"
-                        value={formData.languages}
-                        onChange={(e) => setFormData({ ...formData, languages: e.target.value })}
-                        placeholder="Español, Inglés, Francés"
-                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-gray-900 mb-2">Accesibilidad</label>
-                      <input
-                        type="text"
-                        value={formData.accessibility}
-                        onChange={(e) => setFormData({ ...formData, accessibility: e.target.value })}
-                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-900 mb-2">Código de vestimenta</label>
-                      <textarea
-                        value={formData.dress_code}
-                        onChange={(e) => setFormData({ ...formData, dress_code: e.target.value })}
-                        rows={2}
-                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-gray-900 mb-2">Restricciones</label>
-                      <textarea
-                        value={formData.restrictions}
-                        onChange={(e) => setFormData({ ...formData, restrictions: e.target.value })}
-                        rows={2}
-                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                      />
-                    </div>
+                    <div><label className="block text-sm font-bold text-gray-900 mb-2">Vestimenta</label><textarea value={formData.dress_code} onChange={(e) => setFormData({ ...formData, dress_code: e.target.value })} rows={2} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
+                    <div><label className="block text-sm font-bold text-gray-900 mb-2">Restricciones</label><textarea value={formData.restrictions} onChange={(e) => setFormData({ ...formData, restrictions: e.target.value })} rows={2} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
                   </div>
                 </div>
               </div>
 
-              {/* CONFIGURACIÓN */}
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Configuración</h3>
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Widget ID (Regiondo)</label>
-                    <input
-                      type="text"
-                      value={formData.widget_id}
-                      onChange={(e) => setFormData({ ...formData, widget_id: e.target.value })}
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                    />
-                  </div>
-                  <div className="border-t pt-4">
-                    <h4 className="text-md font-bold text-gray-900 mb-3">O usa Tiqets</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-bold text-gray-900 mb-2">Tiqets Venue ID</label>
-                        <input
-                          type="text"
-                          value={formData.tiqets_venue_id}
-                          onChange={(e) => setFormData({ ...formData, tiqets_venue_id: e.target.value })}
-                          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-bold text-gray-900 mb-2">Tiqets Campaign</label>
-                        <input
-                          type="text"
-                          value={formData.tiqets_campaign}
-                          onChange={(e) => setFormData({ ...formData, tiqets_campaign: e.target.value })}
-                          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                        />
-                      </div>
-                    </div>
+                  <div><label className="block text-sm font-bold text-gray-900 mb-2">Widget ID (Regiondo)</label><input type="text" value={formData.widget_id} onChange={(e) => setFormData({ ...formData, widget_id: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><label className="block text-sm font-bold text-gray-900 mb-2">Tiqets Venue ID</label><input type="text" value={formData.tiqets_venue_id} onChange={(e) => setFormData({ ...formData, tiqets_venue_id: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
+                    <div><label className="block text-sm font-bold text-gray-900 mb-2">Tiqets Campaign</label><input type="text" value={formData.tiqets_campaign} onChange={(e) => setFormData({ ...formData, tiqets_campaign: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
                   </div>
                   <div className="flex items-center gap-6">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.featured}
-                        onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                        className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
-                      />
-                      <div>
-                        <span className="text-sm font-bold text-gray-900">Destacado</span>
-                        <p className="text-xs text-gray-600">Aparecerá en la página principal</p>
-                      </div>
-                    </label>
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.active}
-                        onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                        className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
-                      />
-                      <div>
-                        <span className="text-sm font-bold text-gray-900">Activo</span>
-                        <p className="text-xs text-gray-600">Visible en el sitio web</p>
-                      </div>
-                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer"><input type="checkbox" checked={formData.featured} onChange={(e) => setFormData({ ...formData, featured: e.target.checked })} className="w-5 h-5 text-purple-600 rounded" /><span className="text-sm font-bold text-gray-900">Destacado</span></label>
+                    <label className="flex items-center gap-3 cursor-pointer"><input type="checkbox" checked={formData.active} onChange={(e) => setFormData({ ...formData, active: e.target.checked })} className="w-5 h-5 text-purple-600 rounded" /><span className="text-sm font-bold text-gray-900">Activo</span></label>
                   </div>
                 </div>
               </div>
 
-              {/* BOTONES */}
               <div className="flex gap-3 pt-4">
-                <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-semibold">
-                  {editingId ? 'Actualizar' : 'Crear'} Experiencia
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setShowForm(false); resetForm(); }}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-900 px-8 py-3 rounded-lg font-semibold"
-                >
-                  Cancelar
-                </button>
+                <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-semibold">{editingId ? 'Actualizar' : 'Crear'}</button>
+                <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className="bg-gray-200 hover:bg-gray-300 text-gray-900 px-8 py-3 rounded-lg font-semibold">Cancelar</button>
               </div>
             </form>
           </div>
         )}
 
-        {/* LISTADO */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {experiences.map((exp) => {
-            const categoryNames = exp.experience_categories?.map(ec => ec.categories.name) || [];
-
+            const categoryNames = exp.experience_categories?.map(ec => ec.categories?.name).filter(Boolean) || [];
             return (
               <div key={exp.id} className="bg-white rounded-xl border-2 border-gray-300 overflow-hidden hover:shadow-lg transition-all">
                 {exp.main_image && (
@@ -785,32 +345,16 @@ export default function ExperiencesPage() {
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{exp.title}</h3>
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="flex items-center gap-1">
-                      <Star size={16} className="text-yellow-400 fill-current" />
-                      <span className="text-sm font-bold text-gray-900">{exp.rating}</span>
-                      <span className="text-xs text-gray-600">({exp.reviews})</span>
-                    </div>
+                    <div className="flex items-center gap-1"><Star size={16} className="text-yellow-400 fill-current" /><span className="text-sm font-bold">{exp.rating}</span><span className="text-xs text-gray-600">({exp.reviews})</span></div>
                     {exp.duration && <span className="text-sm text-gray-600">{exp.duration}</span>}
                   </div>
                   <div className="flex items-center justify-between mb-4 pb-4 border-b">
-                    <div>
-                      <div className="text-xs text-gray-600">Desde</div>
-                      <div className="text-2xl font-bold text-purple-700">€{exp.price}</div>
-                    </div>
-                    {exp.gallery && exp.gallery.length > 0 && (
-                      <div className="flex items-center gap-1 text-xs text-gray-600">
-                        <ImageIcon size={14} />
-                        <span>{exp.gallery.length} fotos</span>
-                      </div>
-                    )}
+                    <div><div className="text-xs text-gray-600">Desde</div><div className="text-2xl font-bold text-purple-700">€{exp.price}</div></div>
+                    {exp.gallery?.length > 0 && <div className="flex items-center gap-1 text-xs text-gray-600"><ImageIcon size={14} />{exp.gallery.length} fotos</div>}
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => handleEdit(exp)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1">
-                      <Pencil size={16} /> Editar
-                    </button>
-                    <button onClick={() => handleDelete(exp.id)} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1">
-                      <Trash2 size={16} /> Eliminar
-                    </button>
+                    <button onClick={() => handleEdit(exp)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"><Pencil size={16} /> Editar</button>
+                    <button onClick={() => handleDelete(exp.id)} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"><Trash2 size={16} /> Eliminar</button>
                   </div>
                 </div>
               </div>
@@ -820,10 +364,8 @@ export default function ExperiencesPage() {
         
         {experiences.length === 0 && !showForm && (
           <div className="bg-white rounded-xl border-2 border-gray-300 p-12 text-center">
-            <p className="text-gray-800 font-semibold mb-4">No hay experiencias creadas aún</p>
-            <button onClick={() => { resetForm(); setShowForm(true); }} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2">
-              <Plus size={20} /> Crear Primera Experiencia
-            </button>
+            <p className="text-gray-800 font-semibold mb-4">No hay experiencias</p>
+            <button onClick={() => { resetForm(); setShowForm(true); }} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2"><Plus size={20} /> Crear</button>
           </div>
         )}
       </div>
