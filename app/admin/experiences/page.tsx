@@ -65,7 +65,7 @@ export default function ExperiencesPage() {
     // Cargar experiencias
     const { data: expData, error: expError } = await supabase
       .from('experiences')
-      .select('*, cities(name), monuments(name)')
+      .select('*, cities(name)')
       .order('created_at', { ascending: false });
     
     if (expError) console.error('Error experiences:', expError);
