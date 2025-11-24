@@ -48,24 +48,20 @@ export default function SearchBar({ inHeader = false }: SearchBarProps) {
       }
 
       setIsLoading(true);
-      const searchLower = searchTerm.toLowerCase();
 
       try {
-        // Buscar ciudades
         const { data: cities } = await supabase
           .from('cities')
           .select('name, slug')
           .ilike('name', `%${searchTerm}%`)
           .limit(3);
 
-        // Buscar monumentos
         const { data: monuments } = await supabase
           .from('monuments')
           .select('name, slug, cities!inner(slug, name)')
           .ilike('name', `%${searchTerm}%`)
           .limit(5);
 
-        // Buscar experiencias
         const { data: experiences } = await supabase
           .from('experiences')
           .select('title, slug, cities!inner(slug, name)')
@@ -124,21 +120,27 @@ export default function SearchBar({ inHeader = false }: SearchBarProps) {
   };
 
   return (
-    <div ref={wrapperRef} className={`relative ${inHeader ? 'w-full max-w-2xl' : 'w-full max-w-4xl'}`}>
+    <div ref={wrapperRef} className={`relative ${inHeader ? 'w-full max-w-xl' : 'w-full max-w-2xl'}`}>
       <form onSubmit={(e) => { e.preventDefault(); if (results.length > 0) handleSelect(results[0]); }}>
-        <div className={`bg-white rounded-2xl ${inHeader ? 'border border-gray-200' : 'shadow-2xl border-2 border-white'}`}>
-          <div className="relative flex items-center gap-3 px-6 py-4">
-            <MapPin className="text-blue-600 flex-shrink-0" size={24} />
+        <div className={`
+          bg-white rounded-full transition-all
+          ${inHeader 
+            ? 'border border-gray-200 hover:border-gray-300 hover:shadow-md' 
+            : 'shadow-xl hover:shadow-2xl border border-gray-100'
+          }
+        `}>
+          <div className={`relative flex items-center gap-2 ${inHeader ? 'pl-4 pr-2 py-2' : 'pl-5 pr-2 py-2.5'}`}>
+            <Search className="text-gray-400 flex-shrink-0" size={inHeader ? 18 : 20} />
             <input
               type="text"
-              placeholder="Buscar destinos y experiencias"
+              placeholder="Buscar experiencias, ciudades..."
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
                 setIsOpen(true);
               }}
               onFocus={() => setIsOpen(true)}
-              className="flex-1 text-base font-medium text-gray-900 placeholder-gray-500 focus:outline-none bg-transparent"
+              className={`flex-1 font-medium text-gray-900 placeholder-gray-400 focus:outline-none bg-transparent ${inHeader ? 'text-sm' : 'text-base'}`}
             />
             {searchTerm && (
               <button 
@@ -148,16 +150,16 @@ export default function SearchBar({ inHeader = false }: SearchBarProps) {
                   setResults([]);
                   setIsOpen(false); 
                 }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 p-1"
               >
-                <X size={20} />
+                <X size={16} />
               </button>
             )}
             <button 
               type="submit" 
-              className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl transition-colors flex-shrink-0"
+              className={`bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors flex-shrink-0 flex items-center justify-center ${inHeader ? 'w-8 h-8' : 'w-10 h-10'}`}
             >
-              <Search size={20} />
+              <Search size={inHeader ? 14 : 16} />
             </button>
           </div>
         </div>
@@ -165,9 +167,9 @@ export default function SearchBar({ inHeader = false }: SearchBarProps) {
 
       {/* Dropdown de resultados */}
       {isOpen && searchTerm.length >= 2 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 max-h-80 overflow-y-auto">
           {isLoading ? (
-            <div className="px-6 py-4 text-gray-500 text-center">
+            <div className="px-5 py-4 text-gray-500 text-center text-sm">
               Buscando...
             </div>
           ) : results.length > 0 ? (
@@ -176,33 +178,31 @@ export default function SearchBar({ inHeader = false }: SearchBarProps) {
                 <button
                   key={`${result.type}-${result.slug}-${index}`}
                   onClick={() => handleSelect(result)}
-                  className="w-full px-6 py-3 hover:bg-blue-50 transition-colors flex items-center gap-3 text-left"
+                  className="w-full px-5 py-3 hover:bg-gray-50 transition-colors flex items-center gap-3 text-left"
                 >
-                  <MapPin size={18} className="text-blue-600 flex-shrink-0" />
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    result.type === 'city' ? 'bg-blue-100' : 
+                    result.type === 'monument' ? 'bg-amber-100' : 'bg-purple-100'
+                  }`}>
+                    <MapPin size={14} className={
+                      result.type === 'city' ? 'text-blue-600' : 
+                      result.type === 'monument' ? 'text-amber-600' : 'text-purple-600'
+                    } />
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-900 truncate">
+                    <div className="font-semibold text-gray-900 text-sm truncate">
                       {result.name}
                     </div>
-                    {result.cityName && (
-                      <div className="text-sm text-gray-500">
-                        {result.category} en {result.cityName}
-                      </div>
-                    )}
+                    <div className="text-xs text-gray-500">
+                      {result.type === 'city' ? 'Ciudad' : `${result.category} en ${result.cityName}`}
+                    </div>
                   </div>
-                  {result.type === 'city' && (
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                      Ciudad
-                    </span>
-                  )}
                 </button>
               ))}
             </div>
           ) : (
-            <div className="px-6 py-8 text-center">
-              <p className="text-gray-500 mb-2">No se encontraron resultados</p>
-              <p className="text-sm text-gray-400">
-                Intenta con otro destino o experiencia
-              </p>
+            <div className="px-5 py-6 text-center">
+              <p className="text-gray-500 text-sm">No se encontraron resultados</p>
             </div>
           )}
         </div>
