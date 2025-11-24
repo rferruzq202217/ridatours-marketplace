@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { Plus, Pencil, Trash2, ArrowLeft, Star, Image as ImageIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowLeft, Star, Image as ImageIcon, FileText, Globe } from 'lucide-react';
 import Image from 'next/image';
 
 interface Experience {
@@ -54,7 +54,8 @@ export default function ExperiencesPage() {
     title: '', slug: '', description: '', long_description: '', city_id: '', monument_id: '',
     selectedCategories: [] as string[], price: 0, rating: 4.5, reviews: 0, duration: '',
     main_image: '', gallery: '', widget_id: '', tiqets_venue_id: '', tiqets_campaign: '',
-    featured: false, active: true, includes: '', not_includes: '', meeting_point: '',
+    featured: false, active: false, // Por defecto BORRADOR
+    includes: '', not_includes: '', meeting_point: '',
     important_info: '', cancellation_policy: '', languages: '', accessibility: '',
     dress_code: '', restrictions: '', highlights: ''
   });
@@ -62,23 +63,29 @@ export default function ExperiencesPage() {
   useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
-    // Cargar experiencias
     const { data: expData, error: expError } = await supabase
       .from('experiences')
       .select('*, cities(name)')
       .order('created_at', { ascending: false });
     
-    if (expError) console.error('Error experiences:', expError);
+    if (expError) { console.error('Error experiences:', expError); return; }
     
-    // Cargar categorías de cada experiencia por separado
     if (expData) {
-      const expWithCategories = await Promise.all(expData.map(async (exp) => {
-        const { data: catData } = await supabase
-          .from('experience_categories')
-          .select('category_id, categories(id, name)')
-          .eq('experience_id', exp.id);
-        return { ...exp, experience_categories: catData || [] };
+      const { data: allCatRelations } = await supabase
+        .from('experience_categories')
+        .select('experience_id, category_id, categories(id, name)');
+      
+      const catMap = new Map();
+      (allCatRelations || []).forEach(rel => {
+        if (!catMap.has(rel.experience_id)) catMap.set(rel.experience_id, []);
+        catMap.get(rel.experience_id).push(rel);
+      });
+      
+      const expWithCategories = expData.map(exp => ({
+        ...exp,
+        experience_categories: catMap.get(exp.id) || []
       }));
+      
       setExperiences(expWithCategories);
     }
 
@@ -166,12 +173,19 @@ export default function ExperiencesPage() {
     }
   };
 
+  const togglePublishStatus = async (exp: Experience) => {
+    const newStatus = !exp.active;
+    const { error } = await supabase.from('experiences').update({ active: newStatus }).eq('id', exp.id);
+    if (error) { alert('Error: ' + error.message); return; }
+    loadData();
+  };
+
   const resetForm = () => {
     setEditingId(null);
     setFormData({
       title: '', slug: '', description: '', long_description: '', city_id: '', monument_id: '',
       selectedCategories: [], price: 0, rating: 4.5, reviews: 0, duration: '', main_image: '', gallery: '',
-      widget_id: '', tiqets_venue_id: '', tiqets_campaign: '', featured: false, active: true,
+      widget_id: '', tiqets_venue_id: '', tiqets_campaign: '', featured: false, active: false,
       includes: '', not_includes: '', meeting_point: '', important_info: '', cancellation_policy: '',
       languages: '', accessibility: '', dress_code: '', restrictions: '', highlights: ''
     });
@@ -180,6 +194,10 @@ export default function ExperiencesPage() {
   const generateSlug = (title: string) => title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const toggleCategory = (id: string) => setFormData(p => ({ ...p, selectedCategories: p.selectedCategories.includes(id) ? p.selectedCategories.filter(i => i !== id) : [...p.selectedCategories, id] }));
   const availableMonuments = formData.city_id ? monuments.filter(m => m.city_id === formData.city_id) : [];
+
+  // Separar experiencias por estado
+  const publishedExperiences = experiences.filter(e => e.active);
+  const draftExperiences = experiences.filter(e => !e.active);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -191,6 +209,16 @@ export default function ExperiencesPage() {
                 <span className="font-bold">RIDATOURS</span> / <ArrowLeft size={20} /> Volver
               </Link>
               <h1 className="text-3xl font-bold text-gray-900">Experiencias y Tours</h1>
+              <div className="flex items-center gap-4 mt-2">
+                <span className="inline-flex items-center gap-1 text-sm">
+                  <Globe size={16} className="text-green-600" />
+                  <span className="font-semibold text-green-600">{publishedExperiences.length} publicadas</span>
+                </span>
+                <span className="inline-flex items-center gap-1 text-sm">
+                  <FileText size={16} className="text-gray-500" />
+                  <span className="font-semibold text-gray-500">{draftExperiences.length} borradores</span>
+                </span>
+              </div>
             </div>
             <button onClick={() => { resetForm(); setShowForm(true); }} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2">
               <Plus size={20} /> Nueva Experiencia
@@ -202,7 +230,26 @@ export default function ExperiencesPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {showForm && (
           <div className="bg-white rounded-xl border-2 border-gray-300 p-6 mb-6 max-h-[80vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">{editingId ? 'Editar' : 'Nueva'} Experiencia</h2>
+            {/* Header del formulario con botón de estado */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">{editingId ? 'Editar' : 'Nueva'} Experiencia</h2>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, active: !formData.active })}
+                className={`px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 transition-all ${
+                  formData.active 
+                    ? 'bg-green-100 text-green-700 border-2 border-green-500 hover:bg-green-200' 
+                    : 'bg-gray-100 text-gray-600 border-2 border-gray-300 hover:bg-gray-200'
+                }`}
+              >
+                {formData.active ? (
+                  <><Globe size={16} /> Publicada</>
+                ) : (
+                  <><FileText size={16} /> Borrador</>
+                )}
+              </button>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="border-b pb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Información Básica</h3>
@@ -310,10 +357,10 @@ export default function ExperiencesPage() {
                     <div><label className="block text-sm font-bold text-gray-900 mb-2">Tiqets Venue ID</label><input type="text" value={formData.tiqets_venue_id} onChange={(e) => setFormData({ ...formData, tiqets_venue_id: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
                     <div><label className="block text-sm font-bold text-gray-900 mb-2">Tiqets Campaign</label><input type="text" value={formData.tiqets_campaign} onChange={(e) => setFormData({ ...formData, tiqets_campaign: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900" /></div>
                   </div>
-                  <div className="flex items-center gap-6">
-                    <label className="flex items-center gap-3 cursor-pointer"><input type="checkbox" checked={formData.featured} onChange={(e) => setFormData({ ...formData, featured: e.target.checked })} className="w-5 h-5 text-purple-600 rounded" /><span className="text-sm font-bold text-gray-900">Destacado</span></label>
-                    <label className="flex items-center gap-3 cursor-pointer"><input type="checkbox" checked={formData.active} onChange={(e) => setFormData({ ...formData, active: e.target.checked })} className="w-5 h-5 text-purple-600 rounded" /><span className="text-sm font-bold text-gray-900">Activo</span></label>
-                  </div>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked={formData.featured} onChange={(e) => setFormData({ ...formData, featured: e.target.checked })} className="w-5 h-5 text-purple-600 rounded" />
+                    <span className="text-sm font-bold text-gray-900">Destacado (aparece en home)</span>
+                  </label>
                 </div>
               </div>
 
@@ -325,42 +372,37 @@ export default function ExperiencesPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {experiences.map((exp) => {
-            const categoryNames = exp.experience_categories?.map(ec => ec.categories?.name).filter(Boolean) || [];
-            return (
-              <div key={exp.id} className="bg-white rounded-xl border-2 border-gray-300 overflow-hidden hover:shadow-lg transition-all">
-                {exp.main_image && typeof exp.main_image === 'string' && exp.main_image.startsWith('http') && (
-                  <div className="relative h-48">
-                    <Image src={exp.main_image} alt={exp.title} fill className="object-cover" />
-                    {exp.featured && <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">DESTACADO</div>}
-                    {!exp.active && <div className="absolute top-3 right-3 bg-gray-800 text-white px-3 py-1 rounded-full text-xs font-bold">INACTIVO</div>}
-                  </div>
-                )}
-                <div className="p-4">
-                  <div className="flex items-center gap-2 text-xs text-gray-600 mb-2 flex-wrap">
-                    <span className="font-semibold">{exp.cities?.name || 'Sin ciudad'}</span>
-                    {exp.monuments?.name && <><span>•</span><span>{exp.monuments.name}</span></>}
-                    {categoryNames.length > 0 && <><span>•</span><span className="text-purple-600">{categoryNames.join(', ')}</span></>}
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{exp.title}</h3>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="flex items-center gap-1"><Star size={16} className="text-yellow-400 fill-current" /><span className="text-sm font-bold">{exp.rating}</span><span className="text-xs text-gray-600">({exp.reviews})</span></div>
-                    {exp.duration && <span className="text-sm text-gray-600">{exp.duration}</span>}
-                  </div>
-                  <div className="flex items-center justify-between mb-4 pb-4 border-b">
-                    <div><div className="text-xs text-gray-600">Desde</div><div className="text-2xl font-bold text-purple-700">€{exp.price}</div></div>
-                    {exp.gallery?.length > 0 && <div className="flex items-center gap-1 text-xs text-gray-600"><ImageIcon size={14} />{exp.gallery.length} fotos</div>}
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => handleEdit(exp)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"><Pencil size={16} /> Editar</button>
-                    <button onClick={() => handleDelete(exp.id)} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"><Trash2 size={16} /> Eliminar</button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        {/* BORRADORES */}
+        {draftExperiences.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <FileText size={24} className="text-gray-500" />
+              Borradores
+              <span className="text-sm font-normal text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{draftExperiences.length}</span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {draftExperiences.map((exp) => (
+                <ExperienceCard key={exp.id} exp={exp} onEdit={handleEdit} onDelete={handleDelete} onTogglePublish={togglePublishStatus} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* PUBLICADAS */}
+        {publishedExperiences.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Globe size={24} className="text-green-600" />
+              Publicadas
+              <span className="text-sm font-normal text-green-600 bg-green-100 px-3 py-1 rounded-full">{publishedExperiences.length}</span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {publishedExperiences.map((exp) => (
+                <ExperienceCard key={exp.id} exp={exp} onEdit={handleEdit} onDelete={handleDelete} onTogglePublish={togglePublishStatus} />
+              ))}
+            </div>
+          </div>
+        )}
         
         {experiences.length === 0 && !showForm && (
           <div className="bg-white rounded-xl border-2 border-gray-300 p-12 text-center">
@@ -368,6 +410,72 @@ export default function ExperiencesPage() {
             <button onClick={() => { resetForm(); setShowForm(true); }} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2"><Plus size={20} /> Crear</button>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// Componente de tarjeta separado
+function ExperienceCard({ exp, onEdit, onDelete, onTogglePublish }: { 
+  exp: Experience; 
+  onEdit: (exp: Experience) => void; 
+  onDelete: (id: string) => void;
+  onTogglePublish: (exp: Experience) => void;
+}) {
+  const categoryNames = exp.experience_categories?.map(ec => ec.categories?.name).filter(Boolean) || [];
+  
+  return (
+    <div className={`bg-white rounded-xl border-2 overflow-hidden hover:shadow-lg transition-all ${exp.active ? 'border-green-200' : 'border-gray-300 opacity-75'}`}>
+      {exp.main_image && typeof exp.main_image === 'string' && exp.main_image.startsWith('http') && (
+        <div className="relative h-48">
+          <Image src={exp.main_image} alt={exp.title} fill className="object-cover" />
+          {exp.featured && <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">DESTACADO</div>}
+          {/* Botón de estado en la imagen */}
+          <button
+            onClick={() => onTogglePublish(exp)}
+            className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 transition-all ${
+              exp.active 
+                ? 'bg-green-500 text-white hover:bg-green-600' 
+                : 'bg-gray-700 text-white hover:bg-gray-800'
+            }`}
+          >
+            {exp.active ? <><Globe size={12} /> Publicada</> : <><FileText size={12} /> Borrador</>}
+          </button>
+        </div>
+      )}
+      {/* Si no tiene imagen, mostrar botón de estado arriba */}
+      {(!exp.main_image || typeof exp.main_image !== 'string' || !exp.main_image.startsWith('http')) && (
+        <div className="p-3 border-b flex justify-end">
+          <button
+            onClick={() => onTogglePublish(exp)}
+            className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${
+              exp.active 
+                ? 'bg-green-500 text-white hover:bg-green-600' 
+                : 'bg-gray-700 text-white hover:bg-gray-800'
+            }`}
+          >
+            {exp.active ? <><Globe size={12} /> Publicada</> : <><FileText size={12} /> Borrador</>}
+          </button>
+        </div>
+      )}
+      <div className="p-4">
+        <div className="flex items-center gap-2 text-xs text-gray-600 mb-2 flex-wrap">
+          <span className="font-semibold">{exp.cities?.name || 'Sin ciudad'}</span>
+          {categoryNames.length > 0 && <><span>•</span><span className="text-purple-600">{categoryNames.join(', ')}</span></>}
+        </div>
+        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{exp.title}</h3>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-1"><Star size={16} className="text-yellow-400 fill-current" /><span className="text-sm font-bold">{exp.rating}</span><span className="text-xs text-gray-600">({exp.reviews})</span></div>
+          {exp.duration && <span className="text-sm text-gray-600">{exp.duration}</span>}
+        </div>
+        <div className="flex items-center justify-between mb-4 pb-4 border-b">
+          <div><div className="text-xs text-gray-600">Desde</div><div className="text-2xl font-bold text-purple-700">€{exp.price}</div></div>
+          {exp.gallery?.length > 0 && <div className="flex items-center gap-1 text-xs text-gray-600"><ImageIcon size={14} />{exp.gallery.length} fotos</div>}
+        </div>
+        <div className="flex gap-2">
+          <button onClick={() => onEdit(exp)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"><Pencil size={16} /> Editar</button>
+          <button onClick={() => onDelete(exp.id)} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"><Trash2 size={16} /> Eliminar</button>
+        </div>
       </div>
     </div>
   );
