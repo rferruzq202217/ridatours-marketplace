@@ -22,8 +22,9 @@ export default async function PopularesPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="min-h-screen bg-gray-50">
       <Header lang="es" transparent={false} showSearch={true} />
+      <div className="h-24"></div>
       <div className="bg-white border-b"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3"><Breadcrumb items={breadcrumbItems} /></div></div>
       <div className="bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,7 +53,7 @@ export default async function PopularesPage() {
             </Link>
           ))}
         </div>
-        {experiences.length === 0 && <div className="text-center py-16"><div className="text-6xl mb-4">🔥</div><h3 className="text-xl font-semibold text-gray-900 mb-2">No hay experiencias populares todavía</h3><Link href="/es" className="inline-flex bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700">Explorar</Link></div>}
+        {experiences.length === 0 && <div className="text-center py-16"><div className="text-6xl mb-4">🔥</div><h3 className="text-xl font-semibold text-gray-900 mb-2">No hay experiencias populares</h3><Link href="/es" className="inline-flex bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700">Explorar</Link></div>}
       </div>
       <Footer lang="es" />
     </div>

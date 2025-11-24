@@ -43,18 +43,19 @@ export default function RecientesPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="min-h-screen bg-gray-50">
       <Header lang="es" transparent={false} showSearch={true} />
+      <div className="h-24"></div>
       <div className="bg-white border-b"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3"><Breadcrumb items={breadcrumbItems} /></div></div>
       <div className="bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 mb-4"><History size={40} /><h1 className="text-4xl md:text-5xl font-bold">Continúa explorando tus destinos favoritos</h1></div>
+          <div className="flex items-center gap-3 mb-4"><History size={40} /><h1 className="text-4xl md:text-5xl font-bold">Continúa explorando</h1></div>
           <p className="text-xl text-amber-100 max-w-2xl">Las experiencias que has visitado recientemente.</p>
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {loading ? (
-          <div className="text-center py-16"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div><p className="mt-4 text-gray-600">Cargando...</p></div>
+          <div className="text-center py-16"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div></div>
         ) : experiences.length > 0 ? (
           <>
             <div className="mb-8"><span className="font-semibold text-gray-900">{experiences.length} experiencias vistas</span></div>
@@ -79,7 +80,7 @@ export default function RecientesPage() {
             </div>
           </>
         ) : (
-          <div className="text-center py-16"><div className="text-6xl mb-4">👀</div><h3 className="text-xl font-semibold text-gray-900 mb-2">No has visitado ninguna experiencia todavía</h3><p className="text-gray-600 mb-6">Explora nuestras experiencias</p><Link href="/es" className="inline-flex bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700">Explorar</Link></div>
+          <div className="text-center py-16"><div className="text-6xl mb-4">👀</div><h3 className="text-xl font-semibold text-gray-900 mb-2">No has visitado ninguna experiencia</h3><Link href="/es" className="inline-flex bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700">Explorar</Link></div>
         )}
       </div>
       <Footer lang="es" />

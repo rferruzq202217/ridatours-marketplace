@@ -14,7 +14,7 @@ const breadcrumbItems = [
 ];
 
 export default async function MundoPage() {
-  const { data: allExperiences } = await supabase.from('experiences').select('id, title, slug, price, rating, reviews, duration, main_image, featured, cities!inner(slug, name)').eq('active', true).gte('rating', 4.5).order('rating', { ascending: false });
+  const { data: allExperiences } = await supabase.from('experiences').select('id, title, slug, price, rating, reviews, duration, main_image, cities!inner(slug, name)').eq('active', true).gte('rating', 4.5).order('rating', { ascending: false });
 
   const experiences = (allExperiences || []).map((exp: any) => ({
     city: exp.cities?.slug || '', slug: exp.slug, title: exp.title, cityName: exp.cities?.name || '',
@@ -22,8 +22,9 @@ export default async function MundoPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="min-h-screen bg-gray-50">
       <Header lang="es" transparent={false} showSearch={true} />
+      <div className="h-24"></div>
       <div className="bg-white border-b"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3"><Breadcrumb items={breadcrumbItems} /></div></div>
       <div className="bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,7 +53,7 @@ export default async function MundoPage() {
             </Link>
           ))}
         </div>
-        {experiences.length === 0 && <div className="text-center py-16"><div className="text-6xl mb-4">🌍</div><h3 className="text-xl font-semibold text-gray-900 mb-2">No hay experiencias top todavía</h3><Link href="/es" className="inline-flex bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700">Explorar</Link></div>}
+        {experiences.length === 0 && <div className="text-center py-16"><div className="text-6xl mb-4">🌍</div><h3 className="text-xl font-semibold text-gray-900 mb-2">No hay experiencias top</h3><Link href="/es" className="inline-flex bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700">Explorar</Link></div>}
       </div>
       <Footer lang="es" />
     </div>

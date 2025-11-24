@@ -14,7 +14,7 @@ const breadcrumbItems = [
 ];
 
 export default async function RecomendacionesPage() {
-  const { data: allExperiences } = await supabase.from('experiences').select('id, title, slug, price, rating, reviews, duration, main_image, featured, cities!inner(slug, name)').eq('active', true).order('created_at', { ascending: false });
+  const { data: allExperiences } = await supabase.from('experiences').select('id, title, slug, price, rating, reviews, duration, main_image, cities!inner(slug, name)').eq('active', true).order('created_at', { ascending: false });
 
   const experiences = (allExperiences || []).map((exp: any) => ({
     city: exp.cities?.slug || '', slug: exp.slug, title: exp.title, cityName: exp.cities?.name || '',
@@ -22,13 +22,14 @@ export default async function RecomendacionesPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="min-h-screen bg-gray-50">
       <Header lang="es" transparent={false} showSearch={true} />
+      <div className="h-24"></div>
       <div className="bg-white border-b"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3"><Breadcrumb items={breadcrumbItems} /></div></div>
       <div className="bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 mb-4"><Award size={40} className="text-yellow-300" /><h1 className="text-4xl md:text-5xl font-bold">Principales recomendaciones de Ridatours</h1></div>
-          <p className="text-xl text-violet-100 max-w-2xl">Nuestra selección personal de experiencias que no puedes perderte.</p>
+          <div className="flex items-center gap-3 mb-4"><Award size={40} className="text-yellow-300" /><h1 className="text-4xl md:text-5xl font-bold">Recomendaciones de Ridatours</h1></div>
+          <p className="text-xl text-violet-100 max-w-2xl">Nuestra selección personal de experiencias.</p>
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -52,7 +53,7 @@ export default async function RecomendacionesPage() {
             </Link>
           ))}
         </div>
-        {experiences.length === 0 && <div className="text-center py-16"><div className="text-6xl mb-4">💜</div><h3 className="text-xl font-semibold text-gray-900 mb-2">No hay recomendaciones todavía</h3><Link href="/es" className="inline-flex bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700">Explorar</Link></div>}
+        {experiences.length === 0 && <div className="text-center py-16"><div className="text-6xl mb-4">💜</div><h3 className="text-xl font-semibold text-gray-900 mb-2">No hay recomendaciones</h3><Link href="/es" className="inline-flex bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700">Explorar</Link></div>}
       </div>
       <Footer lang="es" />
     </div>
