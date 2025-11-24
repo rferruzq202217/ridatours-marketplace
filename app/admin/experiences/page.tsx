@@ -330,7 +330,7 @@ export default function ExperiencesPage() {
             const categoryNames = exp.experience_categories?.map(ec => ec.categories?.name).filter(Boolean) || [];
             return (
               <div key={exp.id} className="bg-white rounded-xl border-2 border-gray-300 overflow-hidden hover:shadow-lg transition-all">
-                {exp.main_image && (
+                {exp.main_image && typeof exp.main_image === 'string' && exp.main_image.startsWith('http') && (
                   <div className="relative h-48">
                     <Image src={exp.main_image} alt={exp.title} fill className="object-cover" />
                     {exp.featured && <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">DESTACADO</div>}
