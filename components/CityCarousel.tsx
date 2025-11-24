@@ -85,14 +85,14 @@ export default function CityCarousel({ title, subtitle, cities, viewAllLink, lan
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-5">
                 <div className="flex items-center gap-2 text-white mb-1">
-                  <MapPin size={18} className="text-blue-400" />
+                  <MapPin size={18} className="text-white" />
                   <span className="text-xl font-bold drop-shadow-lg">{city.name}</span>
                 </div>
                 {city.country && (
                   <p className="text-sm text-gray-200 ml-6">{city.country}</p>
                 )}
                 {city.experienceCount !== undefined && city.experienceCount > 0 && (
-                  <p className="text-xs text-blue-300 mt-2 ml-6 font-medium">
+                  <p className="text-xs text-white/80 mt-2 ml-6 font-medium">
                     {city.experienceCount} experiencias
                   </p>
                 )}

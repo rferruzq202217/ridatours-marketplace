@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Breadcrumb from '@/components/Breadcrumb';
 import { MapPin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -131,10 +132,23 @@ export default async function CitiesPage({ searchParams }: PageProps) {
 
   const sortedCountries = Object.keys(citiesByCountry).sort();
 
+  const breadcrumbItems = [
+    { label: 'Inicio', href: '/es' },
+    { label: 'Ciudades' }
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header lang="es" transparent={false} showSearch={true} />
       
+      {/* Breadcrumb */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <Breadcrumb items={breadcrumbItems} />
+        </div>
+      </div>
+
+      {/* Hero Section */}
       <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -146,6 +160,7 @@ export default async function CitiesPage({ searchParams }: PageProps) {
         </div>
       </div>
 
+      {/* Filtros por continente */}
       <div className="bg-white border-b sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex gap-2 py-4 overflow-x-auto scrollbar-hide">
@@ -167,6 +182,7 @@ export default async function CitiesPage({ searchParams }: PageProps) {
         </div>
       </div>
 
+      {/* Contenido principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8 flex items-center gap-4 text-sm text-gray-600">
           <span className="font-semibold text-gray-900">{filteredCities.length} ciudades</span>
@@ -201,11 +217,11 @@ export default async function CitiesPage({ searchParams }: PageProps) {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-4">
                     <div className="flex items-center gap-2 text-white">
-                      <MapPin size={16} className="text-blue-400" />
+                      <MapPin size={16} className="text-white" />
                       <span className="font-bold text-lg drop-shadow-lg">{city.name}</span>
                     </div>
                     {city.experienceCount > 0 && (
-                      <p className="text-xs text-blue-300 mt-1 ml-6">
+                      <p className="text-xs text-white/80 mt-1 ml-6">
                         {city.experienceCount} {city.experienceCount === 1 ? 'experiencia' : 'experiencias'}
                       </p>
                     )}
