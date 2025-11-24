@@ -55,7 +55,7 @@ export default function RecientesPage() {
 
         const { data } = await supabase
           .from('experiences')
-          .select(`id, title, slug, price, rating, reviews, duration, main_image, cities!inner(slug, name)`)
+          .select('id, title, slug, price, rating, reviews, duration, main_image, cities!inner(slug, name)')
           .in('slug', slugs)
           .eq('active', true);
 
