@@ -4,9 +4,7 @@ import SearchBar from '@/components/SearchBar';
 import ExperienceCarousel from '@/components/ExperienceCarousel';
 import RecentlyViewedCarousel from '@/components/RecentlyViewedCarousel';
 import CategoryCarousel from '@/components/CategoryCarousel';
-import { MapPin } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+import CityCarousel from '@/components/CityCarousel';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -14,10 +12,28 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+const cityCountries: Record<string, string> = {
+  'roma': 'Italia',
+  'paris': 'Francia',
+  'barcelona': 'España',
+  'madrid': 'España',
+  'londres': 'Reino Unido',
+  'amsterdam': 'Países Bajos',
+  'berlin': 'Alemania',
+  'viena': 'Austria',
+  'praga': 'República Checa',
+  'lisboa': 'Portugal',
+  'florencia': 'Italia',
+  'venecia': 'Italia',
+  'atenas': 'Grecia',
+  'dublin': 'Irlanda',
+  'bruselas': 'Bélgica',
+};
+
 export default async function HomePage() {
-  const { data: cities } = await supabase
+  const { data: citiesFromDb } = await supabase
     .from('cities')
-    .select('name, slug, image')
+    .select('id, name, slug, image')
     .order('name');
 
   const { data: categoriesData } = await supabase
@@ -25,7 +41,6 @@ export default async function HomePage() {
     .select('id, name, slug, icon_name')
     .order('name');
 
-  // Contar experiencias por categoría
   const categoriesWithCount = await Promise.all(
     (categoriesData || []).map(async (cat) => {
       const { count } = await supabase
@@ -33,9 +48,24 @@ export default async function HomePage() {
         .select('*', { count: 'exact', head: true })
         .eq('category_id', cat.id);
       
+      return { ...cat, count: count || 0 };
+    })
+  );
+
+  const citiesWithCount = await Promise.all(
+    (citiesFromDb || []).map(async (city) => {
+      const { count } = await supabase
+        .from('experiences')
+        .select('*', { count: 'exact', head: true })
+        .eq('city_id', city.id)
+        .eq('active', true);
+      
       return {
-        ...cat,
-        count: count || 0
+        name: city.name,
+        slug: city.slug,
+        image: city.image || '',
+        country: cityCountries[city.slug] || '',
+        experienceCount: count || 0
       };
     })
   );
@@ -43,17 +73,7 @@ export default async function HomePage() {
   const { data: allExperiences } = await supabase
     .from('experiences')
     .select(`
-      id,
-      title,
-      slug,
-      description,
-      price,
-      rating,
-      reviews,
-      duration,
-      main_image,
-      featured,
-      city_id,
+      id, title, slug, description, price, rating, reviews, duration, main_image, featured, city_id,
       cities!inner(slug, name),
       experience_categories(categories(name))
     `)
@@ -73,18 +93,9 @@ export default async function HomePage() {
     featured: exp.featured
   })) || [];
 
-  const popularActivities = experiences
-    .filter(e => e.featured || e.reviews > 5000)
-    .sort((a, b) => b.reviews - a.reviews)
-    .slice(0, 6);
-
-  const worldBest = experiences
-    .filter(e => e.rating >= 4.7)
-    .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews)
-    .slice(0, 6);
-
-  const ridatoursRecommended = experiences
-    .slice(0, 6);
+  const popularActivities = experiences.filter(e => e.featured || e.reviews > 5000).sort((a, b) => b.reviews - a.reviews).slice(0, 6);
+  const worldBest = experiences.filter(e => e.rating >= 4.7).sort((a, b) => b.rating - a.rating || b.reviews - a.reviews).slice(0, 6);
+  const ridatoursRecommended = experiences.slice(0, 6);
 
   const categories = categoriesWithCount.map(cat => ({
     name: cat.name,
@@ -113,60 +124,26 @@ export default async function HomePage() {
       </div>
 
       <CategoryCarousel categories={categories} />
-
       <RecentlyViewedCarousel lang="es" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Ciudades populares</h2>
-          <p className="text-gray-600">Explora las ciudades más fascinantes de Europa</p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {cities?.map((city, i) => (
-            <Link key={i} href={`/es/${city.slug}`} className="group relative overflow-hidden rounded-xl border-2 border-gray-200 hover:border-blue-200 hover:shadow-xl transition-all aspect-[4/3]">
-              {city.image && <Image src={city.image} alt={city.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" sizes="(max-width: 768px) 50vw, 25vw" />}
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/60 to-transparent">
-                <div className="flex items-center gap-2 text-white">
-                  <MapPin size={20} />
-                  <span className="text-xl font-bold drop-shadow-lg">{city.name}</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+      <CityCarousel
+        title="Ciudades populares"
+        subtitle="Explora las ciudades más fascinantes de Europa"
+        cities={citiesWithCount}
+        viewAllLink="/es/ciudades"
+        lang="es"
+      />
 
       {popularActivities.length > 0 && (
-        <ExperienceCarousel 
-          title="Las actividades más populares" 
-          subtitle="Las experiencias más reservadas por nuestros viajeros" 
-          experiences={popularActivities} 
-          carouselId="popular" 
-          viewAllLink="/es/populares" 
-          lang="es" 
-        />
+        <ExperienceCarousel title="Las actividades más populares" subtitle="Las experiencias más reservadas por nuestros viajeros" experiences={popularActivities} carouselId="popular" viewAllLink="/es/populares" lang="es" />
       )}
 
       {worldBest.length > 0 && (
-        <ExperienceCarousel 
-          title="Las mejores cosas que hacer alrededor del mundo" 
-          subtitle="Descubre las maravillas de Europa" 
-          experiences={worldBest} 
-          carouselId="world" 
-          viewAllLink="/es/mundo" 
-          lang="es" 
-        />
+        <ExperienceCarousel title="Las mejores cosas que hacer alrededor del mundo" subtitle="Descubre las maravillas de Europa" experiences={worldBest} carouselId="world" viewAllLink="/es/mundo" lang="es" />
       )}
 
       {ridatoursRecommended.length > 0 && (
-        <ExperienceCarousel 
-          title="Principales recomendaciones de Ridatours" 
-          subtitle="Las experiencias que no puedes perderte" 
-          experiences={ridatoursRecommended} 
-          carouselId="recommended" 
-          viewAllLink="/es/recomendaciones" 
-          lang="es" 
-        />
+        <ExperienceCarousel title="Principales recomendaciones de Ridatours" subtitle="Las experiencias que no puedes perderte" experiences={ridatoursRecommended} carouselId="recommended" viewAllLink="/es/recomendaciones" lang="es" />
       )}
 
       <Footer lang="es" />
