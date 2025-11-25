@@ -94,7 +94,7 @@ export default function ExperienceCarousel({
                 <Link
                   key={exp.id || index}
                   href={href}
-                  className="flex-shrink-0 w-[300px] bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all group"
+                  className="flex-shrink-0 w-[300px] group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all"
                 >
                   <div className="relative h-48">
                     {exp.image && exp.image.trim() !== '' ? (
@@ -110,40 +110,34 @@ export default function ExperienceCarousel({
                       </div>
                     )}
                     {exp.featured && (
-                      <div className="absolute top-3 right-3 bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-xs font-bold">
-                        ⭐ Destacado
+                      <div className="absolute top-3 left-3 bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-xs font-bold">
+                        ⭐ DESTACADO
                       </div>
                     )}
                   </div>
 
                   <div className="p-4">
-                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                    <p className="text-xs font-semibold text-gray-500 mb-1">
+                      {(exp.cityName || exp.city || '').toUpperCase()}
+                    </p>
+                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem]">
                       {exp.title}
                     </h3>
-
-                    <div className="flex items-center gap-2 mb-3 text-sm">
+                    {exp.duration && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                        <Clock size={14} />
+                        <span>{exp.duration}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                       <div className="flex items-center gap-1">
                         <Star size={16} className="text-yellow-400 fill-current" />
                         <span className="font-semibold">{exp.rating}</span>
-                        <span className="text-gray-500">({exp.reviews})</span>
+                        <span className="text-xs text-gray-500">({exp.reviews.toLocaleString('es-ES')})</span>
                       </div>
-                      {exp.duration && (
-                        <>
-                          <span className="text-gray-300">•</span>
-                          <div className="flex items-center gap-1 text-gray-600">
-                            <Clock size={16} />
-                            <span>{exp.duration}</span>
-                          </div>
-                        </>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-sm text-gray-600">Desde</div>
-                        <div className="text-xl font-bold text-gray-900">
-                          {formatPrice(exp.price)}
-                        </div>
+                      <div className="text-right">
+                        <span className="text-xs text-gray-500">Desde</span>
+                        <p className="font-bold text-lg">{formatPrice(exp.price)}</p>
                       </div>
                     </div>
                   </div>
