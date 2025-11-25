@@ -115,7 +115,7 @@ export default function CategoriesPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">Icono *</label>
-                <IconPicker selectedIcon={formData.icon_name} onSelect={(iconName) => setFormData({ ...formData, icon_name: iconName })} />
+                <IconPicker value={formData.icon_name} onChange={(iconName) => setFormData({ ...formData, icon_name: iconName })} />
               </div>
               <div className="flex gap-3 pt-4">
                 <button type="submit" className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">{editingId ? 'Actualizar' : 'Crear'}</button>
