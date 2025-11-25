@@ -62,6 +62,11 @@ export default async function ExperiencePage({ params }: PageProps) {
     ? experience.highlights 
     : defaultHighlights;
 
+  // Filtrar imágenes válidas
+  const validGallery = experience.gallery 
+    ? experience.gallery.filter((img: string) => img && img.trim() !== '')
+    : [];
+
   return (
     <div className="min-h-screen bg-white">
       <Header lang="es" />
@@ -119,7 +124,7 @@ export default async function ExperiencePage({ params }: PageProps) {
               </div>
 
               <div className="mb-8">
-                {experience.main_image && (
+                {experience.main_image && experience.main_image.trim() !== '' && (
                   <div className="relative h-96 rounded-2xl overflow-hidden mb-4">
                     <Image 
                       src={experience.main_image} 
@@ -130,9 +135,9 @@ export default async function ExperiencePage({ params }: PageProps) {
                   </div>
                 )}
                 
-                {experience.gallery && experience.gallery.length > 0 && (
+                {validGallery.length > 0 && (
                   <div className="grid grid-cols-3 gap-3">
-                    {experience.gallery.slice(0, 3).map((img: string, i: number) => (
+                    {validGallery.slice(0, 3).map((img: string, i: number) => (
                       <div key={i} className="relative h-32 rounded-xl overflow-hidden">
                         <Image 
                           src={img} 
@@ -295,7 +300,7 @@ export default async function ExperiencePage({ params }: PageProps) {
                         href={`/es/${city.slug}/${rel.slug}`}
                         className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden hover:border-blue-500 hover:shadow-lg transition-all"
                       >
-                        {rel.main_image && (
+                        {rel.main_image && rel.main_image.trim() !== '' && (
                           <div className="relative h-56">
                             <Image 
                               src={rel.main_image} 
