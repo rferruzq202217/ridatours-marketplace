@@ -12,7 +12,7 @@ export default function TiqetsWidget({ venueId, campaign = '' }: TiqetsWidgetPro
 
   useEffect(() => {
     let attempts = 0;
-    const maxAttempts = 20; // 2 segundos máximo (20 * 100ms)
+    const maxAttempts = 20;
 
     const initWidget = () => {
       if (typeof window !== 'undefined' && (window as any).tiqets?.init) {
@@ -33,7 +33,6 @@ export default function TiqetsWidget({ venueId, campaign = '' }: TiqetsWidgetPro
       }
     };
 
-    // Esperar un poco para asegurar que el DOM esté listo
     const timer = setTimeout(initWidget, 300);
 
     return () => clearTimeout(timer);
@@ -48,8 +47,29 @@ export default function TiqetsWidget({ venueId, campaign = '' }: TiqetsWidgetPro
       data-venue-id={venueId}
       data-partner="rida_tours_llc-181548"
       data-tq-campaign={campaign}
-      className="tiqets-widget-container min-h-[400px]"
-      style={{ opacity: isLoaded ? 1 : 0.5 }}
-    />
+      className="tiqets-widget-wrapper"
+      style={{ 
+        minHeight: '400px',
+        width: '100%'
+      }}
+    >
+      <style jsx>{`
+        .tiqets-widget-wrapper {
+          width: 100%;
+        }
+        
+        .tiqets-widget-wrapper iframe {
+          width: 100% !important;
+          border: none !important;
+          display: block !important;
+        }
+        
+        /* Asegurar que no haya transformaciones que causen blur */
+        .tiqets-widget-wrapper * {
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+      `}</style>
+    </div>
   );
 }
