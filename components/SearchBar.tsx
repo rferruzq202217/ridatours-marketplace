@@ -122,7 +122,11 @@ export default function SearchBar({ inHeader = false }: SearchBarProps) {
   return (
     <div ref={wrapperRef} className={`relative ${inHeader ? 'w-full max-w-xl' : 'w-full max-w-2xl'}`}>
       <form onSubmit={(e) => { e.preventDefault(); if (results.length > 0) handleSelect(results[0]); }}>
-        <div className={`bg-white rounded-full shadow-lg border border-gray-200 hover:shadow-xl transition-shadow ${inHeader ? '' : 'shadow-2xl'}`}>
+        <div className={`bg-white rounded-full border transition-shadow ${
+          inHeader 
+            ? 'border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-md' 
+            : 'border-gray-200 shadow-2xl hover:shadow-xl'
+        }`}>
           <div className="relative flex items-center gap-2 pl-5 pr-5 py-2">
             <Search className="text-gray-400 flex-shrink-0" size={20} />
             <input
