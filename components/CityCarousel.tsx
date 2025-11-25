@@ -1,100 +1,93 @@
 'use client';
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface City {
+  id: string;
   name: string;
   slug: string;
-  image: string;
-  country?: string;
-  experienceCount?: number;
+  country: string;
+  image: string | null;
+  description?: string;
 }
 
 interface CityCarouselProps {
   title: string;
-  subtitle: string;
   cities: City[];
-  viewAllLink: string;
-  lang: string;
 }
 
-export default function CityCarousel({ title, subtitle, cities, viewAllLink, lang }: CityCarouselProps) {
-  const [startIndex, setStartIndex] = useState(0);
-  const itemsPerPage = 4;
-  const maxIndex = Math.max(0, cities.length - itemsPerPage);
+export default function CityCarousel({ title, cities }: CityCarouselProps) {
+  const [scrollPosition, setScrollPosition] = useState(0);
 
-  const handlePrev = () => {
-    setStartIndex(prev => Math.max(0, prev - itemsPerPage));
+  const scroll = (direction: 'left' | 'right') => {
+    const container = document.getElementById(`city-carousel-${title}`);
+    if (container) {
+      const scrollAmount = 300;
+      const newPosition = direction === 'left' 
+        ? scrollPosition - scrollAmount 
+        : scrollPosition + scrollAmount;
+      
+      container.scrollTo({ left: newPosition, behavior: 'smooth' });
+      setScrollPosition(newPosition);
+    }
   };
 
-  const handleNext = () => {
-    setStartIndex(prev => Math.min(maxIndex, prev + itemsPerPage));
-  };
-
-  const visibleCities = cities.slice(startIndex, startIndex + itemsPerPage);
+  if (!cities || cities.length === 0) return null;
 
   return (
-    <div className="bg-white py-12">
+    <div className="bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">{title}</h2>
-            <p className="text-gray-600">{subtitle}</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href={viewAllLink} className="text-blue-600 hover:text-blue-700 font-semibold text-sm">
-              Ver todas →
-            </Link>
-            <div className="flex gap-2">
-              <button 
-                onClick={handlePrev}
-                disabled={startIndex === 0}
-                className="p-2 rounded-full border-2 border-gray-300 hover:border-blue-600 hover:bg-blue-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >
-                <ChevronLeft size={24} />
-              </button>
-              <button 
-                onClick={handleNext}
-                disabled={startIndex >= maxIndex}
-                className="p-2 rounded-full border-2 border-gray-300 hover:border-blue-600 hover:bg-blue-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >
-                <ChevronRight size={24} />
-              </button>
-            </div>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+          <div className="flex gap-2">
+            <button
+              onClick={() => scroll('left')}
+              className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={() => scroll('right')}
+              className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
+            >
+              <ChevronRight size={20} />
+            </button>
           </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {visibleCities.map((city) => (
-            <Link 
-              key={city.slug} 
-              href={`/${lang}/${city.slug}`} 
-              className="group relative overflow-hidden rounded-3xl border-2 border-gray-200 hover:border-blue-300 hover:shadow-2xl transition-all duration-300 aspect-[4/3]"
+
+        <div
+          id={`city-carousel-${title}`}
+          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {cities.map((city) => (
+            <Link
+              key={city.id}
+              href={`/es/${city.slug}`}
+              className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border-2 border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all group"
             >
-              {city.image && (
-                <Image 
-                  src={city.image} 
-                  alt={city.name} 
-                  fill 
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <div className="flex items-center gap-2 text-white mb-1">
-                  <MapPin size={18} className="text-white" />
-                  <span className="text-xl font-bold drop-shadow-lg">{city.name}</span>
+              {city.image && city.image.trim() !== '' ? (
+                <div className="relative h-48">
+                  <Image 
+                    src={city.image} 
+                    alt={city.name} 
+                    fill 
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 768px) 100vw, 300px"
+                  />
                 </div>
-                {city.country && (
-                  <p className="text-sm text-gray-200 ml-6">{city.country}</p>
-                )}
-                {city.experienceCount !== undefined && city.experienceCount > 0 && (
-                  <p className="text-xs text-white/80 mt-2 ml-6 font-medium">
-                    {city.experienceCount} experiencias
-                  </p>
+              ) : (
+                <div className="h-48 bg-gray-200 flex items-center justify-center">
+                  <span className="text-gray-400">Sin imagen</span>
+                </div>
+              )}
+              <div className="p-4">
+                <h3 className="font-bold text-gray-900 text-lg mb-1">{city.name}</h3>
+                <p className="text-sm text-gray-600">{city.country}</p>
+                {city.description && (
+                  <p className="text-sm text-gray-600 mt-2 line-clamp-2">{city.description}</p>
                 )}
               </div>
             </Link>
