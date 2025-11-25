@@ -7,6 +7,7 @@ import CategoryCarousel from '@/components/CategoryCarousel';
 import CityCarousel from '@/components/CityCarousel';
 import TrustBadges from '@/components/TrustBadges';
 import LinkFarm from '@/components/LinkFarm';
+import ContactBlock from '@/components/ContactBlock';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -170,6 +171,8 @@ export default async function HomePage() {
         cities={linkFarmCities}
         categories={linkFarmCategories}
       />
+
+      <ContactBlock />
 
       <Footer lang="es" />
     </div>
