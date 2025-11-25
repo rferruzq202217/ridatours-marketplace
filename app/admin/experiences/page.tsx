@@ -2,7 +2,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { Plus, Pencil, Trash2, ArrowLeft, Star, Image as ImageIcon, FileText, Globe, Search, X } from 'lucide-react';
 import Image from 'next/image';
 
 interface Experience {
@@ -43,6 +42,10 @@ interface City { id: string; name: string; slug: string; }
 interface Category { id: string; name: string; slug: string; }
 interface Monument { id: string; name: string; slug: string; city_id: string; }
 
+const inputClass = "w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent";
+const textareaClass = "w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent";
+const selectClass = "w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent";
+
 export default function ExperiencesPage() {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [cities, setCities] = useState<City[]>([]);
@@ -51,11 +54,10 @@ export default function ExperiencesPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
-  // Estados del buscador y filtros
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCity, setFilterCity] = useState<string>('all');
-  const [filterStatus, setFilterStatus] = useState<string>('all'); // all, active, inactive
-  const [filterWidget, setFilterWidget] = useState<string>('all'); // all, tiqets, regiondo, none
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterWidget, setFilterWidget] = useState<string>('all');
   
   const [formData, setFormData] = useState({
     title: '', slug: '', description: '', long_description: '', city_id: '', monument_id: '',
@@ -106,23 +108,17 @@ export default function ExperiencesPage() {
     if (monumentsData) setMonuments(monumentsData);
   };
 
-  // Filtrado y búsqueda
   const filteredExperiences = useMemo(() => {
     return experiences.filter(exp => {
-      // Filtro de búsqueda
       const matchesSearch = searchTerm === '' || 
         exp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (exp.description && exp.description.toLowerCase().includes(searchTerm.toLowerCase()));
       
-      // Filtro de ciudad
       const matchesCity = filterCity === 'all' || exp.city_id === filterCity;
-      
-      // Filtro de estado
       const matchesStatus = filterStatus === 'all' || 
         (filterStatus === 'active' && exp.active) ||
         (filterStatus === 'inactive' && !exp.active);
       
-      // Filtro de widget
       let matchesWidget = true;
       if (filterWidget === 'tiqets') {
         matchesWidget = !!exp.tiqets_venue_id;
@@ -249,37 +245,36 @@ export default function ExperiencesPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-4xl mx-auto">
-          <button onClick={() => { setShowForm(false); setEditingId(null); }} className="mb-6 flex items-center gap-2 text-blue-600 hover:text-blue-700">
-            <ArrowLeft size={20} /> Volver a la lista
+          <button onClick={() => { setShowForm(false); setEditingId(null); }} className="mb-6 flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium">
+            ← Volver a la lista
           </button>
           
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h1 className="text-2xl font-bold mb-6">{editingId ? 'Editar Experiencia' : 'Nueva Experiencia'}</h1>
+            <h1 className="text-2xl font-bold mb-6 text-gray-900">{editingId ? 'Editar Experiencia' : 'Nueva Experiencia'}</h1>
             
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* ... resto del formulario igual que antes ... */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Título *</label>
-                  <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" required />
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Título *</label>
+                  <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className={inputClass} required />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Slug</label>
-                  <input type="text" value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} placeholder="se-genera-automaticamente" className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Slug</label>
+                  <input type="text" value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} placeholder="se-genera-automaticamente" className={inputClass} />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Ciudad *</label>
-                  <select value={formData.city_id} onChange={(e) => setFormData({...formData, city_id: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Ciudad *</label>
+                  <select value={formData.city_id} onChange={(e) => setFormData({...formData, city_id: e.target.value})} className={selectClass} required>
                     <option value="">Seleccionar ciudad...</option>
                     {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Monumento (opcional)</label>
-                  <select value={formData.monument_id} onChange={(e) => setFormData({...formData, monument_id: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Monumento (opcional)</label>
+                  <select value={formData.monument_id} onChange={(e) => setFormData({...formData, monument_id: e.target.value})} className={selectClass}>
                     <option value="">Ninguno</option>
                     {monuments.filter(m => !formData.city_id || m.city_id === formData.city_id).map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                   </select>
@@ -287,62 +282,62 @@ export default function ExperiencesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Descripción corta</label>
-                <textarea value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} rows={2} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                <label className="block text-sm font-medium text-gray-900 mb-2">Descripción corta</label>
+                <textarea value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} rows={2} className={textareaClass} />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Descripción larga</label>
-                <textarea value={formData.long_description} onChange={(e) => setFormData({...formData, long_description: e.target.value})} rows={6} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                <label className="block text-sm font-medium text-gray-900 mb-2">Descripción larga</label>
+                <textarea value={formData.long_description} onChange={(e) => setFormData({...formData, long_description: e.target.value})} rows={6} className={textareaClass} />
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Precio (€) *</label>
-                  <input type="number" step="0.01" value={formData.price} onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value) || 0})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" required />
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Precio (€) *</label>
+                  <input type="number" step="0.01" value={formData.price} onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value) || 0})} className={inputClass} required />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Rating (1-5)</label>
-                  <input type="number" step="0.1" min="1" max="5" value={formData.rating} onChange={(e) => setFormData({...formData, rating: parseFloat(e.target.value)})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Rating (1-5)</label>
+                  <input type="number" step="0.1" min="1" max="5" value={formData.rating} onChange={(e) => setFormData({...formData, rating: parseFloat(e.target.value)})} className={inputClass} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Nº Opiniones</label>
-                  <input type="number" value={formData.reviews} onChange={(e) => setFormData({...formData, reviews: parseInt(e.target.value) || 0})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Nº Opiniones</label>
+                  <input type="number" value={formData.reviews} onChange={(e) => setFormData({...formData, reviews: parseInt(e.target.value) || 0})} className={inputClass} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Duración (ej: "2 horas")</label>
-                <input type="text" value={formData.duration} onChange={(e) => setFormData({...formData, duration: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                <label className="block text-sm font-medium text-gray-900 mb-2">Duración (ej: "2 horas")</label>
+                <input type="text" value={formData.duration} onChange={(e) => setFormData({...formData, duration: e.target.value})} className={inputClass} />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Imagen principal (URL)</label>
-                <input type="text" value={formData.main_image} onChange={(e) => setFormData({...formData, main_image: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                <label className="block text-sm font-medium text-gray-900 mb-2">Imagen principal (URL)</label>
+                <input type="text" value={formData.main_image} onChange={(e) => setFormData({...formData, main_image: e.target.value})} className={inputClass} />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Galería de imágenes (URLs separadas por comas)</label>
-                <textarea value={formData.gallery} onChange={(e) => setFormData({...formData, gallery: e.target.value})} rows={2} className="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="https://..., https://..." />
+                <label className="block text-sm font-medium text-gray-900 mb-2">Galería de imágenes (URLs separadas por comas)</label>
+                <textarea value={formData.gallery} onChange={(e) => setFormData({...formData, gallery: e.target.value})} rows={2} className={textareaClass} placeholder="https://..., https://..." />
               </div>
 
               <div className="border-t pt-4">
-                <h3 className="font-bold text-lg mb-3">Widgets de Reserva</h3>
+                <h3 className="font-bold text-lg mb-3 text-gray-900">Widgets de Reserva</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Widget Regiondo ID</label>
-                    <input type="text" value={formData.widget_id} onChange={(e) => setFormData({...formData, widget_id: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="abc123..." />
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Widget Regiondo ID</label>
+                    <input type="text" value={formData.widget_id} onChange={(e) => setFormData({...formData, widget_id: e.target.value})} className={inputClass} placeholder="abc123..." />
                   </div>
                   <div className="col-span-2 space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Tiqets Widget</label>
-                    <input type="text" value={formData.tiqets_venue_id} onChange={(e) => setFormData({...formData, tiqets_venue_id: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Venue ID (ej: 142007)" />
-                    <input type="text" value={formData.tiqets_campaign} onChange={(e) => setFormData({...formData, tiqets_campaign: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Campaign (opcional)" />
+                    <label className="block text-sm font-medium text-gray-900">Tiqets Widget</label>
+                    <input type="text" value={formData.tiqets_venue_id} onChange={(e) => setFormData({...formData, tiqets_venue_id: e.target.value})} className={inputClass} placeholder="Venue ID (ej: 142007)" />
+                    <input type="text" value={formData.tiqets_campaign} onChange={(e) => setFormData({...formData, tiqets_campaign: e.target.value})} className={inputClass} placeholder="Campaign (opcional)" />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Categorías</label>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Categorías</label>
                 <div className="grid grid-cols-3 gap-2">
                   {categories.map(cat => (
                     <label key={cat.id} className="flex items-center gap-2">
@@ -353,80 +348,80 @@ export default function ExperiencesPage() {
                           setFormData({...formData, selectedCategories: formData.selectedCategories.filter(c => c !== cat.id)});
                         }
                       }} />
-                      <span className="text-sm">{cat.name}</span>
+                      <span className="text-sm text-gray-900">{cat.name}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Qué incluye (una por línea)</label>
-                <textarea value={formData.includes} onChange={(e) => setFormData({...formData, includes: e.target.value})} rows={4} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                <label className="block text-sm font-medium text-gray-900 mb-2">Qué incluye (una por línea)</label>
+                <textarea value={formData.includes} onChange={(e) => setFormData({...formData, includes: e.target.value})} rows={4} className={textareaClass} />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Qué NO incluye (una por línea)</label>
-                <textarea value={formData.not_includes} onChange={(e) => setFormData({...formData, not_includes: e.target.value})} rows={4} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                <label className="block text-sm font-medium text-gray-900 mb-2">Qué NO incluye (una por línea)</label>
+                <textarea value={formData.not_includes} onChange={(e) => setFormData({...formData, not_includes: e.target.value})} rows={4} className={textareaClass} />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Punto de encuentro</label>
-                <textarea value={formData.meeting_point} onChange={(e) => setFormData({...formData, meeting_point: e.target.value})} rows={2} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                <label className="block text-sm font-medium text-gray-900 mb-2">Punto de encuentro</label>
+                <textarea value={formData.meeting_point} onChange={(e) => setFormData({...formData, meeting_point: e.target.value})} rows={2} className={textareaClass} />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Información importante</label>
-                <textarea value={formData.important_info} onChange={(e) => setFormData({...formData, important_info: e.target.value})} rows={4} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                <label className="block text-sm font-medium text-gray-900 mb-2">Información importante</label>
+                <textarea value={formData.important_info} onChange={(e) => setFormData({...formData, important_info: e.target.value})} rows={4} className={textareaClass} />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Política de cancelación</label>
-                <textarea value={formData.cancellation_policy} onChange={(e) => setFormData({...formData, cancellation_policy: e.target.value})} rows={3} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                <label className="block text-sm font-medium text-gray-900 mb-2">Política de cancelación</label>
+                <textarea value={formData.cancellation_policy} onChange={(e) => setFormData({...formData, cancellation_policy: e.target.value})} rows={3} className={textareaClass} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Idiomas (separados por comas)</label>
-                  <input type="text" value={formData.languages} onChange={(e) => setFormData({...formData, languages: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Español, Inglés, Francés" />
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Idiomas (separados por comas)</label>
+                  <input type="text" value={formData.languages} onChange={(e) => setFormData({...formData, languages: e.target.value})} className={inputClass} placeholder="Español, Inglés, Francés" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Accesibilidad</label>
-                  <input type="text" value={formData.accessibility} onChange={(e) => setFormData({...formData, accessibility: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Accesibilidad</label>
+                  <input type="text" value={formData.accessibility} onChange={(e) => setFormData({...formData, accessibility: e.target.value})} className={inputClass} />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Código de vestimenta</label>
-                  <input type="text" value={formData.dress_code} onChange={(e) => setFormData({...formData, dress_code: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Código de vestimenta</label>
+                  <input type="text" value={formData.dress_code} onChange={(e) => setFormData({...formData, dress_code: e.target.value})} className={inputClass} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Restricciones</label>
-                  <input type="text" value={formData.restrictions} onChange={(e) => setFormData({...formData, restrictions: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Restricciones</label>
+                  <input type="text" value={formData.restrictions} onChange={(e) => setFormData({...formData, restrictions: e.target.value})} className={inputClass} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Highlights (una por línea)</label>
-                <textarea value={formData.highlights} onChange={(e) => setFormData({...formData, highlights: e.target.value})} rows={4} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                <label className="block text-sm font-medium text-gray-900 mb-2">Highlights (una por línea)</label>
+                <textarea value={formData.highlights} onChange={(e) => setFormData({...formData, highlights: e.target.value})} rows={4} className={textareaClass} />
               </div>
 
               <div className="flex items-center gap-6 pt-4 border-t">
                 <label className="flex items-center gap-2">
                   <input type="checkbox" checked={formData.featured} onChange={(e) => setFormData({...formData, featured: e.target.checked})} />
-                  <span className="text-sm font-medium">⭐ Destacada</span>
+                  <span className="text-sm font-medium text-gray-900">⭐ Destacada</span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input type="checkbox" checked={formData.active} onChange={(e) => setFormData({...formData, active: e.target.checked})} />
-                  <span className="text-sm font-medium">✅ Activa (visible en web)</span>
+                  <span className="text-sm font-medium text-gray-900">✅ Activa (visible en web)</span>
                 </label>
               </div>
 
               <div className="flex gap-4 pt-4">
-                <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <button type="submit" className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
                   {editingId ? 'Actualizar' : 'Crear'} Experiencia
                 </button>
-                <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300">
                   Cancelar
                 </button>
               </div>
@@ -445,40 +440,37 @@ export default function ExperiencesPage() {
             <h1 className="text-3xl font-bold text-gray-900">Experiencias</h1>
             <p className="text-gray-600 mt-1">Gestiona las experiencias y actividades</p>
           </div>
-          <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            <Plus size={20} /> Nueva Experiencia
+          <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
+            + Nueva Experiencia
           </button>
         </div>
 
-        {/* BARRA DE BÚSQUEDA Y FILTROS */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-            {/* Buscador */}
             <div className="md:col-span-2 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
               <input
                 type="text"
                 placeholder="Buscar por título o descripción..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 font-bold"
                 >
-                  <X size={18} />
+                  ×
                 </button>
               )}
             </div>
 
-            {/* Filtro de ciudad */}
             <div>
               <select
                 value={filterCity}
                 onChange={(e) => setFilterCity(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">🏙️ Todas las ciudades</option>
                 {cities.map(city => (
@@ -487,12 +479,11 @@ export default function ExperiencesPage() {
               </select>
             </div>
 
-            {/* Filtro de estado */}
             <div>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">⚡ Todos los estados</option>
                 <option value="active">✅ Activas</option>
@@ -502,12 +493,11 @@ export default function ExperiencesPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Filtro de widget */}
             <div>
               <select
                 value={filterWidget}
                 onChange={(e) => setFilterWidget(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">🎫 Todos los widgets</option>
                 <option value="tiqets">Tiqets</option>
@@ -516,19 +506,17 @@ export default function ExperiencesPage() {
               </select>
             </div>
 
-            {/* Botón limpiar filtros */}
             {hasActiveFilters && (
               <div>
                 <button
                   onClick={clearFilters}
-                  className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="w-full px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   Limpiar filtros
                 </button>
               </div>
             )}
 
-            {/* Contador */}
             <div className="md:col-span-2 md:col-start-3 flex items-center justify-end">
               <span className="text-sm text-gray-600">
                 Mostrando <span className="font-bold text-gray-900">{filteredExperiences.length}</span> de <span className="font-bold text-gray-900">{experiences.length}</span> experiencias
@@ -537,7 +525,6 @@ export default function ExperiencesPage() {
           </div>
         </div>
 
-        {/* LISTA DE EXPERIENCIAS */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           {filteredExperiences.length === 0 ? (
             <div className="p-12 text-center">
@@ -563,8 +550,8 @@ export default function ExperiencesPage() {
                         <Image src={exp.main_image} alt={exp.title} fill className="object-cover" />
                       </div>
                     ) : (
-                      <div className="w-32 h-32 flex-shrink-0 rounded-lg bg-gray-200 flex items-center justify-center">
-                        <ImageIcon className="text-gray-400" size={32} />
+                      <div className="w-32 h-32 flex-shrink-0 rounded-lg bg-gray-200 flex items-center justify-center text-4xl">
+                        🖼️
                       </div>
                     )}
                     
@@ -579,8 +566,8 @@ export default function ExperiencesPage() {
                           
                           <div className="flex flex-wrap items-center gap-3 text-sm">
                             <div className="flex items-center gap-1">
-                              <Star size={14} className="text-yellow-400 fill-current" />
-                              <span className="font-semibold">{exp.rating}</span>
+                              <span className="text-yellow-400">⭐</span>
+                              <span className="font-semibold text-gray-900">{exp.rating}</span>
                               <span className="text-gray-500">({exp.reviews})</span>
                             </div>
                             <span className="text-gray-300">•</span>
@@ -619,11 +606,11 @@ export default function ExperiencesPage() {
                         </div>
 
                         <div className="flex gap-2">
-                          <button onClick={() => handleEdit(exp)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                            <Pencil size={18} />
+                          <button onClick={() => handleEdit(exp)} className="px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium">
+                            ✏️ Editar
                           </button>
-                          <button onClick={() => handleDelete(exp.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                            <Trash2 size={18} />
+                          <button onClick={() => handleDelete(exp.id)} className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium">
+                            🗑️ Eliminar
                           </button>
                         </div>
                       </div>
