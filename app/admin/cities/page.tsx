@@ -166,12 +166,14 @@ export default function CitiesPage() {
                   <MapPin size={16} className="text-gray-400" />
                 </div>
                 <p className="text-sm text-gray-600 mb-3">{city.countries?.name || 'Sin país'}</p>
-                <div className="flex gap-2">
-                  <button onClick={() => handleEdit(city)} className="flex-1 p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                    <Pencil size={16} className="mx-auto" />
+                <div className="flex gap-3 justify-center">
+                  <button onClick={() => handleEdit(city)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                    <Pencil size={16} />
+                    Editar
                   </button>
-                  <button onClick={() => handleDelete(city.id)} className="flex-1 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                    <Trash2 size={16} className="mx-auto" />
+                  <button onClick={() => handleDelete(city.id)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors">
+                    <Trash2 size={16} />
+                    Eliminar
                   </button>
                 </div>
               </div>

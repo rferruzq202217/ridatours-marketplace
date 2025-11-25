@@ -157,12 +157,14 @@ export default function CategoriesPage() {
                 </div>
                 <h3 className="font-bold text-gray-900 mb-1">{category.name}</h3>
                 <p className="text-xs text-gray-500 mb-4">{category.slug}</p>
-                <div className="flex gap-2">
-                  <button onClick={() => handleEdit(category)} className="flex-1 p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                    <Pencil size={16} className="mx-auto" />
+                <div className="flex gap-3 justify-center">
+                  <button onClick={() => handleEdit(category)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                    <Pencil size={16} />
+                    Editar
                   </button>
-                  <button onClick={() => handleDelete(category.id)} className="flex-1 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                    <Trash2 size={16} className="mx-auto" />
+                  <button onClick={() => handleDelete(category.id)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors">
+                    <Trash2 size={16} />
+                    Eliminar
                   </button>
                 </div>
               </div>

@@ -130,12 +130,14 @@ export default function CountriesPage() {
                 {countryList.map((country) => (
                   <div key={country.id} className="bg-gray-50 rounded-lg p-3 flex items-center justify-between hover:bg-gray-100 transition-colors">
                     <span className="font-medium text-gray-900">{country.name}</span>
-                    <div className="flex gap-1">
-                      <button onClick={() => handleEdit(country)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                    <div className="flex gap-3">
+                      <button onClick={() => handleEdit(country)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600 transition-colors">
                         <Pencil size={14} />
+                        Editar
                       </button>
-                      <button onClick={() => handleDelete(country.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors">
+                      <button onClick={() => handleDelete(country.id)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors">
                         <Trash2 size={14} />
+                        Eliminar
                       </button>
                     </div>
                   </div>

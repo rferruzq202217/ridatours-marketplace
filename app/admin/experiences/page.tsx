@@ -613,12 +613,14 @@ export default function ExperiencesPage() {
                           </div>
                         </div>
 
-                        <div className="flex gap-2">
-                          <button onClick={() => handleEdit(exp)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                            <Pencil size={18} />
+                        <div className="flex gap-3">
+                          <button onClick={() => handleEdit(exp)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                            <Pencil size={16} />
+                            Editar
                           </button>
-                          <button onClick={() => handleDelete(exp.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                            <Trash2 size={18} />
+                          <button onClick={() => handleDelete(exp.id)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors">
+                            <Trash2 size={16} />
+                            Eliminar
                           </button>
                         </div>
                       </div>
