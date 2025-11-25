@@ -16,13 +16,7 @@ interface SaveRecentlyViewedProps {
 }
 
 export default function SaveRecentlyViewed({ experience, citySlug }: SaveRecentlyViewedProps) {
-  // Esto se ejecuta SIEMPRE que el componente se monta
-  console.log('🔴 COMPONENTE MONTADO - SaveRecentlyViewed');
-  console.log('Experience:', experience.title);
-  
   useEffect(() => {
-    console.log('🍪 useEffect EJECUTÁNDOSE');
-    
     try {
       const getCookie = (name: string) => {
         const value = `; ${document.cookie}`;
@@ -39,11 +33,11 @@ export default function SaveRecentlyViewed({ experience, citySlug }: SaveRecentl
         city: citySlug,
         slug: experience.slug,
         title: experience.title,
-        image: experience.main_image || '',
+        image: experience.main_image && experience.main_image.trim() !== '' ? experience.main_image : null,
         price: experience.price,
         rating: experience.rating,
         reviews: experience.reviews,
-        duration: experience.duration || ''
+        duration: experience.duration || null
       };
 
       recentlyViewed = recentlyViewed.filter((item: any) => item.id !== experience.id);
@@ -55,10 +49,8 @@ export default function SaveRecentlyViewed({ experience, citySlug }: SaveRecentl
 
       document.cookie = `recentlyViewed=${encodeURIComponent(JSON.stringify(recentlyViewed))}; path=/; max-age=${30 * 24 * 60 * 60}`;
       
-      console.log('✅ Cookie guardada:', recentlyViewed);
-      
     } catch (error) {
-      console.error('❌ Error:', error);
+      console.error('Error guardando experiencia reciente:', error);
     }
   }, [experience.id, citySlug]);
 
