@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { formatPrice } from '@/lib/formatPrice';
 import Image from 'next/image';
 import { Star, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -123,7 +124,7 @@ export default function ExperienceCarousel({
                     )}
                   </div>
                   <div className="text-xl font-bold text-blue-600">
-                    €{exp.price}
+                    {formatPrice(exp.price)}
                   </div>
                 </div>
               </Link>

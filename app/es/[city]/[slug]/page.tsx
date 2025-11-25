@@ -3,6 +3,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
 import RegiondoWidget from '@/components/RegiondoWidget';
+import { formatPrice } from '@/lib/formatPrice';
 import TiqetsWidget from '@/components/TiqetsWidget';
 import { Star, Clock, Users, Check, Sparkles, Calendar, MapPin, X, Info, Globe, Shield } from 'lucide-react';
 import Image from 'next/image';
@@ -320,7 +321,7 @@ export default async function ExperiencePage({ params }: PageProps) {
                               <span className="text-sm font-bold">{rel.rating}</span>
                             </div>
                             <div className="text-lg font-bold text-blue-600">
-                              €{rel.price}
+                              {formatPrice(rel.price)}
                             </div>
                           </div>
                         </div>
@@ -336,7 +337,7 @@ export default async function ExperiencePage({ params }: PageProps) {
                 <div className="mb-4">
                   <div className="text-sm text-gray-700 font-semibold mb-1">Desde</div>
                   <div className="text-4xl font-bold text-blue-600 mb-1">
-                    €{experience.price}
+                    {formatPrice(experience.price)}
                   </div>
                   <div className="text-xs text-gray-600">por persona</div>
                 </div>

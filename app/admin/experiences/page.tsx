@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { Plus, Pencil, Trash2, ArrowLeft, Star, Image as ImageIcon, Search, X } from 'lucide-react';
 import Image from 'next/image';
+import { formatPrice } from '@/lib/formatPrice';
 
 interface Experience {
   id: string;
@@ -583,7 +584,7 @@ export default function ExperiencesPage() {
                               <span className="text-gray-500">({exp.reviews})</span>
                             </div>
                             <span className="text-gray-300">•</span>
-                            <span className="font-semibold text-blue-600">€{exp.price}</span>
+                            <span className="font-semibold text-blue-600">{formatPrice(exp.price)}</span>
                             {exp.duration && (
                               <>
                                 <span className="text-gray-300">•</span>

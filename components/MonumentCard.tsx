@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { formatPrice } from '@/lib/formatPrice';
 import { MapPin } from 'lucide-react';
 
 interface MonumentCardProps {
@@ -57,7 +58,7 @@ export default function MonumentCard({ monument, citySlug }: MonumentCardProps) 
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-600">Desde</span>
             <div className="text-xl font-bold text-blue-600">
-              €{monument.tickets_from || monument.price}
+              {formatPrice(monument.tickets_from || monument.price)}
             </div>
           </div>
         )}
