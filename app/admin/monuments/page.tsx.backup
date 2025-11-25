@@ -354,25 +354,34 @@ export default function MonumentsPage() {
     : [];
 
   return (
-    <div className="p-8">
-      <div className="max-w-7xl mx-auto">
-        <Link href="/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6">
-          <ArrowLeft size={20} />
-          Volver al Panel Admin
-        </Link>
-
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Monumentos</h1>
-            <p className="text-gray-600 mt-1">Gestiona los monumentos y atracciones</p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <Link href="/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4 font-semibold text-2xl">
+                <span className="font-bold">RIDATOURS</span> /
+                <ArrowLeft size={20} />
+                Volver al panel
+              </Link>
+              <h1 className="text-3xl font-bold text-gray-900">Monumentos</h1>
+              <p className="text-gray-800 font-medium">Gestiona las landing pages de monumentos</p>
+            </div>
+            <button
+              onClick={() => {
+                resetForm();
+                setShowForm(true);
+              }}
+              className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
+            >
+              <Plus size={20} />
+              Nuevo Monumento
+            </button>
           </div>
-          <button onClick={() => { resetForm(); setShowForm(true); }} className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
-            <Plus size={20} />
-            Nuevo Monumento
-          </button>
         </div>
+      </div>
 
-        
+      <div className="max-w-7xl mx-auto px-4 py-8">
         {showForm && (
           <div className="bg-white rounded-xl border-2 border-gray-300 p-6 mb-6 max-h-[80vh] overflow-y-auto">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">{editingId ? 'Editar' : 'Nuevo'} Monumento</h2>
