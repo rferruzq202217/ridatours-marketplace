@@ -70,7 +70,7 @@ export default async function CategoryPage({ params }: PageProps) {
                 <Link
                   key={exp.id}
                   href={`/es/${exp.cities?.slug}/${exp.slug}`}
-                  className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-blue-500 hover:shadow-xl transition-all group"
+                  className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all group"
                 >
                   {exp.main_image && (
                     <div className="relative h-56">
