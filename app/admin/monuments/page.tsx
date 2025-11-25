@@ -365,14 +365,14 @@ export default function MonumentsPage() {
                 Volver al panel
               </Link>
               <h1 className="text-3xl font-bold text-gray-900">Monumentos</h1>
-              <p className="text-gray-800 font-medium">Gestiona las landing pages de monumentos</p>
+              <p className="text-gray-600 mt-1">Gestiona los monumentos y atracciones</p>
             </div>
             <button
               onClick={() => {
                 resetForm();
                 setShowForm(true);
               }}
-              className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
+              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
             >
               <Plus size={20} />
               Nuevo Monumento
@@ -698,7 +698,7 @@ export default function MonumentsPage() {
               </div>
 
               <div className="flex gap-3 pt-4">
-                <button type="submit" className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-lg font-semibold">
+                <button type="submit" className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold">
                   {editingId ? 'Actualizar' : 'Crear'} Monumento
                 </button>
                 <button
@@ -769,7 +769,7 @@ export default function MonumentsPage() {
             <p className="text-gray-800 font-semibold mb-4">No hay monumentos creados aún</p>
             <button
               onClick={() => { resetForm(); setShowForm(true); }}
-              className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2"
+              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2"
             >
               <Plus size={20} />
               Crear Primer Monumento
