@@ -5,20 +5,24 @@ import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface City {
-  id: string;
+  id?: string;
   name: string;
   slug: string;
   country: string;
   image: string | null;
   description?: string;
+  experienceCount?: number;
 }
 
 interface CityCarouselProps {
   title: string;
+  subtitle?: string;
   cities: City[];
+  viewAllLink?: string;
+  lang?: string;
 }
 
-export default function CityCarousel({ title, cities }: CityCarouselProps) {
+export default function CityCarousel({ title, subtitle, cities, viewAllLink }: CityCarouselProps) {
   const [scrollPosition, setScrollPosition] = useState(0);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -40,7 +44,10 @@ export default function CityCarousel({ title, cities }: CityCarouselProps) {
     <div className="bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+            {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
+          </div>
           <div className="flex gap-2">
             <button
               onClick={() => scroll('left')}
@@ -62,9 +69,9 @@ export default function CityCarousel({ title, cities }: CityCarouselProps) {
           className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {cities.map((city) => (
+          {cities.map((city, index) => (
             <Link
-              key={city.id}
+              key={city.id || city.slug || index}
               href={`/es/${city.slug}`}
               className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border-2 border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all group"
             >
@@ -86,6 +93,9 @@ export default function CityCarousel({ title, cities }: CityCarouselProps) {
               <div className="p-4">
                 <h3 className="font-bold text-gray-900 text-lg mb-1">{city.name}</h3>
                 <p className="text-sm text-gray-600">{city.country}</p>
+                {city.experienceCount !== undefined && (
+                  <p className="text-sm text-blue-600 mt-2">{city.experienceCount} experiencias</p>
+                )}
                 {city.description && (
                   <p className="text-sm text-gray-600 mt-2 line-clamp-2">{city.description}</p>
                 )}
@@ -93,6 +103,17 @@ export default function CityCarousel({ title, cities }: CityCarouselProps) {
             </Link>
           ))}
         </div>
+
+        {viewAllLink && (
+          <div className="mt-6 text-center">
+            <Link
+              href={viewAllLink}
+              className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Ver todas las ciudades
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
