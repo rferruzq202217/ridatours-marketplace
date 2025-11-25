@@ -5,8 +5,10 @@ import Image from 'next/image';
 import { Star, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Experience {
-  id: string;
+  id?: string;
+  city?: string;
   city_slug?: string;
+  cityName?: string;
   slug: string;
   title: string;
   image: string | null;
@@ -14,18 +16,29 @@ interface Experience {
   rating: number;
   reviews: number;
   duration?: string;
+  featured?: boolean;
 }
 
 interface ExperienceCarouselProps {
   title: string;
+  subtitle?: string;
   experiences: Experience[];
+  carouselId?: string;
+  viewAllLink?: string;
+  lang?: string;
 }
 
-export default function ExperienceCarousel({ title, experiences }: ExperienceCarouselProps) {
+export default function ExperienceCarousel({ 
+  title, 
+  subtitle, 
+  experiences, 
+  carouselId = 'default',
+  viewAllLink 
+}: ExperienceCarouselProps) {
   const [scrollPosition, setScrollPosition] = useState(0);
 
   const scroll = (direction: 'left' | 'right') => {
-    const container = document.getElementById(`exp-carousel-${title}`);
+    const container = document.getElementById(`exp-carousel-${carouselId}`);
     if (container) {
       const scrollAmount = 300;
       const newPosition = direction === 'left' 
@@ -43,7 +56,10 @@ export default function ExperienceCarousel({ title, experiences }: ExperienceCar
     <div className="bg-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+            {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
+          </div>
           <div className="flex gap-2">
             <button
               onClick={() => scroll('left')}
@@ -61,55 +77,70 @@ export default function ExperienceCarousel({ title, experiences }: ExperienceCar
         </div>
 
         <div
-          id={`exp-carousel-${title}`}
+          id={`exp-carousel-${carouselId}`}
           className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {experiences.map((exp) => (
-            <Link
-              key={exp.id}
-              href={`/es/${exp.city_slug}/${exp.slug}`}
-              className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border-2 border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all group"
-            >
-              {exp.image && exp.image.trim() !== '' ? (
-                <div className="relative h-48">
-                  <Image 
-                    src={exp.image} 
-                    alt={exp.title} 
-                    fill 
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    sizes="(max-width: 768px) 100vw, 300px"
-                  />
-                </div>
-              ) : (
-                <div className="h-48 bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-400">Sin imagen</span>
-                </div>
-              )}
-              <div className="p-4">
-                <h3 className="font-bold text-gray-900 mb-2 line-clamp-2">
-                  {exp.title}
-                </h3>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1">
-                    <Star size={14} className="text-yellow-400 fill-current" />
-                    <span className="text-sm font-bold">{exp.rating}</span>
-                    <span className="text-xs text-gray-600">({exp.reviews})</span>
+          {experiences.map((exp, index) => {
+            const citySlug = exp.city_slug || exp.city || exp.cityName?.toLowerCase().replace(/\s+/g, '-');
+            
+            return (
+              <Link
+                key={exp.id || exp.slug || index}
+                href={`/es/${citySlug}/${exp.slug}`}
+                className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border-2 border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all group"
+              >
+                {exp.image && exp.image.trim() !== '' ? (
+                  <div className="relative h-48">
+                    <Image 
+                      src={exp.image} 
+                      alt={exp.title} 
+                      fill 
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 768px) 100vw, 300px"
+                    />
                   </div>
-                  {exp.duration && (
-                    <div className="flex items-center gap-1 text-gray-600">
-                      <Clock size={14} />
-                      <span className="text-xs">{exp.duration}</span>
+                ) : (
+                  <div className="h-48 bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-400">Sin imagen</span>
+                  </div>
+                )}
+                <div className="p-4">
+                  <h3 className="font-bold text-gray-900 mb-2 line-clamp-2">
+                    {exp.title}
+                  </h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1">
+                      <Star size={14} className="text-yellow-400 fill-current" />
+                      <span className="text-sm font-bold">{exp.rating}</span>
+                      <span className="text-xs text-gray-600">({exp.reviews})</span>
                     </div>
-                  )}
+                    {exp.duration && (
+                      <div className="flex items-center gap-1 text-gray-600">
+                        <Clock size={14} />
+                        <span className="text-xs">{exp.duration}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-xl font-bold text-blue-600">
+                    €{exp.price}
+                  </div>
                 </div>
-                <div className="text-xl font-bold text-blue-600">
-                  €{exp.price}
-                </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
+
+        {viewAllLink && (
+          <div className="mt-6 text-center">
+            <Link
+              href={viewAllLink}
+              className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Ver todas
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
