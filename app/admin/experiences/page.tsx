@@ -109,11 +109,15 @@ export default function ExperiencesPage() {
     if (monumentsData) setMonuments(monumentsData);
   };
 
+  const normalizeText = (text: string) => 
+    text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
   const filteredExperiences = useMemo(() => {
     return experiences.filter(exp => {
+      const normalizedSearch = normalizeText(searchTerm);
       const matchesSearch = searchTerm === '' || 
-        exp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (exp.description && exp.description.toLowerCase().includes(searchTerm.toLowerCase()));
+        normalizeText(exp.title).includes(normalizedSearch) ||
+        (exp.description && normalizeText(exp.description).includes(normalizedSearch));
       
       const matchesCity = filterCity === 'all' || exp.city_id === filterCity;
       const matchesStatus = filterStatus === 'all' || 
