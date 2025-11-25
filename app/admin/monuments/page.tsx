@@ -372,8 +372,6 @@ export default function MonumentsPage() {
           </button>
         </div>
 
-        {showForm && (
-
       <div className="max-w-7xl mx-auto px-4 py-8">
         {showForm && (
           <div className="bg-white rounded-xl border-2 border-gray-300 p-6 mb-6 max-h-[80vh] overflow-y-auto">
