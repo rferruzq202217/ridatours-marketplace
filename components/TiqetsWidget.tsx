@@ -1,75 +1,55 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+
+import { useMemo } from 'react';
 
 interface TiqetsWidgetProps {
-  venueId: string;
-  campaign?: string;
+  widgetCode?: string | null;
 }
 
-export default function TiqetsWidget({ venueId, campaign = '' }: TiqetsWidgetProps) {
-  const widgetRef = useRef<HTMLDivElement>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+export default function TiqetsWidget({ widgetCode }: TiqetsWidgetProps) {
+  const iframeSrc = useMemo(() => {
+    if (!widgetCode) return null;
 
-  useEffect(() => {
-    let attempts = 0;
-    const maxAttempts = 20;
+    // Extraer product-id del código HTML
+    const productMatch = widgetCode.match(/data-product-id="(\d+)"/);
+    if (!productMatch) return null;
 
-    const initWidget = () => {
-      if (typeof window !== 'undefined' && (window as any).tiqets?.init) {
-        console.log('🎫 Inicializando widget de Tiqets para venue:', venueId);
-        try {
-          (window as any).tiqets.init();
-          setIsLoaded(true);
-        } catch (error) {
-          console.error('Error inicializando widget:', error);
-        }
-      } else {
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(initWidget, 100);
-        } else {
-          console.warn('⚠️ No se pudo cargar el widget de Tiqets después de', maxAttempts * 100, 'ms');
-        }
-      }
-    };
+    const productId = productMatch[1];
+    
+    // Extraer campaign si existe
+    const campaignMatch = widgetCode.match(/data-tq-campaign="([^"]+)"/);
+    const campaign = campaignMatch ? campaignMatch[1] : '';
 
-    const timer = setTimeout(initWidget, 300);
+    // Construir URL del iframe de Tiqets
+    const params = new URLSearchParams({
+      productId: productId,
+      partner: 'rida_tours_llc-181548',
+      layout: 'full',
+      orientation: 'vertical',
+      language: 'es',
+      currency: 'EUR',
+    });
+    
+    if (campaign) {
+      params.append('campaign', campaign);
+    }
 
-    return () => clearTimeout(timer);
-  }, [venueId, campaign]);
+    return `https://www.tiqets.com/widgets/availability/?${params.toString()}`;
+  }, [widgetCode]);
+
+  if (!iframeSrc) return null;
 
   return (
-    <div 
-      ref={widgetRef}
-      data-tiqets-widget="availability" 
-      data-layout="full" 
-      data-orientation="vertical" 
-      data-venue-id={venueId}
-      data-partner="rida_tours_llc-181548"
-      data-tq-campaign={campaign}
-      className="tiqets-widget-wrapper"
-      style={{ 
-        minHeight: '400px',
-        width: '100%'
-      }}
-    >
-      <style jsx>{`
-        .tiqets-widget-wrapper {
-          width: 100%;
-        }
-        
-        .tiqets-widget-wrapper iframe {
-          width: 100% !important;
-          border: none !important;
-          display: block !important;
-        }
-        
-        /* Asegurar que no haya transformaciones que causen blur */
-        .tiqets-widget-wrapper * {
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-      `}</style>
+    <div className="bg-white rounded-2xl shadow-lg p-6">
+      <h2 className="text-xl font-bold text-gray-900 mb-4">Reservar</h2>
+      <iframe
+        src={iframeSrc}
+        width="100%"
+        height="800"
+        frameBorder="0"
+        style={{ border: 'none', minHeight: '800px' }}
+        allow="payment"
+      />
     </div>
   );
 }

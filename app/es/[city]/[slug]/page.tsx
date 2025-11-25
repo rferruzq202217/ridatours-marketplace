@@ -351,11 +351,11 @@ export default async function ExperiencePage({ params }: PageProps) {
                   ))}
                 </div>
 
+
                 {experience.tiqets_venue_id ? (
                   <div className="mb-6">
                     <TiqetsWidget 
-                      venueId={experience.tiqets_venue_id}
-                      campaign={experience.tiqets_campaign || ''}
+                      widgetCode={experience.tiqets_venue_id}
                     />
                   </div>
                 ) : experience.widget_id ? (
@@ -363,7 +363,6 @@ export default async function ExperiencePage({ params }: PageProps) {
                     <RegiondoWidget widgetId={experience.widget_id} />
                   </div>
                 ) : null}
-
                 <div className="pt-4 border-t border-gray-200">
                   <div className="flex items-center gap-2 text-sm text-gray-700 mb-2">
                     <Calendar size={16} />

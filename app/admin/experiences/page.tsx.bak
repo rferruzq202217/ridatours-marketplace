@@ -4,7 +4,6 @@ import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { Plus, Pencil, Trash2, ArrowLeft, Star, Image as ImageIcon, Search, X } from 'lucide-react';
 import Image from 'next/image';
-import { formatPrice } from '@/lib/formatPrice';
 
 interface Experience {
   id: string;
@@ -110,15 +109,11 @@ export default function ExperiencesPage() {
     if (monumentsData) setMonuments(monumentsData);
   };
 
-  const normalizeText = (text: string) => 
-    text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-
   const filteredExperiences = useMemo(() => {
     return experiences.filter(exp => {
-      const normalizedSearch = normalizeText(searchTerm);
       const matchesSearch = searchTerm === '' || 
-        normalizeText(exp.title).includes(normalizedSearch) ||
-        (exp.description && normalizeText(exp.description).includes(normalizedSearch));
+        exp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (exp.description && exp.description.toLowerCase().includes(searchTerm.toLowerCase()));
       
       const matchesCity = filterCity === 'all' || exp.city_id === filterCity;
       const matchesStatus = filterStatus === 'all' || 
@@ -337,10 +332,12 @@ export default function ExperiencesPage() {
                   </div>
                   <div className="col-span-2 space-y-2">
                     <label className="block text-sm font-medium text-gray-900">Tiqets Widget</label>
-                    <textarea rows={3} value={formData.tiqets_venue_id} onChange={(e) => setFormData({...formData, tiqets_venue_id: e.target.value})} className={`${inputClass} font-mono text-xs`} placeholder="Pega aquí el código del widget de Tiqets..." />
+                    <input type="text" value={formData.tiqets_venue_id} onChange={(e) => setFormData({...formData, tiqets_venue_id: e.target.value})} className={inputClass} placeholder="Venue ID (ej: 142007)" />
+                    <input type="text" value={formData.tiqets_campaign} onChange={(e) => setFormData({...formData, tiqets_campaign: e.target.value})} className={inputClass} placeholder="Campaign (opcional)" />
                   </div>
                 </div>
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">Categorías</label>
                 <div className="grid grid-cols-3 gap-2">
@@ -578,11 +575,11 @@ export default function ExperiencesPage() {
                           <div className="flex flex-wrap items-center gap-3 text-sm">
                             <div className="flex items-center gap-1">
                               <Star size={14} className="text-yellow-400 fill-current" />
-                              <span className="font-medium text-gray-700">{exp.rating}</span>
-                              <span className="text-xs text-gray-400">({exp.reviews})</span>
+                              <span className="font-semibold text-gray-900">{exp.rating}</span>
+                              <span className="text-gray-500">({exp.reviews})</span>
                             </div>
                             <span className="text-gray-300">•</span>
-                            <span className="font-semibold text-blue-600">{formatPrice(exp.price)}</span>
+                            <span className="font-semibold text-blue-600">€{exp.price}</span>
                             {exp.duration && (
                               <>
                                 <span className="text-gray-300">•</span>
@@ -638,4 +635,3 @@ export default function ExperiencesPage() {
     </div>
   );
 }
-
