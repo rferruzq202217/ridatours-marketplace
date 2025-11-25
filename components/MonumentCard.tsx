@@ -1,64 +1,76 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice } from '@/lib/formatPrice';
-import { MapPin } from 'lucide-react';
+import { Star, MapPin } from 'lucide-react';
 
-interface MonumentCardProps {
-  monument: {
-    id?: string;
-    name: string;
-    slug: string;
-    image: string | null;
-    city_slug?: string;
-    city_name?: string;
-    tickets_from?: number;
-    rating?: number;
-    reviews?: number;
-    price?: number;
-    duration?: string;
-  };
+interface Monument {
+  id?: string;
+  slug: string;
+  name: string;
+  image: string | null;
+  description?: string | null;
+  rating?: number;
+  reviews?: number;
+  tickets_from?: number;
+  price?: number;
+  city?: string;
   lang?: string;
   citySlug?: string;
 }
 
-export default function MonumentCard({ monument, citySlug }: MonumentCardProps) {
-  const finalCitySlug = citySlug || monument.city_slug;
-  
+export default function MonumentCard({ monument }: { monument: Monument }) {
+  const citySlug = monument.citySlug || monument.city || '';
+  const lang = monument.lang || 'es';
+  const href = `/${lang}/${citySlug}/monumentos/${monument.slug}`;
+
   return (
     <Link
-      href={`/es/${finalCitySlug}/monumentos/${monument.slug}`}
-      className="bg-white rounded-xl overflow-hidden border-2 border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all group"
+      href={href}
+      className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group block"
     >
-      {monument.image && monument.image.trim() !== '' ? (
-        <div className="relative h-56">
-          <Image 
-            src={monument.image} 
-            alt={monument.name} 
-            fill 
+      <div className="relative h-48">
+        {monument.image && monument.image.trim() !== '' ? (
+          <Image
+            src={monument.image}
+            alt={monument.name}
+            fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-        </div>
-      ) : (
-        <div className="h-56 bg-gray-200 flex items-center justify-center">
-          <span className="text-gray-400">Sin imagen</span>
-        </div>
-      )}
-      <div className="p-4">
-        <h3 className="font-bold text-gray-900 mb-2 line-clamp-2">
-          {monument.name}
-        </h3>
-        {monument.city_name && (
-          <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
-            <MapPin size={14} />
-            <span>{monument.city_name}</span>
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-400">Sin imagen</span>
           </div>
         )}
+      </div>
+
+      <div className="p-4">
+        <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+          {monument.name}
+        </h3>
+
+        {monument.description && (
+          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+            {monument.description}
+          </p>
+        )}
+
+        {monument.rating && monument.reviews && (
+          <div className="flex items-center gap-2 mb-3 text-sm">
+            <div className="flex items-center gap-1">
+              <Star size={16} className="text-yellow-400 fill-current" />
+              <span className="font-semibold">{monument.rating}</span>
+              <span className="text-gray-500">({monument.reviews})</span>
+            </div>
+          </div>
+        )}
+
         {(monument.tickets_from || monument.price) && (
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-600">Desde</span>
-            <div className="text-xl font-bold text-blue-600">
-              {formatPrice(monument.tickets_from || monument.price)}
+            <div>
+              <div className="text-sm text-gray-600">Desde</div>
+              <div className="text-xl font-bold text-gray-900">
+                {formatPrice(monument.tickets_from || monument.price)}
+              </div>
             </div>
           </div>
         )}

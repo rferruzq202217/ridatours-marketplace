@@ -54,95 +54,113 @@ export default function ExperienceCarousel({
   if (!experiences || experiences.length === 0) return null;
 
   return (
-    <div className="bg-white py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-12 bg-white">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+            <h2 className="text-3xl font-bold text-gray-900">{title}</h2>
             {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => scroll('left')}
-              className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
+          {viewAllLink && (
+            <Link 
+              href={viewAllLink}
+              className="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 group"
             >
-              <ChevronLeft size={20} />
-            </button>
-            <button
-              onClick={() => scroll('right')}
-              className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
-            >
-              <ChevronRight size={20} />
-            </button>
-          </div>
+              Ver todo
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </Link>
+          )}
         </div>
 
-        <div
-          id={`exp-carousel-${carouselId}`}
-          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {experiences.map((exp, index) => {
-            const citySlug = exp.city_slug || exp.city || exp.cityName?.toLowerCase().replace(/\s+/g, '-');
-            
-            return (
-              <Link
-                key={exp.id || exp.slug || index}
-                href={`/es/${citySlug}/${exp.slug}`}
-                className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border-2 border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all group"
-              >
-                {exp.image && exp.image.trim() !== '' ? (
+        <div className="relative">
+          <button
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all -ml-4"
+            aria-label="Anterior"
+          >
+            <ChevronLeft size={24} />
+          </button>
+
+          <div
+            id={`exp-carousel-${carouselId}`}
+            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {experiences.map((exp, index) => {
+              const citySlug = exp.city_slug || exp.city || '';
+              const href = `/${citySlug}/${exp.slug}`;
+
+              return (
+                <Link
+                  key={exp.id || index}
+                  href={href}
+                  className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group"
+                >
                   <div className="relative h-48">
-                    <Image 
-                      src={exp.image} 
-                      alt={exp.title} 
-                      fill 
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 768px) 100vw, 300px"
-                    />
-                  </div>
-                ) : (
-                  <div className="h-48 bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-400">Sin imagen</span>
-                  </div>
-                )}
-                <div className="p-4">
-                  <h3 className="font-bold text-gray-900 mb-2 line-clamp-2">
-                    {exp.title}
-                  </h3>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-1">
-                      <Star size={14} className="text-yellow-400 fill-current" />
-                      <span className="text-sm font-bold">{exp.rating}</span>
-                      <span className="text-xs text-gray-600">({exp.reviews})</span>
-                    </div>
-                    {exp.duration && (
-                      <div className="flex items-center gap-1 text-gray-600">
-                        <Clock size={14} />
-                        <span className="text-xs">{exp.duration}</span>
+                    {exp.image && exp.image.trim() !== '' ? (
+                      <Image
+                        src={exp.image}
+                        alt={exp.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-400">Sin imagen</span>
+                      </div>
+                    )}
+                    {exp.featured && (
+                      <div className="absolute top-3 right-3 bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-xs font-bold">
+                        ⭐ Destacado
                       </div>
                     )}
                   </div>
-                  <div className="text-xl font-bold text-blue-600">
-                    {formatPrice(exp.price)}
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
 
-        {viewAllLink && (
-          <div className="mt-6 text-center">
-            <Link
-              href={viewAllLink}
-              className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Ver todas
-            </Link>
+                  <div className="p-4">
+                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                      {exp.title}
+                    </h3>
+
+                    <div className="flex items-center gap-2 mb-3 text-sm">
+                      <div className="flex items-center gap-1">
+                        <Star size={16} className="text-yellow-400 fill-current" />
+                        <span className="font-semibold">{exp.rating}</span>
+                        <span className="text-gray-500">({exp.reviews})</span>
+                      </div>
+                      {exp.duration && (
+                        <>
+                          <span className="text-gray-300">•</span>
+                          <div className="flex items-center gap-1 text-gray-600">
+                            <Clock size={16} />
+                            <span>{exp.duration}</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm text-gray-600">Desde</div>
+                        <div className="text-xl font-bold text-gray-900">
+                          {formatPrice(exp.price)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
-        )}
+
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all -mr-4"
+            aria-label="Siguiente"
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
