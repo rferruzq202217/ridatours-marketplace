@@ -79,50 +79,37 @@ export default function CitiesPage() {
 
   const generateSlug = (name: string) => name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
-  // Agrupar países por continente para el select
   const countriesByContinent = countries.reduce((acc, country) => {
     if (!acc[country.continent]) acc[country.continent] = [];
     acc[country.continent].push(country);
     return acc;
   }, {} as Record<string, Country[]>);
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <Link href="/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4 font-semibold">
-                <ArrowLeft size={20} /> Volver al panel
-              </Link>
-              <h1 className="text-3xl font-bold text-gray-900">Ciudades</h1>
-              <p className="text-gray-600">Gestiona las ciudades del marketplace</p>
-            </div>
-            <button onClick={() => { resetForm(); setShowForm(true); }} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2">
-              <Plus size={20} /> Nueva Ciudad
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {showForm && (
-          <div className="bg-white rounded-xl border-2 border-gray-300 p-6 mb-6">
+  if (showForm) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-4xl mx-auto">
+          <Link href="/admin/cities" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6">
+            <ArrowLeft size={20} />
+            Volver a Ciudades
+          </Link>
+          
+          <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">{editingId ? 'Editar' : 'Nueva'} Ciudad</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-2">Nombre *</label>
-                  <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value, slug: generateSlug(e.target.value) })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-gray-900" required />
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Nombre *</label>
+                  <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value, slug: generateSlug(e.target.value) })} className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent" required />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-2">Slug *</label>
-                  <input type="text" value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-gray-900" required />
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Slug *</label>
+                  <input type="text" value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent" required />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">País *</label>
-                <select value={formData.country_id} onChange={(e) => setFormData({ ...formData, country_id: e.target.value })} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-gray-900" required>
+                <label className="block text-sm font-medium text-gray-900 mb-2">País *</label>
+                <select value={formData.country_id} onChange={(e) => setFormData({ ...formData, country_id: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                   <option value="">Seleccionar país</option>
                   {Object.entries(countriesByContinent).map(([continent, countryList]) => (
                     <optgroup key={continent} label={continent}>
@@ -132,16 +119,38 @@ export default function CitiesPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">URL Imagen</label>
-                <input type="url" value={formData.image} onChange={(e) => setFormData({ ...formData, image: e.target.value })} placeholder="https://..." className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-gray-900" />
+                <label className="block text-sm font-medium text-gray-900 mb-2">URL Imagen</label>
+                <input type="url" value={formData.image} onChange={(e) => setFormData({ ...formData, image: e.target.value })} placeholder="https://..." className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
               </div>
               <div className="flex gap-3 pt-4">
-                <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold">{editingId ? 'Actualizar' : 'Crear'}</button>
-                <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className="bg-gray-200 hover:bg-gray-300 text-gray-900 px-8 py-3 rounded-lg font-semibold">Cancelar</button>
+                <button type="submit" className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">{editingId ? 'Actualizar' : 'Crear'}</button>
+                <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300">Cancelar</button>
               </div>
             </form>
           </div>
-        )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-7xl mx-auto">
+        <Link href="/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6">
+          <ArrowLeft size={20} />
+          Volver al Panel Admin
+        </Link>
+
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Ciudades</h1>
+            <p className="text-gray-600 mt-1">Gestiona las ciudades del marketplace</p>
+          </div>
+          <button onClick={() => { resetForm(); setShowForm(true); }} className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
+            <Plus size={20} />
+            Nueva Ciudad
+          </button>
+        </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {cities.map((city) => (
@@ -152,28 +161,23 @@ export default function CitiesPage() {
                 </div>
               )}
               <div className="p-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <MapPin size={16} className="text-blue-600" />
-                  <h3 className="text-lg font-bold text-gray-900">{city.name}</h3>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-bold text-gray-900">{city.name}</h3>
+                  <MapPin size={16} className="text-gray-400" />
                 </div>
-                <p className="text-sm text-gray-500 mb-1">/{city.slug}</p>
-                <p className="text-xs text-blue-600 font-medium mb-4">{city.countries?.name || 'Sin país'}</p>
+                <p className="text-sm text-gray-600 mb-3">{city.countries?.name || 'Sin país'}</p>
                 <div className="flex gap-2">
-                  <button onClick={() => handleEdit(city)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-semibold">Editar</button>
-                  <button onClick={() => handleDelete(city.id)} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-sm font-semibold">Eliminar</button>
+                  <button onClick={() => handleEdit(city)} className="flex-1 p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                    <Pencil size={16} className="mx-auto" />
+                  </button>
+                  <button onClick={() => handleDelete(city.id)} className="flex-1 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                    <Trash2 size={16} className="mx-auto" />
+                  </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
-
-        {cities.length === 0 && !showForm && (
-          <div className="bg-white rounded-xl border-2 border-gray-300 p-12 text-center">
-            <MapPin size={48} className="mx-auto text-gray-400 mb-4" />
-            <p className="text-gray-600 mb-4">No hay ciudades</p>
-            <button onClick={() => { resetForm(); setShowForm(true); }} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold">Crear Ciudad</button>
-          </div>
-        )}
       </div>
     </div>
   );

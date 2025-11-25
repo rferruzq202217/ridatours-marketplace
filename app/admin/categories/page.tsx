@@ -23,16 +23,10 @@ export default function CategoriesPage() {
     icon_name: 'Landmark'
   });
 
-  useEffect(() => {
-    loadCategories();
-  }, []);
+  useEffect(() => { loadCategories(); }, []);
 
   const loadCategories = async () => {
-    const { data, error } = await supabase
-      .from('categories')
-      .select('*')
-      .order('name');
-    
+    const { data, error } = await supabase.from('categories').select('*').order('name');
     if (error) console.error('Error loading categories:', error);
     if (data) setCategories(data);
   };
@@ -42,32 +36,27 @@ export default function CategoriesPage() {
     
     try {
       if (editingId) {
-        const { error } = await supabase
-          .from('categories')
-          .update({
-            name: formData.name,
-            slug: formData.slug,
-            icon_name: formData.icon_name
-          })
-          .eq('id', editingId);
+        const { error } = await supabase.from('categories').update({
+          name: formData.name,
+          slug: formData.slug,
+          icon_name: formData.icon_name
+        }).eq('id', editingId);
         
         if (error) {
-        console.error('Error completo:', error);
-        alert('Error al actualizar: ' + error.message + '\n\nRevisa la consola (F12) para más detalles.');
+          console.error('Error completo:', error);
+          alert('Error al actualizar: ' + error.message);
           return;
         }
       } else {
-        const { error } = await supabase
-          .from('categories')
-          .insert([{
-            name: formData.name,
-            slug: formData.slug,
-            icon_name: formData.icon_name
-          }]);
+        const { error } = await supabase.from('categories').insert([{
+          name: formData.name,
+          slug: formData.slug,
+          icon_name: formData.icon_name
+        }]);
         
         if (error) {
-        console.error('Error completo:', error);
-        alert('Error al crear: ' + error.message + '\n\nRevisa la consola (F12) para más detalles.');
+          console.error('Error completo:', error);
+          alert('Error al crear: ' + error.message);
           return;
         }
       }
@@ -102,145 +91,84 @@ export default function CategoriesPage() {
     }
   };
 
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  };
+  const generateSlug = (name: string) => name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <Link href="/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4 font-semibold text-2xl">
-                <span className="font-bold">RIDATOURS</span> /
-                <ArrowLeft size={20} />
-                Volver al panel
-              </Link>
-              <h1 className="text-3xl font-bold text-gray-900">Categorías</h1>
-              <p className="text-gray-800 font-medium">Gestiona las categorías de experiencias</p>
-            </div>
-            <button
-              onClick={() => {
-                setShowForm(true);
-                setEditingId(null);
-                setFormData({ name: '', slug: '', icon_name: 'Landmark' });
-              }}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
-            >
-              <Plus size={20} />
-              Nueva Categoría
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Formulario */}
-        {showForm && (
-          <div className="bg-white rounded-xl border-2 border-gray-300 p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">{editingId ? 'Editar' : 'Nueva'} Categoría</h2>
+  if (showForm) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-4xl mx-auto">
+          <Link href="/admin/categories" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6">
+            <ArrowLeft size={20} />
+            Volver a Categorías
+          </Link>
+          
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">{editingId ? 'Editar' : 'Nueva'} Categoría</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">Nombre</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => {
-                    setFormData({ ...formData, name: e.target.value, slug: generateSlug(e.target.value) });
-                  }}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                  required
-                />
+                <label className="block text-sm font-medium text-gray-900 mb-2">Nombre *</label>
+                <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value, slug: generateSlug(e.target.value) })} className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent" required />
               </div>
               <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">Slug</label>
-                <input
-                  type="text"
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-900 font-medium"
-                  required
-                />
+                <label className="block text-sm font-medium text-gray-900 mb-2">Slug *</label>
+                <input type="text" value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent" required />
               </div>
-              
-              <IconPicker
-                value={formData.icon_name}
-                onChange={(iconName) => setFormData({ ...formData, icon_name: iconName })}
-              />
-
-              <div className="flex gap-3">
-                <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold">
-                  {editingId ? 'Actualizar' : 'Crear'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditingId(null);
-                    setFormData({ name: '', slug: '', icon_name: 'Landmark' });
-                  }}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-900 px-6 py-2 rounded-lg font-semibold"
-                >
-                  Cancelar
-                </button>
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">Icono *</label>
+                <IconPicker selectedIcon={formData.icon_name} onSelect={(iconName) => setFormData({ ...formData, icon_name: iconName })} />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button type="submit" className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">{editingId ? 'Actualizar' : 'Crear'}</button>
+                <button type="button" onClick={() => { setShowForm(false); setEditingId(null); setFormData({ name: '', slug: '', icon_name: 'Landmark' }); }} className="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300">Cancelar</button>
               </div>
             </form>
           </div>
-        )}
+        </div>
+      </div>
+    );
+  }
 
-        {/* Lista de categorías */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  return (
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-7xl mx-auto">
+        <Link href="/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6">
+          <ArrowLeft size={20} />
+          Volver al Panel Admin
+        </Link>
+
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Categorías</h1>
+            <p className="text-gray-600 mt-1">Gestiona las categorías de experiencias</p>
+          </div>
+          <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
+            <Plus size={20} />
+            Nueva Categoría
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {categories.map((category) => {
-            const iconData = AVAILABLE_ICONS.find(i => i.name === category.icon_name);
-            const IconComponent = iconData?.icon;
-            
+            const IconComponent = AVAILABLE_ICONS[category.icon_name as keyof typeof AVAILABLE_ICONS] || AVAILABLE_ICONS.Landmark;
             return (
-              <div key={category.id} className="bg-white rounded-xl border-2 border-gray-300 overflow-hidden hover:shadow-lg transition-all">
-                <div className="p-6">
-                  <div className="flex items-center gap-4 mb-4">
-                    {IconComponent && (
-                      <div className="bg-purple-100 text-purple-600 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <IconComponent size={32} />
-                      </div>
-                    )}
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-1">{category.name}</h3>
-                      <p className="text-sm text-gray-600">/{category.slug}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(category)}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"
-                    >
-                      <Pencil size={16} />
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => handleDelete(category.id)}
-                      className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-1"
-                    >
-                      <Trash2 size={16} />
-                      Eliminar
-                    </button>
-                  </div>
+              <div key={category.id} className="bg-white rounded-xl border-2 border-gray-200 p-6 hover:shadow-lg transition-all">
+                <div className="flex items-center justify-between mb-3">
+                  <IconComponent size={32} className="text-blue-600" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-1">{category.name}</h3>
+                <p className="text-xs text-gray-500 mb-4">{category.slug}</p>
+                <div className="flex gap-2">
+                  <button onClick={() => handleEdit(category)} className="flex-1 p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                    <Pencil size={16} className="mx-auto" />
+                  </button>
+                  <button onClick={() => handleDelete(category.id)} className="flex-1 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                    <Trash2 size={16} className="mx-auto" />
+                  </button>
                 </div>
               </div>
             );
           })}
         </div>
-        
-        {categories.length === 0 && (
-          <div className="bg-white rounded-xl border-2 border-gray-300 p-12 text-center">
-            <p className="text-gray-800 font-semibold">No hay categorías creadas aún</p>
-          </div>
-        )}
       </div>
     </div>
   );
