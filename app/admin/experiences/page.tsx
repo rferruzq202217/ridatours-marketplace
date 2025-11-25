@@ -580,8 +580,8 @@ export default function ExperiencesPage() {
                           <div className="flex flex-wrap items-center gap-3 text-sm">
                             <div className="flex items-center gap-1">
                               <Star size={14} className="text-yellow-400 fill-current" />
-                              <span className="font-semibold text-gray-900">{exp.rating}</span>
-                              <span className="text-gray-500">({exp.reviews})</span>
+                              <span className="font-medium text-gray-700">{exp.rating}</span>
+                              <span className="text-xs text-gray-400">({exp.reviews})</span>
                             </div>
                             <span className="text-gray-300">•</span>
                             <span className="font-semibold text-blue-600">{formatPrice(exp.price)}</span>

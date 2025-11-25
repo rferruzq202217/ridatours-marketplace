@@ -46,7 +46,7 @@ export default async function PopularesPage() {
                 <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem]">{exp.title}</h3>
                 {exp.duration && <div className="flex items-center gap-2 text-sm text-gray-600 mb-3"><Clock size={14} /><span>{exp.duration}</span></div>}
                 <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                  <div className="flex items-center gap-1"><Star size={16} className="text-yellow-400 fill-current" /><span className="font-semibold">{exp.rating}</span><span className="text-xs text-gray-500">({exp.reviews.toLocaleString('es-ES')})</span></div>
+                  <div className="flex items-center gap-1"><Star size={16} className="text-yellow-400 fill-current" /><span className="font-medium text-gray-700">{exp.rating}</span><span className="text-xs text-gray-400">({exp.reviews.toLocaleString('es-ES')})</span></div>
                   <div className="text-right"><span className="text-xs text-gray-500">Desde</span><p className="font-bold text-lg">€{exp.price}</p></div>
                 </div>
               </div>
