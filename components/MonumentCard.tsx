@@ -61,7 +61,7 @@ export default function MonumentCard({ monument, lang = 'es', citySlug }: Monume
           <div className="flex items-center gap-2 mb-3 text-sm">
             <div className="flex items-center gap-1">
               <Star size={16} className="text-yellow-400 fill-current" />
-              <span className="font-semibold text-gray-900">{monument.rating}</span>
+              <span className="font-medium text-gray-700">{monument.rating}</span>
               <span className="text-gray-500">({monument.reviews})</span>
             </div>
           </div>

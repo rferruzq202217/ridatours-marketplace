@@ -152,8 +152,8 @@ export default function ExperienceCarousel({
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                       <div className="flex items-center gap-1">
                         <Star size={16} className="text-yellow-400 fill-current" />
-                        <span className="font-semibold text-gray-900">{exp.rating}</span>
-                        <span className="text-xs text-gray-500">({exp.reviews.toLocaleString('es-ES')})</span>
+                        <span className="font-medium text-gray-700">{exp.rating}</span>
+                        <span className="text-xs text-gray-400">({exp.reviews.toLocaleString('es-ES')})</span>
                       </div>
                       <div className="text-right">
                         <span className="text-xs text-gray-500">Desde</span>
