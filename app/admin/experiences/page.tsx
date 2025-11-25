@@ -245,6 +245,16 @@ export default function ExperiencesPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-4xl mx-auto">
+          {/* Breadcrumbs */}
+          <div className="mb-4 flex items-center gap-2 text-sm text-gray-600">
+            <Link href="/admin" className="hover:text-blue-600">Admin</Link>
+            <span>/</span>
+            <Link href="/admin/experiences" className="hover:text-blue-600">Experiencias</Link>
+            <span>/</span>
+            <span className="text-gray-900 font-medium">{editingId ? 'Editar' : 'Nueva'}</span>
+          </div>
+
+          {/* Botón volver */}
           <button onClick={() => { setShowForm(false); setEditingId(null); }} className="mb-6 flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium">
             ← Volver a la lista
           </button>
@@ -435,7 +445,19 @@ export default function ExperiencesPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+        {/* Breadcrumbs */}
+        <div className="mb-4 flex items-center gap-2 text-sm text-gray-600">
+          <Link href="/admin" className="hover:text-blue-600">Admin</Link>
+          <span>/</span>
+          <span className="text-gray-900 font-medium">Experiencias</span>
+        </div>
+
+        {/* Botón volver */}
+        <Link href="/admin" className="mb-6 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium">
+          ← Volver al panel
+        </Link>
+
+        <div className="flex items-center justify-between mb-6 mt-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Experiencias</h1>
             <p className="text-gray-600 mt-1">Gestiona las experiencias y actividades</p>
@@ -448,18 +470,17 @@ export default function ExperiencesPage() {
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <div className="md:col-span-2 relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
               <input
                 type="text"
-                placeholder="Buscar por título o descripción..."
+                placeholder="🔍 Buscar por título o descripción..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 font-bold"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 font-bold text-xl"
                 >
                   ×
                 </button>
@@ -472,7 +493,7 @@ export default function ExperiencesPage() {
                 onChange={(e) => setFilterCity(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="all">🏙️ Todas las ciudades</option>
+                <option value="all">Todas las ciudades</option>
                 {cities.map(city => (
                   <option key={city.id} value={city.id}>{city.name}</option>
                 ))}
@@ -485,9 +506,9 @@ export default function ExperiencesPage() {
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="all">⚡ Todos los estados</option>
-                <option value="active">✅ Activas</option>
-                <option value="inactive">❌ Inactivas</option>
+                <option value="all">Todos los estados</option>
+                <option value="active">Activas</option>
+                <option value="inactive">Inactivas</option>
               </select>
             </div>
           </div>
@@ -499,7 +520,7 @@ export default function ExperiencesPage() {
                 onChange={(e) => setFilterWidget(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="all">🎫 Todos los widgets</option>
+                <option value="all">Todos los widgets</option>
                 <option value="tiqets">Tiqets</option>
                 <option value="regiondo">Regiondo</option>
                 <option value="none">Sin widget</option>
@@ -550,8 +571,8 @@ export default function ExperiencesPage() {
                         <Image src={exp.main_image} alt={exp.title} fill className="object-cover" />
                       </div>
                     ) : (
-                      <div className="w-32 h-32 flex-shrink-0 rounded-lg bg-gray-200 flex items-center justify-center text-4xl">
-                        🖼️
+                      <div className="w-32 h-32 flex-shrink-0 rounded-lg bg-gray-200 flex items-center justify-center text-gray-400">
+                        Sin imagen
                       </div>
                     )}
                     
@@ -566,7 +587,7 @@ export default function ExperiencesPage() {
                           
                           <div className="flex flex-wrap items-center gap-3 text-sm">
                             <div className="flex items-center gap-1">
-                              <span className="text-yellow-400">⭐</span>
+                              <span>⭐</span>
                               <span className="font-semibold text-gray-900">{exp.rating}</span>
                               <span className="text-gray-500">({exp.reviews})</span>
                             </div>
@@ -582,18 +603,18 @@ export default function ExperiencesPage() {
 
                           <div className="flex flex-wrap gap-2 mt-3">
                             {exp.featured && (
-                              <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded">⭐ Destacada</span>
+                              <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded">Destacada</span>
                             )}
                             {exp.active ? (
-                              <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded">✅ Activa</span>
+                              <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded">Activa</span>
                             ) : (
-                              <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded">❌ Borrador</span>
+                              <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded">Borrador</span>
                             )}
                             {exp.tiqets_venue_id && (
-                              <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded">🎫 Tiqets</span>
+                              <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded">Tiqets</span>
                             )}
                             {exp.widget_id && (
-                              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded">🎫 Regiondo</span>
+                              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded">Regiondo</span>
                             )}
                             {exp.experience_categories && exp.experience_categories.length > 0 && (
                               exp.experience_categories.map(ec => (
@@ -606,11 +627,11 @@ export default function ExperiencesPage() {
                         </div>
 
                         <div className="flex gap-2">
-                          <button onClick={() => handleEdit(exp)} className="px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium">
-                            ✏️ Editar
+                          <button onClick={() => handleEdit(exp)} className="px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium">
+                            Editar
                           </button>
-                          <button onClick={() => handleDelete(exp.id)} className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium">
-                            🗑️ Eliminar
+                          <button onClick={() => handleDelete(exp.id)} className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium">
+                            Eliminar
                           </button>
                         </div>
                       </div>
