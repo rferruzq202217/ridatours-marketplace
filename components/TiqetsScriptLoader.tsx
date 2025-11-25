@@ -4,31 +4,33 @@ import { useEffect } from 'react';
 export default function TiqetsScriptLoader() {
   useEffect(() => {
     // Verificar si ya existe el script
-    if (document.querySelector('script[src*="widgets.tiqets.com"]')) {
-      console.log('✅ Script de Tiqets ya cargado');
+    const existingScript = document.querySelector('script[src*="widgets.tiqets.com"]');
+    if (existingScript) {
+      console.log('✅ Script de Tiqets ya existe');
       return;
     }
 
-    // Crear y añadir el script
+    console.log('📦 Cargando script de Tiqets...');
+    
     const script = document.createElement('script');
     script.src = 'https://widgets.tiqets.com/loader.js';
-    script.defer = true;
+    script.async = true;
+    
     script.onload = () => {
       console.log('✅ Tiqets loader.js cargado exitosamente');
+      // Dar tiempo para que se inicialice
+      setTimeout(() => {
+        if ((window as any).tiqets) {
+          console.log('✅ window.tiqets está disponible');
+        }
+      }, 100);
     };
+    
     script.onerror = () => {
       console.error('❌ Error cargando Tiqets loader.js');
     };
     
-    document.body.appendChild(script);
-    
-    return () => {
-      // Cleanup si el componente se desmonta
-      const existingScript = document.querySelector('script[src*="widgets.tiqets.com"]');
-      if (existingScript) {
-        existingScript.remove();
-      }
-    };
+    document.head.appendChild(script);
   }, []);
 
   return null;
