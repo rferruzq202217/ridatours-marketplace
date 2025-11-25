@@ -85,7 +85,7 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
             <ChevronRight size={24} />
           </button>
         </div>
-      </section>
-    );
-  }
+      </div>
+    </section>
+  );
 }

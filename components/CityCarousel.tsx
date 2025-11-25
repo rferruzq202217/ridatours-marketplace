@@ -117,7 +117,7 @@ export default function CityCarousel({ title, subtitle, cities, viewAllLink }: C
             <ChevronRight size={24} />
           </button>
         </div>
-      </section>
-    );
-  }
+      </div>
+    </section>
+  );
 }

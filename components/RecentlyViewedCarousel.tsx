@@ -147,7 +147,7 @@ export default function RecentlyViewedCarousel() {
             <ChevronRight size={24} />
           </button>
         </div>
-      </section>
-    );
-  }
+      </div>
+    </section>
+  );
 }
