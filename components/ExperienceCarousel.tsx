@@ -75,7 +75,7 @@ export default function ExperienceCarousel({
         <div className="relative">
           <button
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all -ml-4"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white rounded-full p-2 shadow-lg hover:shadow-xl hover:bg-gray-900 transition-all -ml-4"
             aria-label="Anterior"
           >
             <ChevronLeft size={24} />
@@ -94,7 +94,7 @@ export default function ExperienceCarousel({
                 <Link
                   key={exp.id || index}
                   href={href}
-                  className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group"
+                  className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all group"
                 >
                   <div className="relative h-48">
                     {exp.image && exp.image.trim() !== '' ? (
@@ -154,7 +154,7 @@ export default function ExperienceCarousel({
 
           <button
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all -mr-4"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white rounded-full p-2 shadow-lg hover:shadow-xl hover:bg-gray-900 transition-all -mr-4"
             aria-label="Siguiente"
           >
             <ChevronRight size={24} />

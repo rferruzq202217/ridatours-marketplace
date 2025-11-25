@@ -43,7 +43,7 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
         <div className="relative">
           <button
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all -ml-4"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white rounded-full p-2 shadow-lg hover:shadow-xl hover:bg-gray-900 transition-all -ml-4"
             aria-label="Anterior"
           >
             <ChevronLeft size={24} />
@@ -61,7 +61,7 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
               return (
                 <div
                   key={category.slug}
-                  className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow p-6 cursor-default"
+                  className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all p-6 cursor-default"
                 >
                   <div className="bg-blue-100 text-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Icon size={32} />
@@ -79,7 +79,7 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
 
           <button
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all -mr-4"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white rounded-full p-2 shadow-lg hover:shadow-xl hover:bg-gray-900 transition-all -mr-4"
             aria-label="Siguiente"
           >
             <ChevronRight size={24} />
