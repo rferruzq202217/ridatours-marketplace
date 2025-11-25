@@ -41,80 +41,83 @@ export default function CityCarousel({ title, subtitle, cities, viewAllLink }: C
   if (!cities || cities.length === 0) return null;
 
   return (
-    <div className="bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-12 bg-white">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+            <h2 className="text-3xl font-bold text-gray-900">{title}</h2>
             {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => scroll('left')}
-              className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <button
-              onClick={() => scroll('right')}
-              className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
-            >
-              <ChevronRight size={20} />
-            </button>
-          </div>
-        </div>
-
-        <div
-          id={`city-carousel-${title}`}
-          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {cities.map((city, index) => (
-            <Link
-              key={city.id || city.slug || index}
-              href={`/es/${city.slug}`}
-              className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border-2 border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all group"
-            >
-              {city.image && city.image.trim() !== '' ? (
-                <div className="relative h-48">
-                  <Image 
-                    src={city.image} 
-                    alt={city.name} 
-                    fill 
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    sizes="(max-width: 768px) 100vw, 300px"
-                  />
-                </div>
-              ) : (
-                <div className="h-48 bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-400">Sin imagen</span>
-                </div>
-              )}
-              <div className="p-4">
-                <h3 className="font-bold text-gray-900 text-lg mb-1">{city.name}</h3>
-                <p className="text-sm text-gray-600">{city.country}</p>
-                {city.experienceCount !== undefined && (
-                  <p className="text-sm text-blue-600 mt-2">{city.experienceCount} experiencias</p>
-                )}
-                {city.description && (
-                  <p className="text-sm text-gray-600 mt-2 line-clamp-2">{city.description}</p>
-                )}
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {viewAllLink && (
-          <div className="mt-6 text-center">
-            <Link
+          {viewAllLink && (
+            <Link 
               href={viewAllLink}
-              className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+              className="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 group"
             >
-              Ver todas las ciudades
+              Ver todo
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
             </Link>
+          )}
+        </div>
+
+        <div className="relative">
+          <button
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all -ml-4"
+            aria-label="Anterior"
+          >
+            <ChevronLeft size={24} />
+          </button>
+
+          <div
+            id={`city-carousel-${title}`}
+            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {cities.map((city, index) => (
+              <Link
+                key={city.id || city.slug || index}
+                href={`/es/${city.slug}`}
+                className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group"
+              >
+                <div className="relative h-48">
+                  {city.image && city.image.trim() !== '' ? (
+                    <Image
+                      src={city.image}
+                      alt={city.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-400">Sin imagen</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <h3 className="text-white text-xl font-bold mb-1 group-hover:text-blue-200 transition-colors">
+                      {city.name}
+                    </h3>
+                    <p className="text-white/90 text-sm">{city.country}</p>
+                    {city.experienceCount && (
+                      <p className="text-white/80 text-xs mt-1">
+                        {city.experienceCount} experiencias
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
-        )}
-      </div>
-    </div>
-  );
+
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all -mr-4"
+            aria-label="Siguiente"
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
+      </section>
+    );
+  }
 }

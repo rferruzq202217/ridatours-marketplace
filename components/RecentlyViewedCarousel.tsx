@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { formatPrice } from '@/lib/formatPrice';
 import { Star, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Experience {
@@ -55,79 +56,98 @@ export default function RecentlyViewedCarousel() {
   if (experiences.length === 0) return null;
 
   return (
-    <div className="bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-12 bg-white">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Visto recientemente
-          </h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => scroll('left')}
-              className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <button
-              onClick={() => scroll('right')}
-              className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
-            >
-              <ChevronRight size={20} />
-            </button>
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900">Visto recientemente</h2>
+            <p className="text-gray-600 mt-1">Tus últimas experiencias vistas</p>
           </div>
         </div>
 
-        <div
-          id="recently-viewed-container"
-          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {experiences.map((exp) => (
-            <Link
-              key={exp.id}
-              href={`/es/${exp.city}/${exp.slug}`}
-              className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border-2 border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all group"
-            >
-              {exp.image && exp.image.trim() !== '' ? (
-                <div className="relative h-48">
-                  <Image 
-                    src={exp.image} 
-                    alt={exp.title} 
-                    fill 
-                    className="object-cover group-hover:scale-105 transition-transform duration-300" 
-                    sizes="(max-width: 768px) 100vw, 25vw" 
-                  />
-                </div>
-              ) : (
-                <div className="h-48 bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-400 text-sm">Sin imagen</span>
-                </div>
-              )}
-              <div className="p-4">
-                <h3 className="font-bold text-gray-900 mb-2 line-clamp-2">
-                  {exp.title}
-                </h3>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1">
-                    <Star size={14} className="text-yellow-400 fill-current" />
-                    <span className="text-sm font-bold">{exp.rating}</span>
-                    <span className="text-xs text-gray-600">({exp.reviews})</span>
+        <div className="relative">
+          <button
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all -ml-4"
+            aria-label="Anterior"
+          >
+            <ChevronLeft size={24} />
+          </button>
+
+          <div
+            id="recently-viewed-container"
+            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {experiences.map((exp) => {
+              const href = `/${exp.city}/${exp.slug}`;
+
+              return (
+                <Link
+                  key={exp.id}
+                  href={href}
+                  className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group"
+                >
+                  <div className="relative h-48">
+                    {exp.image && exp.image.trim() !== '' ? (
+                      <Image
+                        src={exp.image}
+                        alt={exp.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-400">Sin imagen</span>
+                      </div>
+                    )}
                   </div>
-                  {exp.duration && (
-                    <div className="flex items-center gap-1 text-gray-600">
-                      <Clock size={14} />
-                      <span className="text-xs">{exp.duration}</span>
+
+                  <div className="p-4">
+                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                      {exp.title}
+                    </h3>
+
+                    <div className="flex items-center gap-2 mb-3 text-sm">
+                      <div className="flex items-center gap-1">
+                        <Star size={16} className="text-yellow-400 fill-current" />
+                        <span className="font-semibold">{exp.rating}</span>
+                        <span className="text-gray-500">({exp.reviews})</span>
+                      </div>
+                      {exp.duration && (
+                        <>
+                          <span className="text-gray-300">•</span>
+                          <div className="flex items-center gap-1 text-gray-600">
+                            <Clock size={16} />
+                            <span>{exp.duration}</span>
+                          </div>
+                        </>
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className="text-xl font-bold text-blue-600">
-                  €{exp.price}
-                </div>
-              </div>
-            </Link>
-          ))}
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm text-gray-600">Desde</div>
+                        <div className="text-xl font-bold text-gray-900">
+                          {formatPrice(exp.price)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all -mr-4"
+            aria-label="Siguiente"
+          >
+            <ChevronRight size={24} />
+          </button>
         </div>
-      </div>
-    </div>
-  );
+      </section>
+    );
+  }
 }
