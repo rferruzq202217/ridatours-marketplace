@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/formatPrice';
 import Image from 'next/image';
@@ -36,18 +36,36 @@ export default function ExperienceCarousel({
   carouselId = 'default',
   viewAllLink 
 }: ExperienceCarouselProps) {
-  const [scrollPosition, setScrollPosition] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    const container = containerRef.current;
+    if (container) {
+      setCanScrollLeft(container.scrollLeft > 0);
+      setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScroll);
+      return () => container.removeEventListener('scroll', checkScroll);
+    }
+  }, [experiences]);
 
   const scroll = (direction: 'left' | 'right') => {
-    const container = document.getElementById(`exp-carousel-${carouselId}`);
+    const container = containerRef.current;
     if (container) {
-      const scrollAmount = 300;
+      const scrollAmount = 316; // 300px card + 16px gap
       const newPosition = direction === 'left' 
-        ? scrollPosition - scrollAmount 
-        : scrollPosition + scrollAmount;
+        ? container.scrollLeft - scrollAmount 
+        : container.scrollLeft + scrollAmount;
       
       container.scrollTo({ left: newPosition, behavior: 'smooth' });
-      setScrollPosition(newPosition);
     }
   };
 
@@ -73,17 +91,19 @@ export default function ExperienceCarousel({
         </div>
 
         <div className="relative">
-          <button
-            onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white rounded-full p-2 shadow-lg hover:shadow-xl hover:bg-gray-900 transition-all -ml-4"
-            aria-label="Anterior"
-          >
-            <ChevronLeft size={24} />
-          </button>
+          {canScrollLeft && (
+            <button
+              onClick={() => scroll('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white text-gray-900 rounded-full p-2 shadow-lg hover:shadow-xl border border-gray-200 transition-all -ml-4"
+              aria-label="Anterior"
+            >
+              <ChevronLeft size={24} />
+            </button>
+          )}
 
           <div
-            id={`exp-carousel-${carouselId}`}
-            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+            ref={containerRef}
+            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-2 -my-2 px-1 -mx-1"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {experiences.map((exp, index) => {
@@ -146,13 +166,15 @@ export default function ExperienceCarousel({
             })}
           </div>
 
-          <button
-            onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white rounded-full p-2 shadow-lg hover:shadow-xl hover:bg-gray-900 transition-all -mr-4"
-            aria-label="Siguiente"
-          >
-            <ChevronRight size={24} />
-          </button>
+          {canScrollRight && (
+            <button
+              onClick={() => scroll('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white text-gray-900 rounded-full p-2 shadow-lg hover:shadow-xl border border-gray-200 transition-all -mr-4"
+              aria-label="Siguiente"
+            >
+              <ChevronRight size={24} />
+            </button>
+          )}
         </div>
       </div>
     </section>
