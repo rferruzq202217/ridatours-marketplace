@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { Instagram } from 'lucide-react';
+import Script from 'next/script';
 
 interface FooterProps {
   lang?: string;
@@ -17,6 +18,11 @@ export default function Footer({ lang = 'es' }: FooterProps) {
 
   return (
     <footer className="bg-[#1D2D52] text-white">
+      <Script 
+        src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" 
+        strategy="lazyOnload"
+      />
+      
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
@@ -72,19 +78,20 @@ export default function Footer({ lang = 'es' }: FooterProps) {
             
             {/* Trustpilot Widget */}
             <div className="mt-5">
-              <iframe 
-                title="Customer reviews powered by Trustpilot" 
-                loading="lazy"
-                src="https://widget.trustpilot.com/trustboxes/53aa8807dec7e10d38f59f32/index.html?templateId=53aa8807dec7e10d38f59f32&businessunitId=5405737f00006400057a1376#locale=es-ES&styleHeight=100px&styleWidth=180px&theme=dark"
-                style={{ 
-                  position: 'relative', 
-                  height: '100px', 
-                  width: '180px', 
-                  borderStyle: 'none', 
-                  display: 'block', 
-                  overflow: 'hidden' 
-                }}
-              />
+              <div 
+                className="trustpilot-widget" 
+                data-locale="es-ES" 
+                data-template-id="53aa8807dec7e10d38f59f32" 
+                data-businessunit-id="5405737f00006400057a1376" 
+                data-style-height="100px" 
+                data-style-width="180px" 
+                data-theme="dark"
+                style={{ width: '180px', height: '100px' }}
+              >
+                <a href="https://es.trustpilot.com/review/tiqets.com" target="_blank" rel="noopener noreferrer">
+                  Trustpilot
+                </a>
+              </div>
             </div>
           </div>
 
