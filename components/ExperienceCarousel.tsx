@@ -108,7 +108,7 @@ export default function ExperienceCarousel({
           >
             {experiences.map((exp, index) => {
               const citySlug = exp.city_slug || exp.city || '';
-              const href = `/${citySlug}/${exp.slug}`;
+              const href = `/es/${citySlug}/${exp.slug}`;
 
               return (
                 <Link

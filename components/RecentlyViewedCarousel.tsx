@@ -100,7 +100,7 @@ export default function RecentlyViewedCarousel() {
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {experiences.map((exp) => {
-              const href = `/${exp.city}/${exp.slug}`;
+              const href = `/es/${exp.city}/${exp.slug}`;
 
               return (
                 <Link
