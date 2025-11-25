@@ -6,6 +6,7 @@ import RecentlyViewedCarousel from '@/components/RecentlyViewedCarousel';
 import CategoryCarousel from '@/components/CategoryCarousel';
 import CityCarousel from '@/components/CityCarousel';
 import TrustBadges from '@/components/TrustBadges';
+import LinkFarm from '@/components/LinkFarm';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -105,6 +106,22 @@ export default async function HomePage() {
     count: cat.count
   }));
 
+  const linkFarmExperiences = experiences.map(e => ({
+    title: e.title,
+    slug: e.slug,
+    city: e.city
+  }));
+
+  const linkFarmCities = citiesWithCount.map(c => ({
+    name: c.name,
+    slug: c.slug
+  }));
+
+  const linkFarmCategories = categories.map(c => ({
+    name: c.name,
+    slug: c.slug
+  }));
+
   return (
     <div className="min-h-screen bg-white">
       <Header lang="es" transparent={true} showSearch={true} />
@@ -147,6 +164,12 @@ export default async function HomePage() {
       {ridatoursRecommended.length > 0 && (
         <ExperienceCarousel title="Principales recomendaciones de Ridatours" subtitle="Las experiencias que no puedes perderte" experiences={ridatoursRecommended} carouselId="recommended" viewAllLink="/es/recomendaciones" lang="es" />
       )}
+
+      <LinkFarm 
+        experiences={linkFarmExperiences}
+        cities={linkFarmCities}
+        categories={linkFarmCategories}
+      />
 
       <Footer lang="es" />
     </div>
