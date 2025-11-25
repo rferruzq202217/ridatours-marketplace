@@ -114,7 +114,6 @@ export default function CategoriesPage() {
                 <input type="text" value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent" required />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">Icono *</label>
                 <IconPicker value={formData.icon_name} onChange={(iconName) => setFormData({ ...formData, icon_name: iconName })} />
               </div>
               <div className="flex gap-3 pt-4">
@@ -149,7 +148,8 @@ export default function CategoriesPage() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {categories.map((category) => {
-            const IconComponent = AVAILABLE_ICONS[category.icon_name as keyof typeof AVAILABLE_ICONS] || AVAILABLE_ICONS.Landmark;
+            const iconData = AVAILABLE_ICONS.find(i => i.name === category.icon_name) || AVAILABLE_ICONS[0];
+            const IconComponent = iconData.icon;
             return (
               <div key={category.id} className="bg-white rounded-xl border-2 border-gray-200 p-6 hover:shadow-lg transition-all">
                 <div className="flex items-center justify-between mb-3">
