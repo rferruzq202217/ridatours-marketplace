@@ -1,5 +1,6 @@
 'use client';
 import { useRef, useState, useEffect } from 'react';
+import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { AVAILABLE_ICONS } from '@/lib/icons';
 
@@ -18,7 +19,6 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
   const containerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const checkScroll = () => {
     const container = containerRef.current;
@@ -76,25 +76,18 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
             {categories.map((category) => {
               const iconData = AVAILABLE_ICONS.find(i => i.name === category.icon_name);
               const Icon = iconData?.icon || AVAILABLE_ICONS[0].icon;
-              const isSelected = selectedCategory === category.slug;
               
               return (
-                <button
+                <Link
                   key={category.slug}
-                  onClick={() => setSelectedCategory(isSelected ? null : category.slug)}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-full border-2 whitespace-nowrap transition-all ${
-                    isSelected 
-                      ? 'border-blue-600 bg-blue-50 text-blue-700' 
-                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                  }`}
+                  href={`/es/categoria/${category.slug}`}
+                  className="flex items-center gap-2 px-4 py-3 rounded-full border-2 whitespace-nowrap transition-all border-gray-200 bg-white text-gray-700 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700"
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    isSelected ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
-                  }`}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-600">
                     <Icon size={18} />
                   </div>
                   <span className="font-medium">{category.name}</span>
-                </button>
+                </Link>
               );
             })}
           </div>
