@@ -71,24 +71,20 @@ export default function Footer({ lang = 'es' }: FooterProps) {
             <p className="text-sm text-gray-300 mt-3">Descargado por <strong className="text-white">5.000.000 viajeros</strong></p>
             
             {/* Trustpilot Widget */}
-            <div className="mt-4">
-              <div 
-                className="trustpilot-widget" 
-                data-locale="es-ES" 
-                data-template-id="53aa8807dec7e10d38f59f32" 
-                data-businessunit-id="5405737f00006400057a1376" 
-                data-style-height="100px" 
-                data-style-width="180px" 
-                data-theme="dark"
-              >
-                <a href="https://es.trustpilot.com/review/tiqets.com" target="_blank" rel="noopener noreferrer">
-                  <img 
-                    src="https://cdn.trustpilot.net/brand-assets/4.1.0/logo-white.svg" 
-                    alt="Trustpilot" 
-                    className="h-6 mb-2"
-                  />
-                </a>
-              </div>
+            <div className="mt-5">
+              <iframe 
+                title="Customer reviews powered by Trustpilot" 
+                loading="lazy"
+                src="https://widget.trustpilot.com/trustboxes/53aa8807dec7e10d38f59f32/index.html?templateId=53aa8807dec7e10d38f59f32&businessunitId=5405737f00006400057a1376#locale=es-ES&styleHeight=100px&styleWidth=180px&theme=dark"
+                style={{ 
+                  position: 'relative', 
+                  height: '100px', 
+                  width: '180px', 
+                  borderStyle: 'none', 
+                  display: 'block', 
+                  overflow: 'hidden' 
+                }}
+              />
             </div>
           </div>
 
