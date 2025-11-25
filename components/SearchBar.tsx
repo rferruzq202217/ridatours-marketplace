@@ -122,25 +122,19 @@ export default function SearchBar({ inHeader = false }: SearchBarProps) {
   return (
     <div ref={wrapperRef} className={`relative ${inHeader ? 'w-full max-w-xl' : 'w-full max-w-2xl'}`}>
       <form onSubmit={(e) => { e.preventDefault(); if (results.length > 0) handleSelect(results[0]); }}>
-        <div className={`
-          bg-white rounded-full transition-all
-          ${inHeader 
-            ? 'border border-gray-200 hover:border-gray-300 hover:shadow-md' 
-            : 'shadow-xl hover:shadow-2xl border border-gray-100'
-          }
-        `}>
-          <div className={`relative flex items-center gap-2 ${inHeader ? 'pl-4 pr-2 py-2' : 'pl-5 pr-2 py-2.5'}`}>
-            <Search className="text-gray-400 flex-shrink-0" size={inHeader ? 18 : 20} />
+        <div className={`bg-white rounded-full shadow-lg border border-gray-200 hover:shadow-xl transition-shadow ${inHeader ? '' : 'shadow-2xl'}`}>
+          <div className="relative flex items-center gap-2 pl-5 pr-5 py-2">
+            <Search className="text-gray-400 flex-shrink-0" size={20} />
             <input
               type="text"
-              placeholder="Buscar experiencias, ciudades..."
+              placeholder="Buscar ciudades, monumentos, experiencias..."
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
                 setIsOpen(true);
               }}
               onFocus={() => setIsOpen(true)}
-              className={`flex-1 font-medium text-gray-900 placeholder-gray-400 focus:outline-none bg-transparent ${inHeader ? 'text-sm' : 'text-base'}`}
+              className="flex-1 text-sm text-gray-900 placeholder-gray-400 focus:outline-none bg-transparent py-1"
             />
             {searchTerm && (
               <button 
@@ -152,15 +146,9 @@ export default function SearchBar({ inHeader = false }: SearchBarProps) {
                 }}
                 className="text-gray-400 hover:text-gray-600 p-1"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             )}
-            <button 
-              type="submit" 
-              className={`bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors flex-shrink-0 flex items-center justify-center ${inHeader ? 'w-8 h-8' : 'w-10 h-10'}`}
-            >
-              <Search size={inHeader ? 14 : 16} />
-            </button>
           </div>
         </div>
       </form>
@@ -178,24 +166,29 @@ export default function SearchBar({ inHeader = false }: SearchBarProps) {
                 <button
                   key={`${result.type}-${result.slug}-${index}`}
                   onClick={() => handleSelect(result)}
-                  className="w-full px-5 py-3 hover:bg-gray-50 transition-colors flex items-center gap-3 text-left"
+                  className="w-full px-5 py-2.5 hover:bg-gray-50 transition-colors flex items-center gap-3 text-left"
                 >
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                     result.type === 'city' ? 'bg-blue-100' : 
                     result.type === 'monument' ? 'bg-amber-100' : 'bg-purple-100'
                   }`}>
-                    <MapPin size={14} className={
+                    <MapPin size={16} className={
                       result.type === 'city' ? 'text-blue-600' : 
                       result.type === 'monument' ? 'text-amber-600' : 'text-purple-600'
                     } />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-900 text-sm truncate">
+                    <div className="font-medium text-gray-900 text-sm truncate">
                       {result.name}
                     </div>
-                    <div className="text-xs text-gray-500">
-                      {result.type === 'city' ? 'Ciudad' : `${result.category} en ${result.cityName}`}
-                    </div>
+                    {result.cityName && (
+                      <div className="text-xs text-gray-500">
+                        {result.category} • {result.cityName}
+                      </div>
+                    )}
+                    {result.type === 'city' && (
+                      <div className="text-xs text-gray-500">Ciudad</div>
+                    )}
                   </div>
                 </button>
               ))}
