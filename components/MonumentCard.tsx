@@ -14,14 +14,17 @@ interface Monument {
   tickets_from?: number;
   price?: number;
   city?: string;
+}
+
+interface MonumentCardProps {
+  monument: Monument;
   lang?: string;
   citySlug?: string;
 }
 
-export default function MonumentCard({ monument }: { monument: Monument }) {
-  const citySlug = monument.citySlug || monument.city || '';
-  const lang = monument.lang || 'es';
-  const href = `/${lang}/${citySlug}/monumentos/${monument.slug}`;
+export default function MonumentCard({ monument, lang = 'es', citySlug }: MonumentCardProps) {
+  const slug = citySlug || monument.city || '';
+  const href = `/${lang}/${slug}/monumentos/${monument.slug}`;
 
   return (
     <Link
