@@ -2,20 +2,30 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin } from 'lucide-react';
 
-interface Monument {
-  id: string;
-  name: string;
-  slug: string;
-  image: string | null;
-  city_slug?: string;
-  city_name?: string;
-  tickets_from?: number;
+interface MonumentCardProps {
+  monument: {
+    id?: string;
+    name: string;
+    slug: string;
+    image: string | null;
+    city_slug?: string;
+    city_name?: string;
+    tickets_from?: number;
+    rating?: number;
+    reviews?: number;
+    price?: number;
+    duration?: string;
+  };
+  lang?: string;
+  citySlug?: string;
 }
 
-export default function MonumentCard({ monument }: { monument: Monument }) {
+export default function MonumentCard({ monument, citySlug }: MonumentCardProps) {
+  const finalCitySlug = citySlug || monument.city_slug;
+  
   return (
     <Link
-      href={`/es/${monument.city_slug}/monumentos/${monument.slug}`}
+      href={`/es/${finalCitySlug}/monumentos/${monument.slug}`}
       className="bg-white rounded-xl overflow-hidden border-2 border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all group"
     >
       {monument.image && monument.image.trim() !== '' ? (
@@ -43,11 +53,11 @@ export default function MonumentCard({ monument }: { monument: Monument }) {
             <span>{monument.city_name}</span>
           </div>
         )}
-        {monument.tickets_from && (
+        {(monument.tickets_from || monument.price) && (
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-600">Desde</span>
             <div className="text-xl font-bold text-blue-600">
-              €{monument.tickets_from}
+              €{monument.tickets_from || monument.price}
             </div>
           </div>
         )}
