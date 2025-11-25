@@ -124,7 +124,7 @@ export default async function HomePage() {
       </div>
 
       <CategoryCarousel categories={categories} />
-      <RecentlyViewedCarousel lang="es" />
+      <RecentlyViewedCarousel />
 
       <CityCarousel
         title="Ciudades populares"
