@@ -5,6 +5,7 @@ import ExperienceCarousel from '@/components/ExperienceCarousel';
 import RecentlyViewedCarousel from '@/components/RecentlyViewedCarousel';
 import CategoryCarousel from '@/components/CategoryCarousel';
 import CityCarousel from '@/components/CityCarousel';
+import TrustBadges from '@/components/TrustBadges';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -123,6 +124,7 @@ export default async function HomePage() {
         </div>
       </div>
 
+      <TrustBadges />
       <CategoryCarousel categories={categories} />
       <RecentlyViewedCarousel />
 
