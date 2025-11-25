@@ -105,8 +105,8 @@ export default async function CategoryPage({ params }: PageProps) {
                     <div className="flex items-end justify-between pt-4 border-t border-gray-100">
                       <div className="flex items-center gap-2">
                         <Star size={20} className="text-yellow-400 fill-current" />
-                        <span className="font-bold text-lg text-gray-900">{exp.rating}</span>
-                        <span className="text-sm text-gray-500">({exp.reviews.toLocaleString()})</span>
+                        <span className="font-medium text-gray-700">{exp.rating}</span>
+                        <span className="text-xs text-gray-400">({exp.reviews.toLocaleString()})</span>
                       </div>
                       <div className="text-right">
                         <div className="text-xs text-gray-600 mb-1">Desde</div>

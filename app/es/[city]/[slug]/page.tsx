@@ -109,9 +109,9 @@ export default async function ExperiencePage({ params }: PageProps) {
                 <div className="flex items-center gap-3 mb-6">
                   <div className="flex items-center gap-1">
                     <Star className="text-yellow-400 fill-current" size={20} />
-                    <span className="font-bold text-lg text-gray-900">{experience.rating}</span>
+                    <span className="font-medium text-gray-700">{experience.rating}</span>
                   </div>
-                  <span className="text-gray-600">({experience.reviews.toLocaleString()} opiniones)</span>
+                  <span className="text-xs text-gray-400">({experience.reviews.toLocaleString()} opiniones)</span>
                   {experience.duration && (
                     <>
                       <span className="text-gray-300">•</span>
