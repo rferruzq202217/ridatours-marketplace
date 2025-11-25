@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -23,18 +23,36 @@ interface CityCarouselProps {
 }
 
 export default function CityCarousel({ title, subtitle, cities, viewAllLink }: CityCarouselProps) {
-  const [scrollPosition, setScrollPosition] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    const container = containerRef.current;
+    if (container) {
+      setCanScrollLeft(container.scrollLeft > 0);
+      setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScroll);
+      return () => container.removeEventListener('scroll', checkScroll);
+    }
+  }, [cities]);
 
   const scroll = (direction: 'left' | 'right') => {
-    const container = document.getElementById(`city-carousel-${title}`);
+    const container = containerRef.current;
     if (container) {
-      const scrollAmount = 300;
+      const scrollAmount = 316;
       const newPosition = direction === 'left' 
-        ? scrollPosition - scrollAmount 
-        : scrollPosition + scrollAmount;
+        ? container.scrollLeft - scrollAmount 
+        : container.scrollLeft + scrollAmount;
       
       container.scrollTo({ left: newPosition, behavior: 'smooth' });
-      setScrollPosition(newPosition);
     }
   };
 
@@ -60,24 +78,26 @@ export default function CityCarousel({ title, subtitle, cities, viewAllLink }: C
         </div>
 
         <div className="relative">
-          <button
-            onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white rounded-full p-2 shadow-lg hover:shadow-xl hover:bg-gray-900 transition-all -ml-4"
-            aria-label="Anterior"
-          >
-            <ChevronLeft size={24} />
-          </button>
+          {canScrollLeft && (
+            <button
+              onClick={() => scroll('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white text-gray-900 rounded-full p-2 shadow-lg hover:shadow-xl border border-gray-200 transition-all -ml-4"
+              aria-label="Anterior"
+            >
+              <ChevronLeft size={24} />
+            </button>
+          )}
 
           <div
-            id={`city-carousel-${title}`}
-            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+            ref={containerRef}
+            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-2 -my-2 px-1 -mx-1"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {cities.map((city, index) => (
               <Link
                 key={city.id || city.slug || index}
                 href={`/es/${city.slug}`}
-                className="flex-shrink-0 w-[300px] bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all group"
+                className="flex-shrink-0 w-[300px] group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all"
               >
                 <div className="relative h-48">
                   {city.image && city.image.trim() !== '' ? (
@@ -94,7 +114,7 @@ export default function CityCarousel({ title, subtitle, cities, viewAllLink }: C
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-white text-xl font-bold mb-1 group-hover:text-blue-200 transition-colors">
+                    <h3 className="text-white text-xl font-bold mb-1">
                       {city.name}
                     </h3>
                     <p className="text-white/90 text-sm">{city.country}</p>
@@ -109,13 +129,15 @@ export default function CityCarousel({ title, subtitle, cities, viewAllLink }: C
             ))}
           </div>
 
-          <button
-            onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white rounded-full p-2 shadow-lg hover:shadow-xl hover:bg-gray-900 transition-all -mr-4"
-            aria-label="Siguiente"
-          >
-            <ChevronRight size={24} />
-          </button>
+          {canScrollRight && (
+            <button
+              onClick={() => scroll('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white text-gray-900 rounded-full p-2 shadow-lg hover:shadow-xl border border-gray-200 transition-all -mr-4"
+              aria-label="Siguiente"
+            >
+              <ChevronRight size={24} />
+            </button>
+          )}
         </div>
       </div>
     </section>

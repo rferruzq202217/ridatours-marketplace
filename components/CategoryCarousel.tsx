@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { AVAILABLE_ICONS } from '@/lib/icons';
 
@@ -15,18 +15,36 @@ interface CategoryCarouselProps {
 }
 
 export default function CategoryCarousel({ categories }: CategoryCarouselProps) {
-  const [scrollPosition, setScrollPosition] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    const container = containerRef.current;
+    if (container) {
+      setCanScrollLeft(container.scrollLeft > 0);
+      setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScroll);
+      return () => container.removeEventListener('scroll', checkScroll);
+    }
+  }, [categories]);
 
   const scroll = (direction: 'left' | 'right') => {
-    const container = document.getElementById('category-carousel');
+    const container = containerRef.current;
     if (container) {
-      const scrollAmount = 300;
+      const scrollAmount = 316;
       const newPosition = direction === 'left' 
-        ? scrollPosition - scrollAmount 
-        : scrollPosition + scrollAmount;
+        ? container.scrollLeft - scrollAmount 
+        : container.scrollLeft + scrollAmount;
       
       container.scrollTo({ left: newPosition, behavior: 'smooth' });
-      setScrollPosition(newPosition);
     }
   };
 
@@ -41,17 +59,19 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
         </div>
 
         <div className="relative">
-          <button
-            onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white rounded-full p-2 shadow-lg hover:shadow-xl hover:bg-gray-900 transition-all -ml-4"
-            aria-label="Anterior"
-          >
-            <ChevronLeft size={24} />
-          </button>
+          {canScrollLeft && (
+            <button
+              onClick={() => scroll('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white text-gray-900 rounded-full p-2 shadow-lg hover:shadow-xl border border-gray-200 transition-all -ml-4"
+              aria-label="Anterior"
+            >
+              <ChevronLeft size={24} />
+            </button>
+          )}
 
           <div
-            id="category-carousel"
-            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+            ref={containerRef}
+            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-2 -my-2 px-1 -mx-1"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {categories.map((category) => {
@@ -61,7 +81,7 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
               return (
                 <div
                   key={category.slug}
-                  className="flex-shrink-0 w-[300px] bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all p-6 cursor-default"
+                  className="flex-shrink-0 w-[300px] bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all p-6 cursor-default"
                 >
                   <div className="bg-blue-100 text-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Icon size={32} />
@@ -77,13 +97,15 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
             })}
           </div>
 
-          <button
-            onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white rounded-full p-2 shadow-lg hover:shadow-xl hover:bg-gray-900 transition-all -mr-4"
-            aria-label="Siguiente"
-          >
-            <ChevronRight size={24} />
-          </button>
+          {canScrollRight && (
+            <button
+              onClick={() => scroll('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white text-gray-900 rounded-full p-2 shadow-lg hover:shadow-xl border border-gray-200 transition-all -mr-4"
+              aria-label="Siguiente"
+            >
+              <ChevronRight size={24} />
+            </button>
+          )}
         </div>
       </div>
     </section>

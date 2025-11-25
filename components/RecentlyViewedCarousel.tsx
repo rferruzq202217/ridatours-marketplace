@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice } from '@/lib/formatPrice';
@@ -19,7 +19,17 @@ interface Experience {
 
 export default function RecentlyViewedCarousel() {
   const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [scrollPosition, setScrollPosition] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    const container = containerRef.current;
+    if (container) {
+      setCanScrollLeft(container.scrollLeft > 0);
+      setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 10);
+    }
+  };
 
   useEffect(() => {
     const getCookie = (name: string) => {
@@ -40,16 +50,24 @@ export default function RecentlyViewedCarousel() {
     }
   }, []);
 
-  const scroll = (direction: 'left' | 'right') => {
-    const container = document.getElementById('recently-viewed-container');
+  useEffect(() => {
+    checkScroll();
+    const container = containerRef.current;
     if (container) {
-      const scrollAmount = 300;
+      container.addEventListener('scroll', checkScroll);
+      return () => container.removeEventListener('scroll', checkScroll);
+    }
+  }, [experiences]);
+
+  const scroll = (direction: 'left' | 'right') => {
+    const container = containerRef.current;
+    if (container) {
+      const scrollAmount = 316;
       const newPosition = direction === 'left' 
-        ? scrollPosition - scrollAmount 
-        : scrollPosition + scrollAmount;
+        ? container.scrollLeft - scrollAmount 
+        : container.scrollLeft + scrollAmount;
       
       container.scrollTo({ left: newPosition, behavior: 'smooth' });
-      setScrollPosition(newPosition);
     }
   };
 
@@ -66,17 +84,19 @@ export default function RecentlyViewedCarousel() {
         </div>
 
         <div className="relative">
-          <button
-            onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white rounded-full p-2 shadow-lg hover:shadow-xl hover:bg-gray-900 transition-all -ml-4"
-            aria-label="Anterior"
-          >
-            <ChevronLeft size={24} />
-          </button>
+          {canScrollLeft && (
+            <button
+              onClick={() => scroll('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white text-gray-900 rounded-full p-2 shadow-lg hover:shadow-xl border border-gray-200 transition-all -ml-4"
+              aria-label="Anterior"
+            >
+              <ChevronLeft size={24} />
+            </button>
+          )}
 
           <div
-            id="recently-viewed-container"
-            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+            ref={containerRef}
+            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-2 -my-2 px-1 -mx-1"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {experiences.map((exp) => {
@@ -86,7 +106,7 @@ export default function RecentlyViewedCarousel() {
                 <Link
                   key={exp.id}
                   href={href}
-                  className="flex-shrink-0 w-[300px] bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all group"
+                  className="flex-shrink-0 w-[300px] group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all"
                 >
                   <div className="relative h-48">
                     {exp.image && exp.image.trim() !== '' ? (
@@ -104,33 +124,27 @@ export default function RecentlyViewedCarousel() {
                   </div>
 
                   <div className="p-4">
-                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                    <p className="text-xs font-semibold text-gray-500 mb-1">
+                      {exp.city.toUpperCase()}
+                    </p>
+                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem]">
                       {exp.title}
                     </h3>
-
-                    <div className="flex items-center gap-2 mb-3 text-sm">
+                    {exp.duration && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                        <Clock size={14} />
+                        <span>{exp.duration}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                       <div className="flex items-center gap-1">
                         <Star size={16} className="text-yellow-400 fill-current" />
                         <span className="font-semibold">{exp.rating}</span>
-                        <span className="text-gray-500">({exp.reviews})</span>
+                        <span className="text-xs text-gray-500">({exp.reviews.toLocaleString('es-ES')})</span>
                       </div>
-                      {exp.duration && (
-                        <>
-                          <span className="text-gray-300">•</span>
-                          <div className="flex items-center gap-1 text-gray-600">
-                            <Clock size={16} />
-                            <span>{exp.duration}</span>
-                          </div>
-                        </>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-sm text-gray-600">Desde</div>
-                        <div className="text-xl font-bold text-gray-900">
-                          {formatPrice(exp.price)}
-                        </div>
+                      <div className="text-right">
+                        <span className="text-xs text-gray-500">Desde</span>
+                        <p className="font-bold text-lg text-gray-900">{formatPrice(exp.price)}</p>
                       </div>
                     </div>
                   </div>
@@ -139,13 +153,15 @@ export default function RecentlyViewedCarousel() {
             })}
           </div>
 
-          <button
-            onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white rounded-full p-2 shadow-lg hover:shadow-xl hover:bg-gray-900 transition-all -mr-4"
-            aria-label="Siguiente"
-          >
-            <ChevronRight size={24} />
-          </button>
+          {canScrollRight && (
+            <button
+              onClick={() => scroll('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white text-gray-900 rounded-full p-2 shadow-lg hover:shadow-xl border border-gray-200 transition-all -mr-4"
+              aria-label="Siguiente"
+            >
+              <ChevronRight size={24} />
+            </button>
+          )}
         </div>
       </div>
     </section>

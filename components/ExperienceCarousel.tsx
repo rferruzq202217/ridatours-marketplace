@@ -157,7 +157,7 @@ export default function ExperienceCarousel({
                       </div>
                       <div className="text-right">
                         <span className="text-xs text-gray-500">Desde</span>
-                        <p className="font-bold text-lg">{formatPrice(exp.price)}</p>
+                        <p className="font-bold text-lg text-gray-900">{formatPrice(exp.price)}</p>
                       </div>
                     </div>
                   </div>
