@@ -50,36 +50,27 @@ export default function AdminPanel() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-blue-600">RIDATOURS</h1>
-          <p className="text-gray-800 font-medium">Panel de Administración</p>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-          {cards.map((card) => {
-            const colors = colorClasses[card.color];
-            return (
-              <Link
-                key={card.href}
-                href={card.href}
-                className={`bg-white p-6 rounded-xl border-2 border-gray-300 ${colors.border} hover:shadow-lg transition-all group`}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`${colors.bg} ${colors.text} w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                    <card.icon size={28} />
-                  </div>
-                  <span className={`text-3xl font-bold ${colors.text}`}>{card.count}</span>
+    <div className="max-w-7xl mx-auto px-8 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        {cards.map((card) => {
+          const colors = colorClasses[card.color];
+          return (
+            <Link
+              key={card.href}
+              href={card.href}
+              className={`bg-white p-6 rounded-xl border-2 border-gray-300 ${colors.border} hover:shadow-lg transition-all group`}
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className={`${colors.bg} ${colors.text} w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                  <card.icon size={28} />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 mb-1">{card.title}</h2>
-                <p className="text-gray-600 text-sm">{card.desc}</p>
-              </Link>
-            );
-          })}
-        </div>
+                <span className={`text-3xl font-bold ${colors.text}`}>{card.count}</span>
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 mb-1">{card.title}</h2>
+              <p className="text-gray-600 text-sm">{card.desc}</p>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

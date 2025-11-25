@@ -64,7 +64,7 @@ export default function CountriesPage() {
 
   if (showForm) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="p-8">
         <div className="max-w-4xl mx-auto">
           <Link href="/admin/countries" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6">
             <ArrowLeft size={20} />
@@ -101,7 +101,7 @@ export default function CountriesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <Link href="/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6">
           <ArrowLeft size={20} />
