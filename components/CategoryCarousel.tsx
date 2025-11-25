@@ -61,7 +61,7 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
               return (
                 <div
                   key={category.slug}
-                  className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all p-6 cursor-default"
+                  className="flex-shrink-0 w-[300px] bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all p-6 cursor-default"
                 >
                   <div className="bg-blue-100 text-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Icon size={32} />

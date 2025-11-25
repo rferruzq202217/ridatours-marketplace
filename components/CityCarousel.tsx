@@ -77,7 +77,7 @@ export default function CityCarousel({ title, subtitle, cities, viewAllLink }: C
               <Link
                 key={city.id || city.slug || index}
                 href={`/es/${city.slug}`}
-                className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all group"
+                className="flex-shrink-0 w-[300px] bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all group"
               >
                 <div className="relative h-48">
                   {city.image && city.image.trim() !== '' ? (

@@ -86,7 +86,7 @@ export default function RecentlyViewedCarousel() {
                 <Link
                   key={exp.id}
                   href={href}
-                  className="flex-shrink-0 w-72 bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all group"
+                  className="flex-shrink-0 w-[300px] bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all group"
                 >
                   <div className="relative h-48">
                     {exp.image && exp.image.trim() !== '' ? (

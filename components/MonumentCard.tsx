@@ -29,7 +29,7 @@ export default function MonumentCard({ monument, lang = 'es', citySlug }: Monume
   return (
     <Link
       href={href}
-      className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group block"
+      className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group block"
     >
       <div className="relative h-48">
         {monument.image && monument.image.trim() !== '' ? (
