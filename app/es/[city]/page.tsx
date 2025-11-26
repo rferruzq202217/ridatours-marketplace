@@ -2,11 +2,11 @@ import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
-import MonumentCard from '@/components/MonumentCard';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, Landmark } from 'lucide-react';
+import { Star, Clock, Landmark } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
+import { formatPrice } from '@/lib/formatPrice';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -51,17 +51,6 @@ export default async function CityPage({ params }: PageProps) {
     ? (experiences.reduce((sum, exp) => sum + exp.rating, 0) / experiences.length).toFixed(1)
     : '0.0';
   const totalReviews = experiences?.reduce((sum, exp) => sum + exp.reviews, 0) || 0;
-
-  const experienceCards = experiences?.map(exp => ({
-    name: exp.title,
-    slug: exp.slug,
-    citySlug: city.slug,
-    image: exp.main_image || '',
-    rating: exp.rating,
-    reviews: exp.reviews,
-    price: exp.price,
-    duration: exp.duration || ''
-  })) || [];
 
   const defaultDescription = `Descubre la ciudad con sus monumentos, arte incomparable y vibrante cultura. Explora sus lugares emblemáticos y vive experiencias únicas.`;
 
@@ -118,7 +107,7 @@ export default async function CityPage({ params }: PageProps) {
                   Monumentos emblemáticos
                 </h2>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {monumentsData.map((monument) => {
                   const categoryNames = monument.monument_categories?.map(
                     (mc: any) => mc.categories.name
@@ -128,10 +117,10 @@ export default async function CityPage({ params }: PageProps) {
                     <Link
                       key={monument.id}
                       href={`/es/${city.slug}/monumentos/${monument.slug}`}
-                      className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-amber-500 hover:shadow-xl transition-all group"
+                      className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all group"
                     >
                       {monument.image && (
-                        <div className="relative h-56">
+                        <div className="relative h-48">
                           <Image 
                             src={monument.image} 
                             alt={monument.name} 
@@ -140,13 +129,13 @@ export default async function CityPage({ params }: PageProps) {
                           />
                         </div>
                       )}
-                      <div className="p-6">
+                      <div className="p-4">
                         {categoryNames.length > 0 && (
-                          <div className="text-xs font-bold text-amber-600 tracking-wider mb-2">
+                          <div className="text-xs font-semibold text-amber-600 mb-1">
                             {categoryNames.join(' • ')}
                           </div>
                         )}
-                        <h3 className="font-bold text-xl text-gray-900 mb-2 leading-tight">
+                        <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem]">
                           {monument.name}
                         </h3>
                         {monument.description && (
@@ -162,19 +151,56 @@ export default async function CityPage({ params }: PageProps) {
             </div>
           )}
 
-          {experienceCards.length > 0 ? (
+          {experiences && experiences.length > 0 ? (
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 Todas las experiencias en {city.name}
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {experienceCards.map((monument, i) => (
-                  <MonumentCard 
-                    key={i} 
-                    monument={monument} 
-                    lang="es"
-                    citySlug={city.slug}
-                  />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {experiences.map((exp) => (
+                  <Link
+                    key={exp.id}
+                    href={`/es/${city.slug}/${exp.slug}`}
+                    className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all"
+                  >
+                    <div className="relative h-48">
+                      {exp.main_image ? (
+                        <Image src={exp.main_image} alt={exp.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-400">Sin imagen</span>
+                        </div>
+                      )}
+                      {exp.featured && (
+                        <div className="absolute top-3 left-3 bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-xs font-bold">
+                          ⭐ DESTACADO
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <p className="text-xs font-semibold text-gray-500 mb-1">
+                        {city.name.toUpperCase()}
+                      </p>
+                      <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem]">{exp.title}</h3>
+                      {exp.duration && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                          <Clock size={14} />
+                          <span>{exp.duration}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <div className="flex items-center gap-1">
+                          <Star size={16} className="text-yellow-400 fill-current" />
+                          <span className="font-medium text-gray-700">{exp.rating}</span>
+                          <span className="text-xs text-gray-400">({exp.reviews?.toLocaleString('es-ES') || 0})</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xs text-gray-500">Desde</span>
+                          <p className="font-bold text-lg text-gray-900">{formatPrice(exp.price)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
                 ))}
               </div>
             </div>
