@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { getMessages, Locale } from '@/lib/i18n';
 
 interface City {
   id?: string;
@@ -22,10 +23,11 @@ interface CityCarouselProps {
   lang?: string;
 }
 
-export default function CityCarousel({ title, subtitle, cities, viewAllLink }: CityCarouselProps) {
+export default function CityCarousel({ title, subtitle, cities, viewAllLink, lang = 'es' }: CityCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const t = getMessages(lang as Locale);
 
   const checkScroll = () => {
     const container = containerRef.current;
@@ -56,7 +58,7 @@ export default function CityCarousel({ title, subtitle, cities, viewAllLink }: C
     }
   };
 
-  if (!cities || cities.length === 0) return null;
+  if (cities.length === 0) return null;
 
   return (
     <section className="py-12 bg-white">
@@ -69,10 +71,10 @@ export default function CityCarousel({ title, subtitle, cities, viewAllLink }: C
           {viewAllLink && (
             <Link 
               href={viewAllLink}
-              className="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 group"
+              className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
             >
-              Ver todo
-              <span className="group-hover:translate-x-1 transition-transform">→</span>
+              {t.common.seeAll}
+              <span>→</span>
             </Link>
           )}
         </div>
@@ -93,10 +95,10 @@ export default function CityCarousel({ title, subtitle, cities, viewAllLink }: C
             className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-2 -my-2 px-1 -mx-1"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {cities.map((city, index) => (
+            {cities.map((city) => (
               <Link
-                key={city.id || city.slug || index}
-                href={`/es/${city.slug}`}
+                key={city.slug}
+                href={`/${lang}/${city.slug}`}
                 className="flex-shrink-0 w-[300px] group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all"
               >
                 <div className="relative h-48">
@@ -120,7 +122,7 @@ export default function CityCarousel({ title, subtitle, cities, viewAllLink }: C
                     <p className="text-white/90 text-sm">{city.country}</p>
                     {city.experienceCount && (
                       <p className="text-white/80 text-xs mt-1">
-                        {city.experienceCount} experiencias
+                        {city.experienceCount} {t.common.experiences}
                       </p>
                     )}
                   </div>

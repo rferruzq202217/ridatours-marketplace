@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, X, MapPin, Info, Globe, Users, Sparkles, Shield, Star } from 'lucide-react';
+import { Check, X, MapPin, Info, Globe, Users, Sparkles, Shield } from 'lucide-react';
+import { getMessages, Locale } from '@/lib/i18n';
 
 interface ExperienceTabsProps {
   description: string | null;
@@ -19,6 +20,7 @@ interface ExperienceTabsProps {
   cancellationPolicy: string | null;
   rating: number;
   reviews: number;
+  lang?: string;
 }
 
 export default function ExperienceTabs({
@@ -35,15 +37,15 @@ export default function ExperienceTabs({
   dressCode,
   restrictions,
   cancellationPolicy,
-  rating,
-  reviews
+  lang = 'es'
 }: ExperienceTabsProps) {
   const [activeTab, setActiveTab] = useState('overview');
+  const t = getMessages(lang as Locale);
 
   const tabs = [
-    { id: 'overview', label: 'Descripción' },
-    { id: 'included', label: 'Incluido' },
-    { id: 'info', label: 'Info' },
+    { id: 'overview', label: t.tabs.overview },
+    { id: 'included', label: t.tabs.included },
+    { id: 'info', label: t.tabs.info },
   ];
 
   return (
@@ -78,7 +80,7 @@ export default function ExperienceTabs({
             {/* Highlights */}
             {highlights.length > 0 && (
               <div>
-                <h3 className="font-bold text-gray-900 mb-4">Lo más destacado</h3>
+                <h3 className="font-bold text-gray-900 mb-4">{t.experience.highlights}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {highlights.map((highlight, i) => (
                     <div key={i} className="flex items-start gap-2">
@@ -92,14 +94,14 @@ export default function ExperienceTabs({
 
             {/* Description */}
             <div>
-              <h3 className="font-bold text-gray-900 mb-4">Acerca de esta experiencia</h3>
+              <h3 className="font-bold text-gray-900 mb-4">{t.experience.aboutActivity}</h3>
               <div className="text-gray-700 text-sm leading-relaxed">
                 {longDescription ? (
                   <p className="whitespace-pre-line">{longDescription}</p>
                 ) : description ? (
                   <p>{description}</p>
                 ) : (
-                  <p>Disfruta de esta increíble experiencia en {cityName}.</p>
+                  <p>{lang === 'es' ? `Disfruta de esta increíble experiencia en ${cityName}.` : `Enjoy this incredible experience in ${cityName}.`}</p>
                 )}
               </div>
             </div>
@@ -109,7 +111,7 @@ export default function ExperienceTabs({
               <div className="bg-blue-50 rounded-xl p-4">
                 <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2 text-sm">
                   <MapPin className="text-blue-600" size={18} />
-                  Punto de encuentro
+                  {t.experience.meetingPoint}
                 </h3>
                 <p className="text-gray-700 text-sm">{meetingPoint}</p>
               </div>
@@ -125,7 +127,7 @@ export default function ExperienceTabs({
                 <div>
                   <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <Check className="text-green-600" size={18} />
-                    Qué incluye
+                    {t.experience.whatsIncluded}
                   </h3>
                   <ul className="space-y-2">
                     {includes.map((item, i) => (
@@ -142,7 +144,7 @@ export default function ExperienceTabs({
                 <div>
                   <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <X className="text-red-600" size={18} />
-                    Qué NO incluye
+                    {t.experience.whatsNotIncluded}
                   </h3>
                   <ul className="space-y-2">
                     {notIncludes.map((item, i) => (
@@ -157,7 +159,7 @@ export default function ExperienceTabs({
             </div>
 
             {!includes?.length && !notIncludes?.length && (
-              <p className="text-gray-500 text-sm">No hay información disponible sobre lo que incluye esta experiencia.</p>
+              <p className="text-gray-500 text-sm">{lang === 'es' ? 'No hay información disponible sobre lo que incluye esta experiencia.' : 'No information available about what this experience includes.'}</p>
             )}
           </div>
         )}
@@ -170,7 +172,7 @@ export default function ExperienceTabs({
               <div className="bg-yellow-50 rounded-xl p-4">
                 <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2 text-sm">
                   <Info className="text-yellow-600" size={18} />
-                  Información importante
+                  {t.experience.importantInfo}
                 </h3>
                 <p className="text-gray-700 text-sm whitespace-pre-line">{importantInfo}</p>
               </div>
@@ -182,7 +184,7 @@ export default function ExperienceTabs({
                 <div className="flex items-start gap-3">
                   <Globe className="text-blue-600 mt-0.5 flex-shrink-0" size={18} />
                   <div>
-                    <div className="font-semibold text-gray-900 text-sm mb-1">Idiomas</div>
+                    <div className="font-semibold text-gray-900 text-sm mb-1">{t.experience.languages}</div>
                     <div className="text-sm text-gray-700">{languages.join(', ')}</div>
                   </div>
                 </div>
@@ -192,7 +194,7 @@ export default function ExperienceTabs({
                 <div className="flex items-start gap-3">
                   <Users className="text-blue-600 mt-0.5 flex-shrink-0" size={18} />
                   <div>
-                    <div className="font-semibold text-gray-900 text-sm mb-1">Accesibilidad</div>
+                    <div className="font-semibold text-gray-900 text-sm mb-1">{t.experience.accessibility}</div>
                     <div className="text-sm text-gray-700">{accessibility}</div>
                   </div>
                 </div>
@@ -202,7 +204,7 @@ export default function ExperienceTabs({
                 <div className="flex items-start gap-3">
                   <Sparkles className="text-blue-600 mt-0.5 flex-shrink-0" size={18} />
                   <div>
-                    <div className="font-semibold text-gray-900 text-sm mb-1">Código de vestimenta</div>
+                    <div className="font-semibold text-gray-900 text-sm mb-1">{t.experience.dressCode}</div>
                     <div className="text-sm text-gray-700">{dressCode}</div>
                   </div>
                 </div>
@@ -212,7 +214,7 @@ export default function ExperienceTabs({
                 <div className="flex items-start gap-3">
                   <Shield className="text-blue-600 mt-0.5 flex-shrink-0" size={18} />
                   <div>
-                    <div className="font-semibold text-gray-900 text-sm mb-1">Restricciones</div>
+                    <div className="font-semibold text-gray-900 text-sm mb-1">{t.experience.restrictions}</div>
                     <div className="text-sm text-gray-700">{restrictions}</div>
                   </div>
                 </div>
@@ -224,14 +226,14 @@ export default function ExperienceTabs({
               <div className="bg-gray-50 rounded-xl p-4">
                 <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2 text-sm">
                   <Shield className="text-gray-600" size={18} />
-                  Política de cancelación
+                  {t.experience.cancellationPolicy}
                 </h3>
                 <p className="text-gray-700 text-sm">{cancellationPolicy}</p>
               </div>
             )}
 
             {!importantInfo && !languages?.length && !accessibility && !dressCode && !restrictions && !cancellationPolicy && (
-              <p className="text-gray-500 text-sm">No hay información adicional disponible.</p>
+              <p className="text-gray-500 text-sm">{lang === 'es' ? 'No hay información adicional disponible.' : 'No additional information available.'}</p>
             )}
           </div>
         )}

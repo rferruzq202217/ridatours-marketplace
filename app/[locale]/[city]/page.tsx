@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Star, Clock, Landmark } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 import { formatPrice } from '@/lib/formatPrice';
+import { getMessages, Locale } from '@/lib/i18n';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,11 +15,13 @@ const supabase = createClient(
 );
 
 interface PageProps {
-  params: Promise<{ city: string }>;
+  params: Promise<{ locale: string; city: string }>;
 }
 
 export default async function CityPage({ params }: PageProps) {
-  const { city: citySlug } = await params;
+  const { locale, city: citySlug } = await params;
+  const lang = locale as Locale;
+  const t = getMessages(lang);
 
   const { data: city } = await supabase
     .from('cities')
@@ -52,37 +55,51 @@ export default async function CityPage({ params }: PageProps) {
     : '0.0';
   const totalReviews = experiences?.reduce((sum, exp) => sum + exp.reviews, 0) || 0;
 
-  const defaultDescription = `Descubre la ciudad con sus monumentos, arte incomparable y vibrante cultura. Explora sus lugares emblemáticos y vive experiencias únicas.`;
+  const defaultDescriptions: Record<string, string> = {
+    es: 'Descubre la ciudad con sus monumentos, arte incomparable y vibrante cultura. Explora sus lugares emblemáticos y vive experiencias únicas.',
+    en: 'Discover the city with its monuments, incomparable art and vibrant culture. Explore its iconic landmarks and live unique experiences.',
+    fr: 'Découvrez la ville avec ses monuments, son art incomparable et sa culture vibrante. Explorez ses lieux emblématiques et vivez des expériences uniques.',
+    it: 'Scopri la città con i suoi monumenti, l\'arte incomparabile e la cultura vibrante. Esplora i suoi luoghi iconici e vivi esperienze uniche.',
+    de: 'Entdecken Sie die Stadt mit ihren Denkmälern, unvergleichlicher Kunst und lebendiger Kultur. Erkunden Sie ihre ikonischen Wahrzeichen und erleben Sie einzigartige Erlebnisse.'
+  };
+
+  const monumentTitles: Record<string, string> = {
+    es: 'Monumentos emblemáticos',
+    en: 'Iconic monuments',
+    fr: 'Monuments emblématiques',
+    it: 'Monumenti iconici',
+    de: 'Ikonische Denkmäler'
+  };
 
   return (
     <div className="min-h-screen bg-white">
-      <Header lang="es" />
+      <Header lang={lang} />
       
       <div className="pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Breadcrumb items={[
-            { label: 'Inicio', href: '/es' },
+            { label: t.common.home, href: `/${lang}` },
             { label: city.name }
           ]} />
 
           <div className="mt-6 mb-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
               <h1 className="text-5xl font-bold text-gray-900 mb-4">
-                Qué hacer en {city.name}
+                {t.city.thingsToDo} {city.name}
               </h1>
               <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-                {city.description || defaultDescription}
+                {city.description || defaultDescriptions[lang] || defaultDescriptions.es}
               </p>
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
                   <span className="text-3xl font-bold text-gray-900">{avgRating}</span>
                   <div className="text-sm text-gray-600">
-                    ({totalReviews.toLocaleString()} opiniones)
+                    ({totalReviews.toLocaleString()} {t.common.reviews})
                   </div>
                 </div>
                 <div className="h-6 w-px bg-gray-300" />
                 <div className="text-lg text-gray-700">
-                  <span className="font-bold text-gray-900">{totalExperiences}</span> experiencias
+                  <span className="font-bold text-gray-900">{totalExperiences}</span> {t.common.experiences.toLowerCase()}
                 </div>
               </div>
             </div>
@@ -104,7 +121,7 @@ export default async function CityPage({ params }: PageProps) {
               <div className="flex items-center gap-3 mb-6">
                 <Landmark className="text-amber-600" size={32} />
                 <h2 className="text-3xl font-bold text-gray-900">
-                  Monumentos emblemáticos
+                  {monumentTitles[lang] || monumentTitles.es}
                 </h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -116,7 +133,7 @@ export default async function CityPage({ params }: PageProps) {
                   return (
                     <Link
                       key={monument.id}
-                      href={`/es/${city.slug}/monumentos/${monument.slug}`}
+                      href={`/${lang}/${city.slug}/monumentos/${monument.slug}`}
                       className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all group"
                     >
                       {monument.image && (
@@ -154,13 +171,13 @@ export default async function CityPage({ params }: PageProps) {
           {experiences && experiences.length > 0 ? (
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Todas las experiencias en {city.name}
+                {t.city.allExperiences} {city.name}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {experiences.map((exp) => (
                   <Link
                     key={exp.id}
-                    href={`/es/${city.slug}/${exp.slug}`}
+                    href={`/${lang}/${city.slug}/${exp.slug}`}
                     className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all"
                   >
                     <div className="relative h-48">
@@ -173,7 +190,7 @@ export default async function CityPage({ params }: PageProps) {
                       )}
                       {exp.featured && (
                         <div className="absolute top-3 left-3 bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-xs font-bold">
-                          ⭐ DESTACADO
+                          ⭐ {t.common.featured}
                         </div>
                       )}
                     </div>
@@ -195,7 +212,7 @@ export default async function CityPage({ params }: PageProps) {
                           <span className="text-xs text-gray-400">({exp.reviews?.toLocaleString('es-ES') || 0})</span>
                         </div>
                         <div className="text-right">
-                          <span className="text-xs text-gray-500">Desde</span>
+                          <span className="text-xs text-gray-500">{t.common.from}</span>
                           <p className="font-bold text-lg text-gray-900">{formatPrice(exp.price)}</p>
                         </div>
                       </div>
@@ -205,16 +222,14 @@ export default async function CityPage({ params }: PageProps) {
               </div>
             </div>
           ) : (
-            <div className="bg-gray-50 rounded-xl p-12 text-center">
-              <p className="text-gray-600 text-lg">
-                Aún no hay experiencias disponibles en {city.name}
-              </p>
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">{t.common.noResults}</p>
             </div>
           )}
         </div>
       </div>
 
-      <Footer lang="es" />
+      <Footer lang={lang} />
     </div>
   );
 }

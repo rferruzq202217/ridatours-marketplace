@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice } from '@/lib/formatPrice';
+import { getMessages, Locale } from '@/lib/i18n';
 import { Star, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Experience {
@@ -17,11 +18,16 @@ interface Experience {
   duration?: string | null;
 }
 
-export default function RecentlyViewedCarousel() {
+interface RecentlyViewedCarouselProps {
+  lang?: string;
+}
+
+export default function RecentlyViewedCarousel({ lang = 'es' }: RecentlyViewedCarouselProps) {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const t = getMessages(lang as Locale);
 
   const checkScroll = () => {
     const container = containerRef.current;
@@ -78,8 +84,14 @@ export default function RecentlyViewedCarousel() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">Visto recientemente</h2>
-            <p className="text-gray-600 mt-1">Tus últimas experiencias vistas</p>
+            <h2 className="text-3xl font-bold text-gray-900">{t.home.recentlyViewed}</h2>
+            <p className="text-gray-600 mt-1">
+              {lang === 'es' ? 'Tus últimas experiencias vistas' : 
+               lang === 'en' ? 'Your recently viewed experiences' :
+               lang === 'fr' ? 'Vos dernières expériences consultées' :
+               lang === 'it' ? 'Le tue ultime esperienze viste' :
+               'Ihre zuletzt angesehenen Erlebnisse'}
+            </p>
           </div>
         </div>
 
@@ -100,7 +112,7 @@ export default function RecentlyViewedCarousel() {
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {experiences.map((exp) => {
-              const href = `/es/${exp.city}/${exp.slug}`;
+              const href = `/${lang}/${exp.city}/${exp.slug}`;
 
               return (
                 <Link
@@ -143,7 +155,7 @@ export default function RecentlyViewedCarousel() {
                         <span className="text-xs text-gray-400">({exp.reviews.toLocaleString('es-ES')})</span>
                       </div>
                       <div className="text-right">
-                        <span className="text-xs text-gray-500">Desde</span>
+                        <span className="text-xs text-gray-500">{t.common.from}</span>
                         <p className="font-bold text-lg text-gray-900">{formatPrice(exp.price)}</p>
                       </div>
                     </div>

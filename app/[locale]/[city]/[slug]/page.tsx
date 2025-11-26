@@ -8,8 +8,8 @@ import ExperienceTabs from '@/components/ExperienceTabs';
 import ImageGallery from '@/components/ImageGallery';
 import ExperienceCarousel from '@/components/ExperienceCarousel';
 import { formatPrice } from '@/lib/formatPrice';
+import { getMessages, Locale } from '@/lib/i18n';
 import { Star, Clock, Check } from 'lucide-react';
-import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
 import SaveRecentlyViewed from '@/components/SaveRecentlyViewed';
 
@@ -19,11 +19,13 @@ const supabase = createClient(
 );
 
 interface PageProps {
-  params: Promise<{ city: string; slug: string }>;
+  params: Promise<{ locale: string; city: string; slug: string }>;
 }
 
 export default async function ExperiencePage({ params }: PageProps) {
-  const { city: citySlug, slug } = await params;
+  const { locale, city: citySlug, slug } = await params;
+  const lang = locale as Locale;
+  const t = getMessages(lang);
 
   const { data: city } = await supabase
     .from('cities')
@@ -65,9 +67,9 @@ export default async function ExperiencePage({ params }: PageProps) {
   }));
 
   const defaultHighlights = [
-    'Confirmación inmediata',
-    'Entrada móvil aceptada',
-    'Cancelación gratuita hasta 24h antes'
+    t.common.instantConfirmation,
+    t.common.mobileTicket,
+    t.common.freeCancellation
   ];
 
   const highlights = experience.highlights?.length > 0 
@@ -78,7 +80,7 @@ export default async function ExperiencePage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header lang="es" />
+      <Header lang={lang} />
       <SaveRecentlyViewed 
         experience={{
           id: experience.id,
@@ -96,8 +98,8 @@ export default async function ExperiencePage({ params }: PageProps) {
       <div className="pt-32 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Breadcrumb items={[
-            { label: 'Inicio', href: '/es' },
-            { label: city.name, href: `/es/${city.slug}` },
+            { label: t.common.home, href: `/${lang}` },
+            { label: city.name, href: `/${lang}/${city.slug}` },
             { label: experience.title }
           ]} />
           
@@ -107,8 +109,8 @@ export default async function ExperiencePage({ params }: PageProps) {
               {/* Badges */}
               {experience.featured && (
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">Top Rated</span>
-                  <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">Ahorra 30%</span>
+                  <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">{t.common.topRated}</span>
+                  <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">{t.common.save} 30%</span>
                 </div>
               )}
 
@@ -127,7 +129,7 @@ export default async function ExperiencePage({ params }: PageProps) {
                 <div className="flex items-center gap-1">
                   <Star className="text-yellow-400 fill-current" size={18} />
                   <span className="font-bold text-gray-900">{experience.rating}</span>
-                  <span className="text-gray-500">({experience.reviews?.toLocaleString('es-ES')} opiniones)</span>
+                  <span className="text-gray-500">({experience.reviews?.toLocaleString('es-ES')} {t.common.reviews})</span>
                 </div>
                 {experience.duration && (
                   <>
@@ -139,7 +141,6 @@ export default async function ExperiencePage({ params }: PageProps) {
                   </>
                 )}
               </div>
-
 
               {/* Galería de imágenes */}
               <ImageGallery
@@ -165,6 +166,7 @@ export default async function ExperiencePage({ params }: PageProps) {
                 cancellationPolicy={experience.cancellation_policy}
                 rating={experience.rating}
                 reviews={experience.reviews}
+                lang={lang}
               />
             </div>
 
@@ -180,24 +182,24 @@ export default async function ExperiencePage({ params }: PageProps) {
                         <span className="text-lg text-gray-400 line-through">{formatPrice(experience.price * 1.3)}</span>
                       )}
                     </div>
-                    <div className="text-sm text-gray-500">por persona</div>
+                    <div className="text-sm text-gray-500">{t.common.perPerson}</div>
                   </div>
 
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-sm text-gray-700">
                       <Check className="text-green-600 flex-shrink-0" size={16} />
-                      <span>Confirmación inmediata</span>
+                      <span>{t.common.instantConfirmation}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-700">
                       <Check className="text-green-600 flex-shrink-0" size={16} />
-                      <span>Entrada móvil aceptada</span>
+                      <span>{t.common.mobileTicket}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Widget de Tiqets o Regiondo */}
                 {experience.tiqets_venue_id ? (
-                  <TiqetsWidget widgetCode={experience.tiqets_venue_id} />
+                  <TiqetsWidget widgetCode={experience.tiqets_venue_id} lang={lang} />
                 ) : experience.widget_id ? (
                   <RegiondoWidget widgetId={experience.widget_id} />
                 ) : null}
@@ -211,16 +213,17 @@ export default async function ExperiencePage({ params }: PageProps) {
       {relatedForCarousel.length > 0 && (
         <div className="pt-20 pb-12">
           <ExperienceCarousel
-            title={`Más experiencias en ${city.name}`}
-            subtitle="Descubre otras actividades que te pueden interesar"
+            title={`${t.experience.moreExperiencesIn} ${city.name}`}
+            subtitle={t.experience.alsoInterested}
             experiences={relatedForCarousel}
             carouselId="related"
-            viewAllLink={`/es/${city.slug}`}
+            viewAllLink={`/${lang}/${city.slug}`}
+            lang={lang}
           />
         </div>
       )}
 
-      <Footer lang="es" />
+      <Footer lang={lang} />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { AVAILABLE_ICONS } from '@/lib/icons';
+import { getMessages, Locale } from '@/lib/i18n';
 
 interface Category {
   name: string;
@@ -13,12 +14,14 @@ interface Category {
 
 interface CategoryCarouselProps {
   categories: Category[];
+  lang?: string;
 }
 
-export default function CategoryCarousel({ categories }: CategoryCarouselProps) {
+export default function CategoryCarousel({ categories, lang = 'es' }: CategoryCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const t = getMessages(lang as Locale);
 
   const checkScroll = () => {
     const container = containerRef.current;
@@ -53,8 +56,14 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
     <section className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         <div className="mb-6">
-          <h2 className="text-3xl font-bold text-gray-900">Explora por categoría</h2>
-          <p className="text-gray-600 mt-1">Encuentra experiencias por tipo de actividad</p>
+          <h2 className="text-3xl font-bold text-gray-900">{t.home.browseCategories}</h2>
+          <p className="text-gray-600 mt-1">
+            {lang === 'es' ? 'Encuentra experiencias por tipo de actividad' : 
+             lang === 'en' ? 'Find experiences by activity type' :
+             lang === 'fr' ? 'Trouvez des expériences par type d\'activité' :
+             lang === 'it' ? 'Trova esperienze per tipo di attività' :
+             'Finden Sie Erlebnisse nach Aktivitätstyp'}
+          </p>
         </div>
 
         <div className="relative">
@@ -80,7 +89,7 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
               return (
                 <Link
                   key={category.slug}
-                  href={`/es/categoria/${category.slug}`}
+                  href={`/${lang}/categoria/${category.slug}`}
                   className="flex items-center gap-2 px-4 py-3 rounded-full border-2 whitespace-nowrap transition-all border-gray-200 bg-white text-gray-700 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700"
                 >
                   <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-600">

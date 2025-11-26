@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/formatPrice';
+import { getMessages, Locale } from '@/lib/i18n';
 import Image from 'next/image';
 import { Star, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -34,11 +35,13 @@ export default function ExperienceCarousel({
   subtitle, 
   experiences, 
   carouselId = 'default',
-  viewAllLink 
+  viewAllLink,
+  lang = 'es'
 }: ExperienceCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const t = getMessages(lang as Locale);
 
   const checkScroll = () => {
     const container = containerRef.current;
@@ -53,14 +56,20 @@ export default function ExperienceCarousel({
     const container = containerRef.current;
     if (container) {
       container.addEventListener('scroll', checkScroll);
-      return () => container.removeEventListener('scroll', checkScroll);
+      window.addEventListener('resize', checkScroll);
+      return () => {
+        container.removeEventListener('scroll', checkScroll);
+        window.removeEventListener('resize', checkScroll);
+      };
     }
   }, [experiences]);
 
   const scroll = (direction: 'left' | 'right') => {
     const container = containerRef.current;
     if (container) {
-      const scrollAmount = 316; // 300px card + 16px gap
+      const cardWidth = 300;
+      const gap = 16;
+      const scrollAmount = cardWidth + gap;
       const newPosition = direction === 'left' 
         ? container.scrollLeft - scrollAmount 
         : container.scrollLeft + scrollAmount;
@@ -69,7 +78,7 @@ export default function ExperienceCarousel({
     }
   };
 
-  if (!experiences || experiences.length === 0) return null;
+  if (experiences.length === 0) return null;
 
   return (
     <section className="py-12 bg-white">
@@ -82,10 +91,10 @@ export default function ExperienceCarousel({
           {viewAllLink && (
             <Link 
               href={viewAllLink}
-              className="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 group"
+              className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
             >
-              Ver todo
-              <span className="group-hover:translate-x-1 transition-transform">→</span>
+              {t.common.seeAll}
+              <span>→</span>
             </Link>
           )}
         </div>
@@ -108,11 +117,11 @@ export default function ExperienceCarousel({
           >
             {experiences.map((exp, index) => {
               const citySlug = exp.city_slug || exp.city || '';
-              const href = `/es/${citySlug}/${exp.slug}`;
+              const href = `/${lang}/${citySlug}/${exp.slug}`;
 
               return (
                 <Link
-                  key={exp.id || index}
+                  key={`${carouselId}-${exp.slug}-${index}`}
                   href={href}
                   className="flex-shrink-0 w-[300px] group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all"
                 >
@@ -131,14 +140,14 @@ export default function ExperienceCarousel({
                     )}
                     {exp.featured && (
                       <div className="absolute top-3 left-3 bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-xs font-bold">
-                        ⭐ DESTACADO
+                        ⭐ {t.common.featured}
                       </div>
                     )}
                   </div>
 
                   <div className="p-4">
                     <p className="text-xs font-semibold text-gray-500 mb-1">
-                      {(exp.cityName || exp.city || '').toUpperCase()}
+                      {(exp.cityName || citySlug || '').toUpperCase()}
                     </p>
                     <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem]">
                       {exp.title}
@@ -153,10 +162,10 @@ export default function ExperienceCarousel({
                       <div className="flex items-center gap-1">
                         <Star size={16} className="text-yellow-400 fill-current" />
                         <span className="font-medium text-gray-700">{exp.rating}</span>
-                        <span className="text-xs text-gray-400">({exp.reviews.toLocaleString('es-ES')})</span>
+                        <span className="text-xs text-gray-400">({exp.reviews?.toLocaleString('es-ES') || 0})</span>
                       </div>
                       <div className="text-right">
-                        <span className="text-xs text-gray-500">Desde</span>
+                        <span className="text-xs text-gray-500">{t.common.from}</span>
                         <p className="font-bold text-lg text-gray-900">{formatPrice(exp.price)}</p>
                       </div>
                     </div>

@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import { formatPrice } from '@/lib/formatPrice';
+import { getMessages, Locale } from '@/lib/i18n';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,11 +15,13 @@ const supabase = createClient(
 );
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }
 
 export default async function CategoryPage({ params }: PageProps) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const lang = locale as Locale;
+  const t = getMessages(lang);
 
   const { data: category } = await supabase
     .from('categories')
@@ -44,22 +47,23 @@ export default async function CategoryPage({ params }: PageProps) {
         .order('rating', { ascending: false })
     : { data: [] };
 
+  const breadcrumbItems = [
+    { label: t.common.home, href: `/${lang}` },
+    { label: category.name }
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header lang="es" />
+      <Header lang={lang} />
       
-      {/* Espaciado para header fijo */}
       <div className="pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-4">
-          <Breadcrumb items={[
-            { label: 'Inicio', href: '/es' },
-            { label: category.name }
-          ]} />
+          <Breadcrumb items={breadcrumbItems} />
 
           <div className="mt-6 mb-12">
             <h1 className="text-5xl font-bold text-gray-900 mb-4">{category.name}</h1>
             <p className="text-xl text-gray-600">
-              {experiences?.length || 0} {experiences?.length === 1 ? 'experiencia' : 'experiencias'} disponibles
+              {experiences?.length || 0} {experiences?.length === 1 ? t.common.experiences.slice(0, -1) : t.common.experiences} {t.common.available}
             </p>
           </div>
 
@@ -68,7 +72,7 @@ export default async function CategoryPage({ params }: PageProps) {
               {experiences.map((exp: any) => (
                 <Link
                   key={exp.id}
-                  href={`/es/${exp.cities?.slug}/${exp.slug}`}
+                  href={`/${lang}/${exp.cities?.slug}/${exp.slug}`}
                   className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all"
                 >
                   <div className="relative h-48">
@@ -81,7 +85,7 @@ export default async function CategoryPage({ params }: PageProps) {
                     )}
                     {exp.featured && (
                       <div className="absolute top-3 left-3 bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-xs font-bold">
-                        ⭐ DESTACADO
+                        ⭐ {t.common.featured}
                       </div>
                     )}
                   </div>
@@ -103,7 +107,7 @@ export default async function CategoryPage({ params }: PageProps) {
                         <span className="text-xs text-gray-400">({exp.reviews?.toLocaleString('es-ES') || 0})</span>
                       </div>
                       <div className="text-right">
-                        <span className="text-xs text-gray-500">Desde</span>
+                        <span className="text-xs text-gray-500">{t.common.from}</span>
                         <p className="font-bold text-lg text-gray-900">{formatPrice(exp.price)}</p>
                       </div>
                     </div>
@@ -113,13 +117,13 @@ export default async function CategoryPage({ params }: PageProps) {
             </div>
           ) : (
             <div className="bg-gray-50 rounded-xl p-12 text-center">
-              <p className="text-gray-600 text-lg">Próximamente añadiremos experiencias en esta categoría</p>
+              <p className="text-gray-600 text-lg">{t.common.noResults}</p>
             </div>
           )}
         </div>
       </div>
       
-      <Footer lang="es" />
+      <Footer lang={lang} />
     </div>
   );
 }
