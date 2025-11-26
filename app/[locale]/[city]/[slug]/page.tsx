@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
@@ -23,8 +24,49 @@ interface PageProps {
   params: Promise<{ locale: string; city: string; slug: string }>;
 }
 
-export default async function ExperiencePage({ params }: PageProps) {
+// Generar metadatos SEO dinámicos
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, city: citySlug, slug } = await params;
+  
+  const { data: city } = await supabase
+    .from('cities')
+    .select('name')
+    .eq('slug', citySlug)
+    .single();
+
+  const { data: experience } = await supabase
+    .from('experiences')
+    .select('title, description, main_image, price, rating, reviews')
+    .eq('slug', slug)
+    .single();
+
+  if (!experience || !city) {
+    return { title: 'Experiencia no encontrada' };
+  }
+
+  const title = `${experience.title} - ${city.name}`;
+  const description = experience.description || `Reserva ${experience.title} en ${city.name}. Desde ${experience.price}€. Valoración: ${experience.rating}/5 (${experience.reviews} opiniones).`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: experience.main_image ? [{ url: experience.main_image, width: 1200, height: 630 }] : [],
+      type: 'website',
+      locale: locale === 'es' ? 'es_ES' : locale === 'en' ? 'en_US' : locale === 'fr' ? 'fr_FR' : locale === 'it' ? 'it_IT' : 'de_DE',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: experience.main_image ? [experience.main_image] : [],
+    },
+  };
+}
+
+export default async function ExperiencePage({ params }: PageProps) {
   const lang = locale as Locale;
   const t = getMessages(lang);
 
