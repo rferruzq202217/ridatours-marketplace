@@ -60,7 +60,7 @@ export default function ExperiencesPage() {
   const [filterCity, setFilterCity] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterWidget, setFilterWidget] = useState<string>('all');
-  
+  const [filterCategory, setFilterCategory] = useState<string>('all');
   const [formData, setFormData] = useState({
     title: '', slug: '', description: '', long_description: '', city_id: '', monument_id: '',
     selectedCategories: [] as string[], price: 0, rating: 4.5, reviews: 0, duration: '',
@@ -133,19 +133,23 @@ export default function ExperiencesPage() {
       } else if (filterWidget === 'none') {
         matchesWidget = !exp.tiqets_venue_id && !exp.widget_id;
       }
+
+      const matchesCategory = filterCategory === 'all' || 
+        (exp.experience_categories && exp.experience_categories.some(ec => ec.category_id === filterCategory));
       
-      return matchesSearch && matchesCity && matchesStatus && matchesWidget;
+      return matchesSearch && matchesCity && matchesStatus && matchesWidget && matchesCategory;
     });
-  }, [experiences, searchTerm, filterCity, filterStatus, filterWidget]);
+  }, [experiences, searchTerm, filterCity, filterStatus, filterWidget, filterCategory]);
 
   const clearFilters = () => {
     setSearchTerm('');
     setFilterCity('all');
     setFilterStatus('all');
     setFilterWidget('all');
+    setFilterCategory('all');
   };
 
-  const hasActiveFilters = searchTerm !== '' || filterCity !== 'all' || filterStatus !== 'all' || filterWidget !== 'all';
+  const hasActiveFilters = searchTerm !== '' || filterCity !== 'all' || filterStatus !== 'all' || filterWidget !== 'all' || filterCategory !== 'all';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -517,6 +521,19 @@ export default function ExperiencesPage() {
               </select>
             </div>
 
+
+            <div>
+              <select
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">Todas las categorías</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
             {hasActiveFilters && (
               <div>
                 <button
