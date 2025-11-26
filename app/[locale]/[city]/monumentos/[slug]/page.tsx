@@ -48,7 +48,10 @@ export default async function MonumentPage({ params }: PageProps) {
     notFound();
   }
 
-  const categoryNames = monument.monument_categories?.map(
+  // Traducir monumento
+  const translatedMonument = await translateMonument(monument, lang);
+
+  const categoryNames = translatedMonument.monument_categories?.map(
     (mc: any) => mc.categories.name
   ) || [];
 
@@ -149,7 +152,7 @@ export default async function MonumentPage({ params }: PageProps) {
           <Breadcrumb items={[
             { label: t.common.home, href: `/${lang}` },
             { label: city.name, href: `/${lang}/${city.slug}` },
-            { label: monument.name }
+            { label: translatedMonument.name }
           ]} />
 
           {/* HERO SECTION */}
@@ -161,16 +164,16 @@ export default async function MonumentPage({ params }: PageProps) {
                 </div>
               )}
               <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
-                {monument.hero_title || monument.name}
+                {translatedMonument.hero_title || translatedMonument.name}
               </h1>
-              {monument.hero_subtitle && (
+              {translatedMonument.hero_subtitle && (
                 <p className="text-xl text-gray-700 mb-6">
-                  {monument.hero_subtitle}
+                  {translatedMonument.hero_subtitle}
                 </p>
               )}
-              {monument.description && (
+              {translatedMonument.description && (
                 <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                  {monument.description}
+                  {translatedMonument.description}
                 </p>
               )}
               <div className="flex items-center gap-6 mb-6">
@@ -178,23 +181,23 @@ export default async function MonumentPage({ params }: PageProps) {
                   <MapPin size={20} />
                   <span className="font-semibold">{city.name}</span>
                 </div>
-                {monument.tickets_from && (
+                {translatedMonument.tickets_from && (
                   <>
                     <div className="h-6 w-px bg-gray-300" />
                     <div>
                       <div className="text-sm text-gray-600">{t.common.from}</div>
-                      <div className="text-3xl font-bold text-amber-600">€{monument.tickets_from}</div>
+                      <div className="text-3xl font-bold text-amber-600">€{translatedMonument.tickets_from}</div>
                     </div>
                   </>
                 )}
               </div>
             </div>
 
-            {monument.image && (
+            {translatedMonument.image && (
               <div className="relative h-96 lg:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
                 <Image 
-                  src={monument.image} 
-                  alt={monument.name} 
+                  src={translatedMonument.image} 
+                  alt={translatedMonument.name} 
                   fill 
                   className="object-cover"
                 />
@@ -203,13 +206,13 @@ export default async function MonumentPage({ params }: PageProps) {
           </div>
 
           {/* POR QUÉ VISITAR */}
-          {monument.why_visit && monument.why_visit.length > 0 && (
+          {translatedMonument.why_visit && translatedMonument.why_visit.length > 0 && (
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                {texts.whyVisit[lang]} {monument.name}?
+                {texts.whyVisit[lang]} {translatedMonument.name}?
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {monument.why_visit.map((reason: string, i: number) => (
+                {translatedMonument.why_visit.map((reason: string, i: number) => (
                   <div key={i} className="bg-amber-50 rounded-xl p-6 border-2 border-amber-100">
                     <div className="flex items-start gap-3">
                       <Check className="text-amber-600 flex-shrink-0 mt-1" size={24} />
@@ -222,14 +225,14 @@ export default async function MonumentPage({ params }: PageProps) {
           )}
 
           {/* QUÉ VER */}
-          {monument.what_to_see && monument.what_to_see.length > 0 && (
+          {translatedMonument.what_to_see && translatedMonument.what_to_see.length > 0 && (
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                {texts.whatToSee[lang]} {monument.name}
+                {texts.whatToSee[lang]} {translatedMonument.name}
               </h2>
               <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 border-2 border-blue-100">
                 <div className="space-y-4">
-                  {monument.what_to_see.map((item: string, i: number) => (
+                  {translatedMonument.what_to_see.map((item: string, i: number) => (
                     <div key={i} className="flex items-start gap-3">
                       <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">
                         {i + 1}
@@ -243,15 +246,15 @@ export default async function MonumentPage({ params }: PageProps) {
           )}
 
           {/* GALERÍA */}
-          {monument.gallery && monument.gallery.length > 0 && (
+          {translatedMonument.gallery && translatedMonument.gallery.length > 0 && (
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">{texts.gallery[lang]}</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {monument.gallery.slice(0, 6).map((img: string, i: number) => (
+                {translatedMonument.gallery.slice(0, 6).map((img: string, i: number) => (
                   <div key={i} className="relative h-64 rounded-xl overflow-hidden">
                     <Image 
                       src={img} 
-                      alt={`${monument.name} ${i + 1}`}
+                      alt={`${translatedMonument.name} ${i + 1}`}
                       fill
                       className="object-cover hover:scale-105 transition-transform duration-300"
                     />
@@ -262,24 +265,24 @@ export default async function MonumentPage({ params }: PageProps) {
           )}
 
           {/* RESERVA TU VISITA - CARRUSEL TIQETS */}
-          {monument.tiqets_venue_id && (
+          {translatedMonument.tiqets_venue_id && (
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                {texts.bookVisit[lang]} {monument.name}
+                {texts.bookVisit[lang]} {translatedMonument.name}
               </h2>
               <p className="text-gray-600 mb-6">{texts.chooseExperience[lang]}</p>
               <TiqetsDiscoveryGrid
                 destinationType="venue"
-                destinationId={monument.tiqets_venue_id}
-                campaign={monument.tiqets_campaign || ''}
-                itemCount={monument.tiqets_item_count || 12}
+                destinationId={translatedMonument.tiqets_venue_id}
+                campaign={translatedMonument.tiqets_campaign || ''}
+                itemCount={translatedMonument.tiqets_item_count || 12}
                 lang={lang}
               />
             </div>
           )}
 
           {/* CONSEJOS PRÁCTICOS */}
-          {monument.practical_tips && monument.practical_tips.length > 0 && (
+          {translatedMonument.practical_tips && translatedMonument.practical_tips.length > 0 && (
             <div className="mb-16">
               <div className="flex items-center gap-3 mb-6">
                 <Info className="text-blue-600" size={32} />
@@ -287,7 +290,7 @@ export default async function MonumentPage({ params }: PageProps) {
               </div>
               <div className="bg-blue-50 rounded-2xl p-8 border-2 border-blue-100">
                 <ul className="space-y-3">
-                  {monument.practical_tips.map((tip: string, i: number) => (
+                  {translatedMonument.practical_tips.map((tip: string, i: number) => (
                     <li key={i} className="flex items-start gap-3 text-gray-900">
                       <Check className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
                       <span>{tip}</span>
@@ -299,26 +302,26 @@ export default async function MonumentPage({ params }: PageProps) {
           )}
 
           {/* INFORMACIÓN PRÁCTICA */}
-          {(monument.opening_hours || monument.address) && (
+          {(translatedMonument.opening_hours || translatedMonument.address) && (
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">{texts.practicalInfo[lang]}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {monument.opening_hours && (
+                {translatedMonument.opening_hours && (
                   <div className="bg-white border-2 border-gray-200 rounded-xl p-6">
                     <div className="flex items-center gap-3 mb-3">
                       <Clock className="text-amber-600" size={24} />
                       <h3 className="font-bold text-lg text-gray-900">{texts.openingHours[lang]}</h3>
                     </div>
-                    <p className="text-gray-700">{monument.opening_hours}</p>
+                    <p className="text-gray-700">{translatedMonument.opening_hours}</p>
                   </div>
                 )}
-                {monument.address && (
+                {translatedMonument.address && (
                   <div className="bg-white border-2 border-gray-200 rounded-xl p-6">
                     <div className="flex items-center gap-3 mb-3">
                       <MapPin className="text-amber-600" size={24} />
                       <h3 className="font-bold text-lg text-gray-900">{texts.location[lang]}</h3>
                     </div>
-                    <p className="text-gray-700">{monument.address}</p>
+                    <p className="text-gray-700">{translatedMonument.address}</p>
                   </div>
                 )}
               </div>
@@ -326,14 +329,14 @@ export default async function MonumentPage({ params }: PageProps) {
           )}
 
           {/* FAQ */}
-          {monument.faq && Array.isArray(monument.faq) && monument.faq.length > 0 && (
+          {translatedMonument.faq && Array.isArray(translatedMonument.faq) && translatedMonument.faq.length > 0 && (
             <div className="mb-16">
               <div className="flex items-center gap-3 mb-6">
                 <HelpCircle className="text-purple-600" size={32} />
                 <h2 className="text-3xl font-bold text-gray-900">{texts.faq[lang]}</h2>
               </div>
               <div className="space-y-4">
-                {monument.faq.map((item: any, i: number) => (
+                {translatedMonument.faq.map((item: any, i: number) => (
                   <div key={i} className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-purple-300 transition-colors">
                     <h3 className="font-bold text-lg text-gray-900 mb-2">{item.question}</h3>
                     <p className="text-gray-700">{item.answer}</p>
@@ -344,7 +347,7 @@ export default async function MonumentPage({ params }: PageProps) {
           )}
 
           {/* CROSS-SELLING - CARRUSEL CIUDAD */}
-          {monument.tiqets_venue_id && (
+          {translatedMonument.tiqets_venue_id && (
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
                 {texts.alsoInterested[lang]} {city.name}
@@ -354,7 +357,7 @@ export default async function MonumentPage({ params }: PageProps) {
                 destinationType="city"
                 destinationId={city.slug}
                 campaign={city.name}
-                itemCount={monument.tiqets_item_count || 8}
+                itemCount={translatedMonument.tiqets_item_count || 8}
                 lang={lang}
               />
             </div>

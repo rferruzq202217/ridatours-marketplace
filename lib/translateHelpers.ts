@@ -101,3 +101,23 @@ export async function translateMonument(
     faq
   };
 }
+
+/**
+ * Traduce un array de categorías
+ */
+export async function translateCategories(
+  categories: any[],
+  targetLang: string
+): Promise<any[]> {
+  if (targetLang === 'es' || categories.length === 0) {
+    return categories;
+  }
+
+  const names = categories.map(c => c.name || '');
+  const translatedNames = await translateBatch(names, targetLang);
+
+  return categories.map((cat, i) => ({
+    ...cat,
+    name: translatedNames[i] || cat.name
+  }));
+}

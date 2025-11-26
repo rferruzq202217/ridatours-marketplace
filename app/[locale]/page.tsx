@@ -10,7 +10,7 @@ import LinkFarm from '@/components/LinkFarm';
 import ContactBlock from '@/components/ContactBlock';
 import { createClient } from '@supabase/supabase-js';
 import { getMessages, Locale } from '@/lib/i18n';
-import { translateExperiences } from '@/lib/translateHelpers';
+import { translateExperiences, translateCategories } from '@/lib/translateHelpers';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -106,19 +106,22 @@ export default async function HomePage({ params }: PageProps) {
     featured: exp.featured
   })) || [];
 
-  // Traducir todas las experiencias
+  // Traducir experiencias
   const experiences = await translateExperiences(experiencesRaw, lang);
 
   const popularActivities = experiences.filter(e => e.featured || e.reviews > 5000).sort((a, b) => b.reviews - a.reviews).slice(0, 6);
   const worldBest = experiences.filter(e => e.rating >= 4.7).sort((a, b) => b.rating - a.rating || b.reviews - a.reviews).slice(0, 6);
   const ridatoursRecommended = experiences.slice(0, 6);
 
-  const categories = categoriesWithCount.map(cat => ({
+  // Mapear y traducir categorías
+  const categoriesRaw = categoriesWithCount.map(cat => ({
     name: cat.name,
     slug: cat.slug,
     icon_name: cat.icon_name || 'Landmark',
     count: cat.count
   }));
+
+  const categories = await translateCategories(categoriesRaw, lang);
 
   const linkFarmExperiences = experiences.map(e => ({
     title: e.title,
@@ -155,7 +158,7 @@ export default async function HomePage({ params }: PageProps) {
           <p className="text-lg md:text-xl text-white text-center mb-8 drop-shadow-lg">
             {t.home.heroSubtitle}
           </p>
-          <SearchBar />
+          <SearchBar lang={lang} />
         </div>
       </div>
 

@@ -9,6 +9,7 @@ import { createClient } from '@supabase/supabase-js';
 import { formatPrice } from '@/lib/formatPrice';
 import { getMessages, Locale } from '@/lib/i18n';
 import { translateExperiences } from '@/lib/translateHelpers';
+import { translateText } from '@/lib/translate';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,6 +33,9 @@ export default async function CategoryPage({ params }: PageProps) {
 
   if (!category) notFound();
 
+  // Traducir nombre de categoría
+  const categoryName = await translateText(category.name, lang);
+
   const { data: experienceCategories } = await supabase
     .from('experience_categories')
     .select('experience_id')
@@ -52,7 +56,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
   const breadcrumbItems = [
     { label: t.common.home, href: `/${lang}` },
-    { label: category.name }
+    { label: categoryName }
   ];
 
   return (
@@ -64,7 +68,7 @@ export default async function CategoryPage({ params }: PageProps) {
           <Breadcrumb items={breadcrumbItems} />
 
           <div className="mt-6 mb-12">
-            <h1 className="text-5xl font-bold text-gray-900 mb-4">{category.name}</h1>
+            <h1 className="text-5xl font-bold text-gray-900 mb-4">{categoryName}</h1>
             <p className="text-xl text-gray-600">
               {experiences?.length || 0} {t.common.experiences.toLowerCase()} {t.common.available}
             </p>
