@@ -9,6 +9,7 @@ import TrustBadges from '@/components/TrustBadges';
 import LinkFarm from '@/components/LinkFarm';
 import ContactBlock from '@/components/ContactBlock';
 import { createClient } from '@supabase/supabase-js';
+import { getMessages, Locale } from '@/lib/i18n';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -33,7 +34,15 @@ const cityCountries: Record<string, string> = {
   'bruselas': 'Bélgica',
 };
 
-export default async function HomePage() {
+interface PageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function HomePage({ params }: PageProps) {
+  const { locale } = await params;
+  const lang = locale as Locale;
+  const t = getMessages(lang);
+
   const { data: citiesFromDb } = await supabase
     .from('cities')
     .select('id, name, slug, image')
@@ -125,7 +134,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header lang="es" transparent={true} showSearch={true} />
+      <Header lang={lang} transparent={true} showSearch={true} />
       
       <div className="relative h-[65vh] overflow-hidden">
         <iframe 
@@ -136,45 +145,71 @@ export default async function HomePage() {
           allowFullScreen 
         />
         <div className="relative z-10 h-full flex flex-col items-center justify-center px-4">
-          <h1 className="text-5xl md:text-7xl font-bold text-white text-center mb-4 drop-shadow-2xl">Descubre el mundo</h1>
-          <p className="text-lg md:text-xl text-white text-center mb-8 drop-shadow-lg">Las mejores experiencias en las ciudades más increíbles</p>
+          <h1 className="text-5xl md:text-7xl font-bold text-white text-center mb-4 drop-shadow-2xl">
+            {t.home.heroTitle}
+          </h1>
+          <p className="text-lg md:text-xl text-white text-center mb-8 drop-shadow-lg">
+            {t.home.heroSubtitle}
+          </p>
           <SearchBar />
         </div>
       </div>
 
       <TrustBadges />
-      <CategoryCarousel categories={categories} />
-      <RecentlyViewedCarousel />
+      <CategoryCarousel categories={categories} lang={lang} />
+      <RecentlyViewedCarousel lang={lang} />
 
       <CityCarousel
-        title="Ciudades populares"
-        subtitle="Explora las ciudades más fascinantes de Europa"
+        title={t.home.popularCities}
+        subtitle={lang === 'es' ? 'Explora las ciudades más fascinantes de Europa' : 'Explore the most fascinating cities in Europe'}
         cities={citiesWithCount}
-        viewAllLink="/es/ciudades"
-        lang="es"
+        viewAllLink={`/${lang}/ciudades`}
+        lang={lang}
       />
 
       {popularActivities.length > 0 && (
-        <ExperienceCarousel title="Las actividades más populares" subtitle="Las experiencias más reservadas por nuestros viajeros" experiences={popularActivities} carouselId="popular" viewAllLink="/es/populares" lang="es" />
+        <ExperienceCarousel 
+          title={lang === 'es' ? 'Las actividades más populares' : 'Most popular activities'}
+          subtitle={lang === 'es' ? 'Las experiencias más reservadas por nuestros viajeros' : 'Most booked experiences by our travelers'}
+          experiences={popularActivities} 
+          carouselId="popular" 
+          viewAllLink={`/${lang}/populares`} 
+          lang={lang} 
+        />
       )}
 
       {worldBest.length > 0 && (
-        <ExperienceCarousel title="Las mejores cosas que hacer alrededor del mundo" subtitle="Descubre las maravillas de Europa" experiences={worldBest} carouselId="world" viewAllLink="/es/mundo" lang="es" />
+        <ExperienceCarousel 
+          title={t.home.worldExperiences}
+          subtitle={lang === 'es' ? 'Descubre las maravillas de Europa' : 'Discover the wonders of Europe'}
+          experiences={worldBest} 
+          carouselId="world" 
+          viewAllLink={`/${lang}/mundo`} 
+          lang={lang} 
+        />
       )}
 
       {ridatoursRecommended.length > 0 && (
-        <ExperienceCarousel title="Principales recomendaciones de Ridatours" subtitle="Las experiencias que no puedes perderte" experiences={ridatoursRecommended} carouselId="recommended" viewAllLink="/es/recomendaciones" lang="es" />
+        <ExperienceCarousel 
+          title={lang === 'es' ? 'Principales recomendaciones de Ridatours' : 'Top Ridatours recommendations'}
+          subtitle={lang === 'es' ? 'Las experiencias que no puedes perderte' : "Experiences you can't miss"}
+          experiences={ridatoursRecommended} 
+          carouselId="recommended" 
+          viewAllLink={`/${lang}/recomendaciones`} 
+          lang={lang} 
+        />
       )}
 
       <LinkFarm 
         experiences={linkFarmExperiences}
         cities={linkFarmCities}
         categories={linkFarmCategories}
+        lang={lang}
       />
 
       <ContactBlock />
 
-      <Footer lang="es" />
+      <Footer lang={lang} />
     </div>
   );
 }

@@ -1,0 +1,70 @@
+{
+  "common": {
+    "search": "Search cities, monuments, experiences...",
+    "from": "From",
+    "perPerson": "per person",
+    "reviews": "reviews",
+    "seeAll": "See all",
+    "back": "Back",
+    "home": "Home",
+    "cities": "Cities",
+    "experiences": "Experiences",
+    "monuments": "Monuments",
+    "categories": "Categories",
+    "featured": "FEATURED",
+    "popular": "POPULAR",
+    "topRated": "Top Rated",
+    "save": "Save",
+    "instantConfirmation": "Instant confirmation",
+    "mobileTicket": "Mobile ticket accepted",
+    "freeCancellation": "Free cancellation up to 24h before",
+    "available": "available",
+    "noResults": "No results found"
+  },
+  "nav": {
+    "destinations": "Destinations",
+    "allDestinations": "All destinations",
+    "support": "Support",
+    "helpCenter": "Help center",
+    "terms": "Terms and conditions",
+    "privacy": "Privacy policy"
+  },
+  "home": {
+    "heroTitle": "Discover unique experiences around the world",
+    "heroSubtitle": "Tours, attractions and activities in the best destinations",
+    "popularCities": "Popular cities",
+    "topExperiences": "Top rated experiences",
+    "browseCategories": "Browse by categories",
+    "recentlyViewed": "Recently viewed",
+    "worldExperiences": "Experiences around the world"
+  },
+  "experience": {
+    "book": "Book",
+    "aboutActivity": "About this experience",
+    "highlights": "Highlights",
+    "whatsIncluded": "What's included",
+    "whatsNotIncluded": "What's NOT included",
+    "meetingPoint": "Meeting point",
+    "importantInfo": "Important information",
+    "additionalInfo": "Additional information",
+    "languages": "Available languages",
+    "accessibility": "Accessibility",
+    "dressCode": "Dress code",
+    "restrictions": "Restrictions",
+    "cancellationPolicy": "Cancellation policy",
+    "alsoInterested": "You might also like",
+    "moreExperiencesIn": "More experiences in"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "included": "Included",
+    "info": "Info"
+  },
+  "footer": {
+    "explore": "Explore",
+    "tagline": "Your gateway to the best experiences in the world",
+    "downloadedBy": "Downloaded by",
+    "travelers": "travelers",
+    "copyright": "© 2024-2025 Ridatours"
+  }
+}

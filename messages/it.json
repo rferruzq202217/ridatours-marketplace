@@ -1,0 +1,70 @@
+{
+  "common": {
+    "search": "Cerca città, monumenti, esperienze...",
+    "from": "Da",
+    "perPerson": "a persona",
+    "reviews": "recensioni",
+    "seeAll": "Vedi tutto",
+    "back": "Indietro",
+    "home": "Home",
+    "cities": "Città",
+    "experiences": "Esperienze",
+    "monuments": "Monumenti",
+    "categories": "Categorie",
+    "featured": "IN EVIDENZA",
+    "popular": "POPOLARE",
+    "topRated": "Top Rated",
+    "save": "Risparmia",
+    "instantConfirmation": "Conferma immediata",
+    "mobileTicket": "Biglietto mobile accettato",
+    "freeCancellation": "Cancellazione gratuita fino a 24h prima",
+    "available": "disponibili",
+    "noResults": "Nessun risultato trovato"
+  },
+  "nav": {
+    "destinations": "Destinazioni",
+    "allDestinations": "Tutte le destinazioni",
+    "support": "Supporto",
+    "helpCenter": "Centro assistenza",
+    "terms": "Termini e condizioni",
+    "privacy": "Privacy policy"
+  },
+  "home": {
+    "heroTitle": "Scopri esperienze uniche in tutto il mondo",
+    "heroSubtitle": "Tour, attrazioni e attività nelle migliori destinazioni",
+    "popularCities": "Città popolari",
+    "topExperiences": "Esperienze più votate",
+    "browseCategories": "Esplora per categorie",
+    "recentlyViewed": "Visti di recente",
+    "worldExperiences": "Esperienze nel mondo"
+  },
+  "experience": {
+    "book": "Prenota",
+    "aboutActivity": "Informazioni sull'esperienza",
+    "highlights": "Punti salienti",
+    "whatsIncluded": "Cosa è incluso",
+    "whatsNotIncluded": "Cosa NON è incluso",
+    "meetingPoint": "Punto d'incontro",
+    "importantInfo": "Informazioni importanti",
+    "additionalInfo": "Informazioni aggiuntive",
+    "languages": "Lingue disponibili",
+    "accessibility": "Accessibilità",
+    "dressCode": "Dress code",
+    "restrictions": "Restrizioni",
+    "cancellationPolicy": "Politica di cancellazione",
+    "alsoInterested": "Potrebbe interessarti anche",
+    "moreExperiencesIn": "Altre esperienze a"
+  },
+  "tabs": {
+    "overview": "Panoramica",
+    "included": "Incluso",
+    "info": "Info"
+  },
+  "footer": {
+    "explore": "Esplora",
+    "tagline": "La tua porta d'accesso alle migliori esperienze del mondo",
+    "downloadedBy": "Scaricato da",
+    "travelers": "viaggiatori",
+    "copyright": "© 2024-2025 Ridatours"
+  }
+}

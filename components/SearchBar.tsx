@@ -50,48 +50,25 @@ export default function SearchBar({ inHeader = false }: SearchBarProps) {
       setIsLoading(true);
 
       try {
-        const { data: cities } = await supabase
-          .from('cities')
-          .select('name, slug')
-          .ilike('name', `%${searchTerm}%`)
-          .limit(3);
+        // Usar la función RPC que normaliza acentos
+        const { data, error } = await supabase.rpc('search_all', {
+          search_term: searchTerm
+        });
 
-        const { data: monuments } = await supabase
-          .from('monuments')
-          .select('name, slug, cities!inner(slug, name)')
-          .ilike('name', `%${searchTerm}%`)
-          .limit(5);
+        if (error) {
+          console.error('Search error:', error);
+          setResults([]);
+          return;
+        }
 
-        const { data: experiences } = await supabase
-          .from('experiences')
-          .select('title, slug, cities!inner(slug, name)')
-          .ilike('title', `%${searchTerm}%`)
-          .eq('active', true)
-          .limit(5);
-
-        const allResults: SearchResult[] = [
-          ...(cities || []).map(c => ({
-            type: 'city' as const,
-            name: c.name,
-            slug: c.slug
-          })),
-          ...(monuments || []).map((m: any) => ({
-            type: 'monument' as const,
-            name: m.name,
-            slug: m.slug,
-            citySlug: m.cities.slug,
-            cityName: m.cities.name,
-            category: 'Monumento'
-          })),
-          ...(experiences || []).map((e: any) => ({
-            type: 'experience' as const,
-            name: e.title,
-            slug: e.slug,
-            citySlug: e.cities.slug,
-            cityName: e.cities.name,
-            category: 'Experiencia'
-          }))
-        ];
+        const allResults: SearchResult[] = (data || []).map((item: any) => ({
+          type: item.type as 'city' | 'monument' | 'experience',
+          name: item.name,
+          slug: item.slug,
+          citySlug: item.city_slug,
+          cityName: item.city_name,
+          category: item.type === 'monument' ? 'Monumento' : item.type === 'experience' ? 'Experiencia' : undefined
+        }));
 
         setResults(allResults);
       } catch (error) {

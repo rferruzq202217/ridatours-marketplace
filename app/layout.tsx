@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-import TiqetsScriptLoader from "@/components/TiqetsScriptLoader";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
+const inter = Inter({ subsets: ["latin"] });
+
 export const metadata: Metadata = {
-  title: "Ridatours - Descubre el mundo",
-  description: "Las mejores experiencias en las ciudades más increíbles",
+  title: "Ridatours - Experiencias únicas en todo el mundo",
+  description: "Descubre tours, atracciones y actividades en los mejores destinos del mundo",
 };
 
 export default function RootLayout({
@@ -13,11 +15,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <body>
-        {children}
-        <TiqetsScriptLoader />
-      </body>
+    <html>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
