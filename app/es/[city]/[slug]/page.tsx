@@ -3,12 +3,13 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
 import RegiondoWidget from '@/components/RegiondoWidget';
-import { formatPrice } from '@/lib/formatPrice';
 import TiqetsWidget from '@/components/TiqetsWidget';
-import { Star, Clock, Users, Check, Sparkles, Calendar, MapPin, X, Info, Globe, Shield } from 'lucide-react';
+import ExperienceTabs from '@/components/ExperienceTabs';
+import ExperienceCarousel from '@/components/ExperienceCarousel';
+import { formatPrice } from '@/lib/formatPrice';
+import { Star, Clock, Check } from 'lucide-react';
 import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
-import Link from 'next/link';
 import SaveRecentlyViewed from '@/components/SaveRecentlyViewed';
 
 const supabase = createClient(
@@ -29,9 +30,7 @@ export default async function ExperiencePage({ params }: PageProps) {
     .eq('slug', citySlug)
     .single();
 
-  if (!city) {
-    notFound();
-  }
+  if (!city) notFound();
 
   const { data: experience } = await supabase
     .from('experiences')
@@ -40,9 +39,7 @@ export default async function ExperiencePage({ params }: PageProps) {
     .eq('city_id', city.id)
     .single();
 
-  if (!experience) {
-    notFound();
-  }
+  if (!experience) notFound();
 
   const { data: related } = await supabase
     .from('experiences')
@@ -51,22 +48,32 @@ export default async function ExperiencePage({ params }: PageProps) {
     .eq('active', true)
     .neq('id', experience.id)
     .order('rating', { ascending: false })
-    .limit(3);
+    .limit(8);
+
+  const relatedForCarousel = (related || []).map(rel => ({
+    id: rel.id,
+    slug: rel.slug,
+    title: rel.title,
+    image: rel.main_image,
+    price: rel.price,
+    rating: rel.rating,
+    reviews: rel.reviews,
+    duration: rel.duration,
+    city_slug: city.slug,
+    cityName: city.name
+  }));
 
   const defaultHighlights = [
     'Confirmación inmediata',
-    'Entrada móvil',
-    'Cancelación gratis 24h'
+    'Entrada móvil aceptada',
+    'Cancelación gratuita hasta 24h antes'
   ];
 
-  const highlights = experience.highlights && experience.highlights.length > 0 
+  const highlights = experience.highlights?.length > 0 
     ? experience.highlights 
     : defaultHighlights;
 
-  // Filtrar imágenes válidas
-  const validGallery = experience.gallery 
-    ? experience.gallery.filter((img: string) => img && img.trim() !== '')
-    : [];
+  const validGallery = experience.gallery?.filter((img: string) => img?.trim()) || [];
 
   return (
     <div className="min-h-screen bg-white">
@@ -85,7 +92,7 @@ export default async function ExperiencePage({ params }: PageProps) {
         citySlug={city.slug}
       />
       
-      <div className="pt-32 pb-16">
+      <div className="pt-32 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Breadcrumb items={[
             { label: 'Inicio', href: '/es' },
@@ -94,290 +101,138 @@ export default async function ExperiencePage({ params }: PageProps) {
           ]} />
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+            {/* Columna izquierda - Contenido principal */}
             <div className="lg:col-span-2">
-              <div className="mb-6">
-                {experience.featured && (
-                  <div className="flex items-center gap-2 text-red-600 font-bold mb-3">
-                    <Sparkles size={20} className="fill-current" />
-                    <span>Oferta especial - Ahorra hasta 30%</span>
-                  </div>
-                )}
-                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                  {experience.title}
-                </h1>
-                
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="flex items-center gap-1">
-                    <Star className="text-yellow-400 fill-current" size={20} />
-                    <span className="font-medium text-gray-700">{experience.rating}</span>
-                  </div>
-                  <span className="text-xs text-gray-400">({experience.reviews.toLocaleString()} opiniones)</span>
-                  {experience.duration && (
-                    <>
-                      <span className="text-gray-300">•</span>
-                      <div className="flex items-center gap-1 text-gray-700">
-                        <Clock size={18} />
-                        <span>{experience.duration}</span>
-                      </div>
-                    </>
-                  )}
+              {/* Badges */}
+              {experience.featured && (
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">Top Rated</span>
+                  <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">Ahorra 30%</span>
                 </div>
-              </div>
+              )}
 
-              <div className="mb-8">
-                {experience.main_image && experience.main_image.trim() !== '' && (
-                  <div className="relative h-96 rounded-2xl overflow-hidden mb-4">
-                    <Image 
-                      src={experience.main_image} 
-                      alt={experience.title} 
-                      fill 
-                      className="object-cover"
-                    />
-                  </div>
-                )}
-                
-                {validGallery.length > 0 && (
-                  <div className="grid grid-cols-3 gap-3">
-                    {validGallery.slice(0, 3).map((img: string, i: number) => (
-                      <div key={i} className="relative h-32 rounded-xl overflow-hidden">
-                        <Image 
-                          src={img} 
-                          alt={`Vista ${i + 1}`}
-                          fill
-                          className="object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
-                        />
-                      </div>
-                    ))}
-                  </div>
+              {/* Título */}
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                {experience.title}
+              </h1>
+              
+              {/* Subtítulo/Descripción corta */}
+              {experience.description && (
+                <p className="text-gray-600 mb-4">{experience.description}</p>
+              )}
+
+              {/* Rating y duración */}
+              <div className="flex items-center gap-4 mb-6 text-sm">
+                <div className="flex items-center gap-1">
+                  <Star className="text-yellow-400 fill-current" size={18} />
+                  <span className="font-bold text-gray-900">{experience.rating}</span>
+                  <span className="text-gray-500">({experience.reviews?.toLocaleString('es-ES')} opiniones)</span>
+                </div>
+                {experience.duration && (
+                  <>
+                    <span className="text-gray-300">•</span>
+                    <div className="flex items-center gap-1 text-gray-600">
+                      <Clock size={16} />
+                      <span>{experience.duration}</span>
+                    </div>
+                  </>
                 )}
               </div>
 
-              <div className="mb-10">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  Acerca de esta actividad
-                </h2>
-                <div className="text-gray-700 space-y-3 leading-relaxed">
-                  {experience.long_description ? (
-                    <p className="whitespace-pre-line">{experience.long_description}</p>
-                  ) : experience.description ? (
-                    <p>{experience.description}</p>
-                  ) : (
-                    <p>Disfruta de esta increíble experiencia en {city.name}.</p>
-                  )}
-                </div>
-              </div>
-
-              {(experience.includes || experience.not_includes) && (
-                <div className="mb-10">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-5">
-                    Detalles de la experiencia
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {experience.includes && experience.includes.length > 0 && (
-                      <div className="bg-green-50 rounded-xl p-6">
-                        <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                          <Check className="text-green-600" size={20} />
-                          Qué incluye
-                        </h3>
-                        <ul className="space-y-2">
-                          {experience.includes.map((item: string, i: number) => (
-                            <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                              <Check className="text-green-600 flex-shrink-0 mt-0.5" size={16} />
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {experience.not_includes && experience.not_includes.length > 0 && (
-                      <div className="bg-red-50 rounded-xl p-6">
-                        <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                          <X className="text-red-600" size={20} />
-                          Qué NO incluye
-                        </h3>
-                        <ul className="space-y-2">
-                          {experience.not_includes.map((item: string, i: number) => (
-                            <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                              <X className="text-red-600 flex-shrink-0 mt-0.5" size={16} />
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
+              {/* Imagen principal */}
+              {experience.main_image?.trim() && (
+                <div className="relative h-80 md:h-96 rounded-2xl overflow-hidden mb-4">
+                  <Image 
+                    src={experience.main_image} 
+                    alt={experience.title} 
+                    fill 
+                    className="object-cover"
+                  />
                 </div>
               )}
-
-              {experience.meeting_point && (
-                <div className="mb-10 bg-blue-50 rounded-xl p-6">
-                  <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <MapPin className="text-blue-600" size={20} />
-                    Punto de encuentro
-                  </h3>
-                  <p className="text-gray-700">{experience.meeting_point}</p>
-                </div>
-              )}
-
-              {experience.important_info && (
-                <div className="mb-10 bg-yellow-50 rounded-xl p-6">
-                  <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <Info className="text-yellow-600" size={20} />
-                    Información importante
-                  </h3>
-                  <p className="text-gray-700 whitespace-pre-line">{experience.important_info}</p>
-                </div>
-              )}
-
-              {(experience.languages || experience.accessibility || experience.dress_code || experience.restrictions) && (
-                <div className="mb-10">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-5">
-                    Información adicional
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {experience.languages && experience.languages.length > 0 && (
-                      <div className="flex items-start gap-3">
-                        <Globe className="text-blue-600 mt-0.5 flex-shrink-0" size={20} />
-                        <div>
-                          <div className="font-semibold text-gray-900 mb-1">Idiomas disponibles</div>
-                          <div className="text-sm text-gray-700">{experience.languages.join(', ')}</div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {experience.accessibility && (
-                      <div className="flex items-start gap-3">
-                        <Users className="text-blue-600 mt-0.5 flex-shrink-0" size={20} />
-                        <div>
-                          <div className="font-semibold text-gray-900 mb-1">Accesibilidad</div>
-                          <div className="text-sm text-gray-700">{experience.accessibility}</div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {experience.dress_code && (
-                      <div className="flex items-start gap-3">
-                        <Sparkles className="text-blue-600 mt-0.5 flex-shrink-0" size={20} />
-                        <div>
-                          <div className="font-semibold text-gray-900 mb-1">Código de vestimenta</div>
-                          <div className="text-sm text-gray-700">{experience.dress_code}</div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {experience.restrictions && (
-                      <div className="flex items-start gap-3">
-                        <Shield className="text-blue-600 mt-0.5 flex-shrink-0" size={20} />
-                        <div>
-                          <div className="font-semibold text-gray-900 mb-1">Restricciones</div>
-                          <div className="text-sm text-gray-700">{experience.restrictions}</div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {experience.cancellation_policy && (
-                <div className="mb-10 bg-gray-50 rounded-xl p-6">
-                  <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <Shield className="text-gray-600" size={20} />
-                    Política de cancelación
-                  </h3>
-                  <p className="text-gray-700">{experience.cancellation_policy}</p>
-                </div>
-              )}
-
-              {related && related.length > 0 && (
-                <div className="mb-10">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-5">
-                    También te puede interesar
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {related.map((rel) => (
-                      <Link
-                        key={rel.id}
-                        href={`/es/${city.slug}/${rel.slug}`}
-                        className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden hover:border-blue-500 hover:shadow-lg transition-all"
-                      >
-                        {rel.main_image && rel.main_image.trim() !== '' && (
-                          <div className="relative h-56">
-                            <Image 
-                              src={rel.main_image} 
-                              alt={rel.title} 
-                              fill 
-                              className="object-cover"
-                            />
-                          </div>
-                        )}
-                        <div className="p-4">
-                          <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm">
-                            {rel.title}
-                          </h3>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1">
-                              <Star size={14} className="text-yellow-400 fill-current" />
-                              <span className="text-sm font-bold">{rel.rating}</span>
-                            </div>
-                            <div className="text-lg font-bold text-blue-600">
-                              {formatPrice(rel.price)}
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="lg:col-span-1">
-              <div className="bg-white border-2 border-gray-200 rounded-2xl p-6 sticky top-24">
-                <div className="mb-4">
-                  <div className="text-sm text-gray-700 font-semibold mb-1">Desde</div>
-                  <div className="text-4xl font-bold text-blue-600 mb-1">
-                    {formatPrice(experience.price)}
-                  </div>
-                  <div className="text-xs text-gray-600">por persona</div>
-                </div>
-
-                <div className="mb-6 space-y-2 text-sm">
-                  {highlights.map((highlight: string, i: number) => (
-                    <div key={i} className="flex items-center gap-2 text-gray-700">
-                      <Check className="text-green-600 flex-shrink-0" size={16} />
-                      <span>{highlight}</span>
+              
+              {/* Galería */}
+              {validGallery.length > 0 && (
+                <div className="grid grid-cols-3 gap-3 mb-8">
+                  {validGallery.slice(0, 3).map((img: string, i: number) => (
+                    <div key={i} className="relative h-24 md:h-32 rounded-xl overflow-hidden">
+                      <Image src={img} alt={`Vista ${i + 1}`} fill className="object-cover hover:scale-105 transition-transform duration-300" />
                     </div>
                   ))}
                 </div>
+              )}
 
+              {/* Tabs de contenido */}
+              <ExperienceTabs
+                description={experience.description}
+                longDescription={experience.long_description}
+                cityName={city.name}
+                highlights={highlights}
+                includes={experience.includes}
+                notIncludes={experience.not_includes}
+                meetingPoint={experience.meeting_point}
+                importantInfo={experience.important_info}
+                languages={experience.languages}
+                accessibility={experience.accessibility}
+                dressCode={experience.dress_code}
+                restrictions={experience.restrictions}
+                cancellationPolicy={experience.cancellation_policy}
+                rating={experience.rating}
+                reviews={experience.reviews}
+              />
+            </div>
 
-                {experience.tiqets_venue_id ? (
-                  <div className="mb-6">
-                    <TiqetsWidget 
-                      widgetCode={experience.tiqets_venue_id}
-                    />
+            {/* Columna derecha - Widget de reserva */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-24">
+                {/* Precio */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-4">
+                  <div className="mb-4">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-bold text-gray-900">{formatPrice(experience.price)}</span>
+                      {experience.featured && (
+                        <span className="text-lg text-gray-400 line-through">{formatPrice(experience.price * 1.3)}</span>
+                      )}
+                    </div>
+                    <div className="text-sm text-gray-500">por persona</div>
                   </div>
-                ) : experience.widget_id ? (
-                  <div className="mb-6">
-                    <RegiondoWidget widgetId={experience.widget_id} />
-                  </div>
-                ) : null}
-                <div className="pt-4 border-t border-gray-200">
-                  <div className="flex items-center gap-2 text-sm text-gray-700 mb-2">
-                    <Calendar size={16} />
-                    <span className="font-semibold">Disponibilidad flexible</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-700">
-                    <Users size={16} />
-                    <span className="font-semibold">Para todos los públicos</span>
+
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <Check className="text-green-600 flex-shrink-0" size={16} />
+                      <span>Confirmación inmediata</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <Check className="text-green-600 flex-shrink-0" size={16} />
+                      <span>Entrada móvil aceptada</span>
+                    </div>
                   </div>
                 </div>
+
+                {/* Widget de Tiqets o Regiondo */}
+                {experience.tiqets_venue_id ? (
+                  <TiqetsWidget widgetCode={experience.tiqets_venue_id} />
+                ) : experience.widget_id ? (
+                  <RegiondoWidget widgetId={experience.widget_id} />
+                ) : null}
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Cross-selling - Ancho completo con carrusel */}
+      {relatedForCarousel.length > 0 && (
+        <div className="pt-20 pb-12">
+          <ExperienceCarousel
+            title={`Más experiencias en ${city.name}`}
+            subtitle="Descubre otras actividades que te pueden interesar"
+            experiences={relatedForCarousel}
+            carouselId="related"
+            viewAllLink={`/es/${city.slug}`}
+          />
+        </div>
+      )}
 
       <Footer lang="es" />
     </div>
