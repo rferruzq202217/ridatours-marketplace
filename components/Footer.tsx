@@ -1,7 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { Instagram } from 'lucide-react';
+import { Instagram, Settings } from 'lucide-react';
 import Script from 'next/script';
 import { getMessages, Locale } from '@/lib/i18n';
 
@@ -140,6 +140,9 @@ export default function Footer({ lang = 'es' }: FooterProps) {
             <Link href={`/${lang}`} className="text-xl font-bold">RIDATOURS</Link>
             <div className="text-sm text-gray-400">{t.footer.copyright}</div>
             <div className="flex items-center gap-2">
+              <Link href="/admin/login" className="p-3 rounded-full hover:bg-[#1D2D52] transition-colors" aria-label="Admin">
+                <Settings size={20} />
+              </Link>
               <a href="https://www.instagram.com/ridatoursllc/" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full hover:bg-[#1D2D52] transition-colors" aria-label="Instagram">
                 <Instagram size={20} />
               </a>

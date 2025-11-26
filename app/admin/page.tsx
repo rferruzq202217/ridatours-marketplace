@@ -1,10 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Building2, MapPin, Tag, Landmark, Globe, Languages } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Building2, MapPin, Tag, Landmark, Globe, Languages, LogOut, Ticket } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 export default function AdminPanel() {
+  const router = useRouter();
   const [counts, setCounts] = useState({
     experiences: 0,
     cities: 0,
@@ -36,6 +38,12 @@ export default function AdminPanel() {
     loadCounts();
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('admin_authenticated');
+    document.cookie = 'admin_session=; path=/; max-age=0';
+    router.push('/admin/login');
+  };
+
   const cards = [
     { href: '/admin/experiences', icon: Building2, title: 'Experiencias', desc: 'Tours y actividades', count: counts.experiences, color: 'purple' },
     { href: '/admin/countries', icon: Globe, title: 'Países', desc: 'Gestiona los países', count: counts.countries, color: 'emerald' },
@@ -55,29 +63,61 @@ export default function AdminPanel() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Panel de Administración</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cards.map((card) => {
-          const colors = colorClasses[card.color];
-          return (
-            <Link
-              key={card.href}
-              href={card.href}
-              className={`p-6 bg-white rounded-xl border-2 border-gray-200 ${colors.border} transition-all hover:shadow-lg`}
-            >
-              <div className="flex items-start justify-between">
-                <div className={`p-3 rounded-lg ${colors.bg}`}>
-                  <card.icon className={colors.text} size={24} />
-                </div>
-                <span className={`text-2xl font-bold ${colors.text}`}>{card.count}</span>
+    <>
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-600 rounded-lg">
+                <Ticket className="text-white" size={24} />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 mt-4">{card.title}</h2>
-              <p className="text-gray-600 mt-1">{card.desc}</p>
-            </Link>
-          );
-        })}
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">RIDATOURS</h1>
+                <p className="text-xs text-gray-500">Panel de Administración</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <Link href="/es" className="text-sm text-gray-600 hover:text-blue-600">
+                Ver sitio web
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              >
+                <LogOut size={18} />
+                Cerrar sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-8 py-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {cards.map((card) => {
+            const colors = colorClasses[card.color];
+            return (
+              <Link
+                key={card.href}
+                href={card.href}
+                className={`p-6 bg-white rounded-xl border-2 border-gray-200 ${colors.border} transition-all hover:shadow-lg`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className={`p-3 rounded-lg ${colors.bg}`}>
+                    <card.icon className={colors.text} size={24} />
+                  </div>
+                  <span className={`text-2xl font-bold ${colors.text}`}>{card.count}</span>
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 mt-4">{card.title}</h2>
+                <p className="text-gray-600 mt-1">{card.desc}</p>
+              </Link>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

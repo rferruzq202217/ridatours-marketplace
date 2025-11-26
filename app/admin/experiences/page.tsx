@@ -38,6 +38,7 @@ interface Experience {
   cities?: { name: string };
   monuments?: { name: string };
   experience_categories?: Array<{ category_id: string; categories: { id: string; name: string } }>;
+  translations?: string[];
 }
 
 interface City { id: string; name: string; slug: string; }
@@ -61,6 +62,7 @@ export default function ExperiencesPage() {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterWidget, setFilterWidget] = useState<string>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [filterTranslation, setFilterTranslation] = useState<string>('all');
   const [formData, setFormData] = useState({
     title: '', slug: '', description: '', long_description: '', city_id: '', monument_id: '',
     selectedCategories: [] as string[], price: 0, rating: 4.5, reviews: 0, duration: '',
@@ -92,10 +94,28 @@ export default function ExperiencesPage() {
         catMap.get(rel.experience_id).push(rel);
       });
       
+      // Cargar traducciones
+      const titles = expData.map(e => e.title);
+      const { data: translationsData } = await supabase
+        .from('translations_cache')
+        .select('source_text, target_lang')
+        .in('source_text', titles);
+
+      const transMap = new Map<string, string[]>();
+      console.log("📚 Traducciones cargadas:", translationsData?.length || 0);
+      (translationsData || []).forEach(t => {
+        if (!transMap.has(t.source_text)) transMap.set(t.source_text, []);
+        if (!transMap.get(t.source_text)!.includes(t.target_lang)) {
+          transMap.get(t.source_text)!.push(t.target_lang);
+        }
+      });
+
       const expWithCategories = expData.map(exp => ({
         ...exp,
-        experience_categories: catMap.get(exp.id) || []
+        experience_categories: catMap.get(exp.id) || [],
+        translations: transMap.get(exp.title) || []
       }));
+      console.log("🔍 Experiencias con traducciones:", expWithCategories.filter(e => e.translations.length > 0).length);
       
       setExperiences(expWithCategories);
     }
@@ -134,12 +154,21 @@ export default function ExperiencesPage() {
         matchesWidget = !exp.tiqets_venue_id && !exp.widget_id;
       }
 
+      let matchesTranslation = true;
+      if (filterTranslation === 'translated') {
+        matchesTranslation = (exp.translations?.length || 0) > 0;
+      } else if (filterTranslation === 'not-translated') {
+        matchesTranslation = (exp.translations?.length || 0) === 0;
+      } else if (filterTranslation !== 'all') {
+        matchesTranslation = exp.translations?.includes(filterTranslation) || false;
+      }
+
       const matchesCategory = filterCategory === 'all' || 
         (exp.experience_categories && exp.experience_categories.some(ec => ec.category_id === filterCategory));
       
-      return matchesSearch && matchesCity && matchesStatus && matchesWidget && matchesCategory;
+      return matchesSearch && matchesCity && matchesStatus && matchesWidget && matchesCategory && matchesTranslation;
     });
-  }, [experiences, searchTerm, filterCity, filterStatus, filterWidget, filterCategory]);
+  }, [experiences, searchTerm, filterCity, filterStatus, filterWidget, filterCategory, filterTranslation]);
 
   const clearFilters = () => {
     setSearchTerm('');
@@ -147,6 +176,7 @@ export default function ExperiencesPage() {
     setFilterStatus('all');
     setFilterWidget('all');
     setFilterCategory('all');
+    setFilterTranslation('all');
   };
 
   const hasActiveFilters = searchTerm !== '' || filterCity !== 'all' || filterStatus !== 'all' || filterWidget !== 'all' || filterCategory !== 'all';
@@ -534,6 +564,22 @@ export default function ExperiencesPage() {
                 ))}
               </select>
             </div>
+
+            <div>
+              <select
+                value={filterTranslation}
+                onChange={(e) => setFilterTranslation(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">Todos los idiomas</option>
+                <option value="translated">Traducidas</option>
+                <option value="not-translated">Sin traducir</option>
+                <option value="en">🇬🇧 Inglés</option>
+                <option value="fr">🇫🇷 Francés</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="de">🇩🇪 Alemán</option>
+              </select>
+            </div>
             {hasActiveFilters && (
               <div>
                 <button
@@ -630,6 +676,13 @@ export default function ExperiencesPage() {
                                 </span>
                               ))
                             )}
+                            {/* Indicadores de traducción */}
+                            <div className="flex items-center gap-1 ml-2">
+                              <span className={`text-sm ${exp.translations?.includes('en') ? 'opacity-100' : 'opacity-30'}`} title={exp.translations?.includes('en') ? 'Traducido a inglés' : 'Sin traducir a inglés'}>🇬🇧</span>
+                              <span className={`text-sm ${exp.translations?.includes('fr') ? 'opacity-100' : 'opacity-30'}`} title={exp.translations?.includes('fr') ? 'Traducido a francés' : 'Sin traducir a francés'}>🇫🇷</span>
+                              <span className={`text-sm ${exp.translations?.includes('it') ? 'opacity-100' : 'opacity-30'}`} title={exp.translations?.includes('it') ? 'Traducido a italiano' : 'Sin traducir a italiano'}>🇮🇹</span>
+                              <span className={`text-sm ${exp.translations?.includes('de') ? 'opacity-100' : 'opacity-30'}`} title={exp.translations?.includes('de') ? 'Traducido a alemán' : 'Sin traducir a alemán'}>🇩🇪</span>
+                            </div>
                           </div>
                         </div>
 
