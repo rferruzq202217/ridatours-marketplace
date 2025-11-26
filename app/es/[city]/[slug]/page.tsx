@@ -5,6 +5,7 @@ import Breadcrumb from '@/components/Breadcrumb';
 import RegiondoWidget from '@/components/RegiondoWidget';
 import TiqetsWidget from '@/components/TiqetsWidget';
 import ExperienceTabs from '@/components/ExperienceTabs';
+import ImageGallery from '@/components/ImageGallery';
 import ExperienceCarousel from '@/components/ExperienceCarousel';
 import { formatPrice } from '@/lib/formatPrice';
 import { Star, Clock, Check } from 'lucide-react';
@@ -139,28 +140,13 @@ export default async function ExperiencePage({ params }: PageProps) {
                 )}
               </div>
 
-              {/* Imagen principal */}
-              {experience.main_image?.trim() && (
-                <div className="relative h-80 md:h-96 rounded-2xl overflow-hidden mb-4">
-                  <Image 
-                    src={experience.main_image} 
-                    alt={experience.title} 
-                    fill 
-                    className="object-cover"
-                  />
-                </div>
-              )}
-              
-              {/* Galería */}
-              {validGallery.length > 0 && (
-                <div className="grid grid-cols-3 gap-3 mb-8">
-                  {validGallery.slice(0, 3).map((img: string, i: number) => (
-                    <div key={i} className="relative h-24 md:h-32 rounded-xl overflow-hidden">
-                      <Image src={img} alt={`Vista ${i + 1}`} fill className="object-cover hover:scale-105 transition-transform duration-300" />
-                    </div>
-                  ))}
-                </div>
-              )}
+
+              {/* Galería de imágenes */}
+              <ImageGallery
+                mainImage={experience.main_image}
+                gallery={validGallery}
+                title={experience.title}
+              />
 
               {/* Tabs de contenido */}
               <ExperienceTabs
