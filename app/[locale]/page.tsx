@@ -10,6 +10,7 @@ import LinkFarm from '@/components/LinkFarm';
 import ContactBlock from '@/components/ContactBlock';
 import { createClient } from '@supabase/supabase-js';
 import { getMessages, Locale } from '@/lib/i18n';
+import { translateExperiences } from '@/lib/translateHelpers';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -92,7 +93,7 @@ export default async function HomePage({ params }: PageProps) {
     .eq('active', true)
     .order('created_at', { ascending: false });
 
-  const experiences = allExperiences?.map((exp: any) => ({
+  const experiencesRaw = allExperiences?.map((exp: any) => ({
     city: exp.cities?.slug || '',
     slug: exp.slug,
     title: exp.title,
@@ -104,6 +105,9 @@ export default async function HomePage({ params }: PageProps) {
     duration: exp.duration || '',
     featured: exp.featured
   })) || [];
+
+  // Traducir todas las experiencias
+  const experiences = await translateExperiences(experiencesRaw, lang);
 
   const popularActivities = experiences.filter(e => e.featured || e.reviews > 5000).sort((a, b) => b.reviews - a.reviews).slice(0, 6);
   const worldBest = experiences.filter(e => e.rating >= 4.7).sort((a, b) => b.rating - a.rating || b.reviews - a.reviews).slice(0, 6);
@@ -155,7 +159,7 @@ export default async function HomePage({ params }: PageProps) {
         </div>
       </div>
 
-      <TrustBadges />
+      <TrustBadges lang={lang} />
       <CategoryCarousel categories={categories} lang={lang} />
       <RecentlyViewedCarousel lang={lang} />
 
@@ -207,7 +211,7 @@ export default async function HomePage({ params }: PageProps) {
         lang={lang}
       />
 
-      <ContactBlock />
+      <ContactBlock lang={lang} />
 
       <Footer lang={lang} />
     </div>

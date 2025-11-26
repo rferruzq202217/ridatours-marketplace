@@ -9,6 +9,7 @@ import ImageGallery from '@/components/ImageGallery';
 import ExperienceCarousel from '@/components/ExperienceCarousel';
 import { formatPrice } from '@/lib/formatPrice';
 import { getMessages, Locale } from '@/lib/i18n';
+import { translateExperience } from '@/lib/translateExperience';
 import { Star, Clock, Check } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 import SaveRecentlyViewed from '@/components/SaveRecentlyViewed';
@@ -35,14 +36,17 @@ export default async function ExperiencePage({ params }: PageProps) {
 
   if (!city) notFound();
 
-  const { data: experience } = await supabase
+  const { data: experienceRaw } = await supabase
     .from('experiences')
     .select('*')
     .eq('slug', slug)
     .eq('city_id', city.id)
     .single();
 
-  if (!experience) notFound();
+  if (!experienceRaw) notFound();
+
+  // Traducir la experiencia si no es español
+  const experience = await translateExperience(experienceRaw, lang);
 
   const { data: related } = await supabase
     .from('experiences')
@@ -72,8 +76,8 @@ export default async function ExperiencePage({ params }: PageProps) {
     t.common.freeCancellation
   ];
 
-  const highlights = experience.highlights?.length > 0 
-    ? experience.highlights 
+  const highlights = (experience.highlights && experience.highlights.length > 0) 
+    ? experience.highlights as string[] 
     : defaultHighlights;
 
   const validGallery = experience.gallery?.filter((img: string) => img?.trim()) || [];

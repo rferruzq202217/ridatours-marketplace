@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import { formatPrice } from '@/lib/formatPrice';
 import { getMessages, Locale } from '@/lib/i18n';
+import { translateExperiences } from '@/lib/translateHelpers';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
 
@@ -27,7 +28,7 @@ export default async function RecomendacionesPage({ params }: PageProps) {
     .order('created_at', { ascending: false })
     .limit(50);
 
-  const experiences = (allExperiences || []).map((exp: any) => ({
+  const experiencesRaw = (allExperiences || []).map((exp: any) => ({
     id: exp.id,
     city: exp.cities?.slug || '',
     slug: exp.slug,
@@ -40,6 +41,8 @@ export default async function RecomendacionesPage({ params }: PageProps) {
     duration: exp.duration,
     featured: exp.featured
   }));
+
+  const experiences = await translateExperiences(experiencesRaw, lang);
 
   const titles: Record<string, string> = {
     es: '💎 Recomendaciones Ridatours',
@@ -93,7 +96,7 @@ export default async function RecomendacionesPage({ params }: PageProps) {
                     <Image src={exp.image} alt={exp.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
                     <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-400">Sin imagen</span>
+                      <span className="text-gray-400">{t.common.noImage}</span>
                     </div>
                   )}
                   <div className="absolute top-3 left-3 bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-bold">

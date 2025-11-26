@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import { formatPrice } from '@/lib/formatPrice';
 import { getMessages, Locale } from '@/lib/i18n';
+import { translateExperiences } from '@/lib/translateHelpers';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
 
@@ -26,7 +27,7 @@ export default async function PopularesPage({ params }: PageProps) {
     .order('reviews', { ascending: false })
     .limit(50);
 
-  const experiences = (allExperiences || []).map((exp: any) => ({
+  const experiencesRaw = (allExperiences || []).map((exp: any) => ({
     id: exp.id,
     city: exp.cities?.slug || '',
     slug: exp.slug,
@@ -39,6 +40,9 @@ export default async function PopularesPage({ params }: PageProps) {
     duration: exp.duration,
     featured: exp.featured
   }));
+
+  // Traducir experiencias
+  const experiences = await translateExperiences(experiencesRaw, lang);
 
   const titles: Record<string, string> = {
     es: '🔥 Experiencias más populares',
@@ -92,7 +96,7 @@ export default async function PopularesPage({ params }: PageProps) {
                     <Image src={exp.image} alt={exp.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
                     <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-400">Sin imagen</span>
+                      <span className="text-gray-400">{t.common.noImage}</span>
                     </div>
                   )}
                   {exp.featured && (

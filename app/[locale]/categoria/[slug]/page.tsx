@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import { formatPrice } from '@/lib/formatPrice';
 import { getMessages, Locale } from '@/lib/i18n';
+import { translateExperiences } from '@/lib/translateHelpers';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -38,7 +39,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
   const experienceIds = experienceCategories?.map(ec => ec.experience_id) || [];
 
-  const { data: experiences } = experienceIds.length > 0
+  const { data: experiencesRaw } = experienceIds.length > 0
     ? await supabase
         .from('experiences')
         .select('*, cities(name, slug)')
@@ -46,6 +47,8 @@ export default async function CategoryPage({ params }: PageProps) {
         .eq('active', true)
         .order('rating', { ascending: false })
     : { data: [] };
+
+  const experiences = await translateExperiences(experiencesRaw || [], lang);
 
   const breadcrumbItems = [
     { label: t.common.home, href: `/${lang}` },
@@ -63,7 +66,7 @@ export default async function CategoryPage({ params }: PageProps) {
           <div className="mt-6 mb-12">
             <h1 className="text-5xl font-bold text-gray-900 mb-4">{category.name}</h1>
             <p className="text-xl text-gray-600">
-              {experiences?.length || 0} {experiences?.length === 1 ? t.common.experiences.slice(0, -1) : t.common.experiences} {t.common.available}
+              {experiences?.length || 0} {t.common.experiences.toLowerCase()} {t.common.available}
             </p>
           </div>
 
@@ -80,7 +83,7 @@ export default async function CategoryPage({ params }: PageProps) {
                       <Image src={exp.main_image} alt={exp.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
                       <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-400">Sin imagen</span>
+                        <span className="text-gray-400">{t.common.noImage}</span>
                       </div>
                     )}
                     {exp.featured && (

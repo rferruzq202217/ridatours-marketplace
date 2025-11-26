@@ -8,6 +8,7 @@ import { Star, Clock, Landmark } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 import { formatPrice } from '@/lib/formatPrice';
 import { getMessages, Locale } from '@/lib/i18n';
+import { translateExperiences } from '@/lib/translateHelpers';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -33,12 +34,15 @@ export default async function CityPage({ params }: PageProps) {
     notFound();
   }
 
-  const { data: experiences } = await supabase
+  const { data: experiencesRaw } = await supabase
     .from('experiences')
     .select('*')
     .eq('city_id', city.id)
     .eq('active', true)
     .order('rating', { ascending: false });
+
+  // Traducir experiencias
+  const experiences = await translateExperiences(experiencesRaw || [], lang);
 
   const { data: monumentsData } = await supabase
     .from('monuments')
@@ -185,7 +189,7 @@ export default async function CityPage({ params }: PageProps) {
                         <Image src={exp.main_image} alt={exp.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                       ) : (
                         <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400">Sin imagen</span>
+                          <span className="text-gray-400">{t.common.noImage}</span>
                         </div>
                       )}
                       {exp.featured && (
