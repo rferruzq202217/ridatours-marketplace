@@ -32,7 +32,6 @@ export default function TiqetsWidget({ widgetCode }: TiqetsWidgetProps) {
       currency: 'EUR',
     });
     
-    // Usar productId o venueId según lo que exista
     if (productId) {
       params.append('productId', productId);
     } else if (venueId) {
@@ -49,7 +48,7 @@ export default function TiqetsWidget({ widgetCode }: TiqetsWidgetProps) {
   if (!iframeSrc) return null;
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
+    <div>
       <h2 className="text-xl font-bold text-gray-900 mb-4">Reservar</h2>
       <iframe
         src={iframeSrc}
