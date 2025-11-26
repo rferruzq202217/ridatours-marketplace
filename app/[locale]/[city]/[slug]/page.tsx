@@ -67,6 +67,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ExperiencePage({ params }: PageProps) {
+  const { locale, city: citySlug, slug } = await params;
   const lang = locale as Locale;
   const t = getMessages(lang);
 
