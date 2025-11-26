@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice } from '@/lib/formatPrice';
+import { getMessages, Locale } from '@/lib/i18n';
 import { Star, MapPin } from 'lucide-react';
 
 interface Monument {
@@ -25,6 +26,7 @@ interface MonumentCardProps {
 export default function MonumentCard({ monument, lang = 'es', citySlug }: MonumentCardProps) {
   const slug = citySlug || monument.city || '';
   const href = `/${lang}/${slug}/monumentos/${monument.slug}`;
+  const t = getMessages(lang as Locale);
 
   return (
     <Link
@@ -41,7 +43,7 @@ export default function MonumentCard({ monument, lang = 'es', citySlug }: Monume
           />
         ) : (
           <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-            <span className="text-gray-400">Sin imagen</span>
+            <span className="text-gray-400">{t.common.noImage}</span>
           </div>
         )}
       </div>
@@ -70,7 +72,7 @@ export default function MonumentCard({ monument, lang = 'es', citySlug }: Monume
         {(monument.tickets_from || monument.price) && (
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm text-gray-600">Desde</div>
+              <div className="text-sm text-gray-600">{t.common.from}</div>
               <div className="text-xl font-bold text-gray-900">
                 {formatPrice(monument.tickets_from || monument.price)}
               </div>

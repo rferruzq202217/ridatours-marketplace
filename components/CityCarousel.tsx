@@ -111,7 +111,7 @@ export default function CityCarousel({ title, subtitle, cities, viewAllLink, lan
                     />
                   ) : (
                     <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-400">Sin imagen</span>
+                      <span className="text-gray-400">{t.common.noImage}</span>
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

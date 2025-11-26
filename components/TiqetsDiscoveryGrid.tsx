@@ -6,24 +6,26 @@ interface TiqetsDiscoveryGridProps {
   destinationId: string;
   campaign?: string;
   itemCount?: number;
+  lang?: string;
 }
 
 export default function TiqetsDiscoveryGrid({
   destinationType,
   destinationId,
   campaign = '',
-  itemCount = 12
+  itemCount = 12,
+  lang = 'es'
 }: TiqetsDiscoveryGridProps) {
   
   useEffect(() => {
-    console.log('🎯 TiqetsDiscoveryGrid props:', { destinationType, destinationId, campaign, itemCount });
+    console.log('🎯 TiqetsDiscoveryGrid props:', { destinationType, destinationId, campaign, itemCount, lang });
     
     if ((window as any).tiqets) {
       setTimeout(() => {
         (window as any).tiqets.init();
       }, 100);
     }
-  }, [destinationId, campaign, itemCount, destinationType]);
+  }, [destinationId, campaign, itemCount, destinationType, lang]);
 
   return (
     <div 
@@ -37,6 +39,7 @@ export default function TiqetsDiscoveryGrid({
       data-slug-ids=""
       data-partner="rida_tours_llc-181548"
       data-tq-campaign={campaign}
+      data-language={lang}
     />
   );
 }

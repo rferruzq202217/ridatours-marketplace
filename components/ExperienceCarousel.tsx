@@ -135,7 +135,7 @@ export default function ExperienceCarousel({
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-400">Sin imagen</span>
+                        <span className="text-gray-400">{t.common.noImage}</span>
                       </div>
                     )}
                     {exp.featured && (

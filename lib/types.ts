@@ -1,4 +1,4 @@
-export type Language = 'es' | 'en';
+export type Language = 'es' | 'en' | 'fr' | 'it' | 'de';
 
 export interface Monument {
   id: string;

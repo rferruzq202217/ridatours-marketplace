@@ -1,89 +1,147 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
-import { Star, Clock, History } from 'lucide-react';
+import { Star, Clock } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { createClient } from '@supabase/supabase-js';
+import { formatPrice } from '@/lib/formatPrice';
+import { getMessages, Locale } from '@/lib/i18n';
+import { Language } from '@/lib/types';
+import { useParams } from 'next/navigation';
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
-
-const breadcrumbItems = [
-  { label: 'Inicio', href: '/es' },
-  { label: 'Vistos recientemente' }
-];
-
-interface Experience { city: string; slug: string; title: string; cityName: string; image: string; price: number; rating: number; reviews: number; duration: string; }
+interface Experience {
+  id: string;
+  city: string;
+  slug: string;
+  title: string;
+  image: string | null;
+  price: number;
+  rating: number;
+  reviews: number;
+  duration?: string | null;
+}
 
 export default function RecientesPage() {
+  const params = useParams();
+  const lang = (params.locale as string) || 'es';
+  const t = getMessages(lang as Locale);
   const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  const titles: Record<string, string> = {
+    es: '👀 Visto recientemente',
+    en: '👀 Recently viewed',
+    fr: '👀 Vus récemment',
+    it: '👀 Visti di recente',
+    de: '👀 Kürzlich angesehen'
+  };
+
+  const subtitles: Record<string, string> = {
+    es: 'Tus últimas experiencias visitadas',
+    en: 'Your recently visited experiences',
+    fr: 'Vos dernières expériences visitées',
+    it: 'Le tue ultime esperienze visitate',
+    de: 'Ihre zuletzt besuchten Erlebnisse'
+  };
+
+  const emptyTitles: Record<string, string> = {
+    es: 'No has visitado ninguna experiencia',
+    en: "You haven't visited any experience yet",
+    fr: "Vous n'avez visité aucune expérience",
+    it: 'Non hai visitato nessuna esperienza',
+    de: 'Sie haben noch kein Erlebnis besucht'
+  };
 
   useEffect(() => {
-    const load = async () => {
-      const cookies = document.cookie.split(';');
-      const recentCookie = cookies.find(c => c.trim().startsWith('recentlyViewed='));
-      if (!recentCookie) { setLoading(false); return; }
-      try {
-        const recentData = JSON.parse(decodeURIComponent(recentCookie.split('=')[1]));
-        const slugs = recentData.map((item: any) => item.slug);
-        if (slugs.length === 0) { setLoading(false); return; }
-        const { data } = await supabase.from('experiences').select('id, title, slug, price, rating, reviews, duration, main_image, cities!inner(slug, name)').in('slug', slugs).eq('active', true);
-        if (data) {
-          const mapped = data.map((exp: any) => ({ city: exp.cities?.slug || '', slug: exp.slug, title: exp.title, cityName: exp.cities?.name || '', image: exp.main_image || '', price: exp.price, rating: exp.rating, reviews: exp.reviews, duration: exp.duration || '' }));
-          const ordered = slugs.map((slug: string) => mapped.find(e => e.slug === slug)).filter(Boolean) as Experience[];
-          setExperiences(ordered);
-        }
-      } catch (e) { console.error(e); }
-      setLoading(false);
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return null;
     };
-    load();
+
+    const cookieValue = getCookie('recentlyViewed');
+    if (cookieValue) {
+      try {
+        const data = JSON.parse(decodeURIComponent(cookieValue));
+        setExperiences(data);
+      } catch (error) {
+        console.error('Error reading cookie:', error);
+      }
+    }
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header lang="es" transparent={false} showSearch={true} />
-      <div className="h-24"></div>
-      <div className="bg-white border-b"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3"><Breadcrumb items={breadcrumbItems} /></div></div>
-      <div className="bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 mb-4"><History size={40} /><h1 className="text-4xl md:text-5xl font-bold">Continúa explorando</h1></div>
-          <p className="text-xl text-amber-100 max-w-2xl">Las experiencias que has visitado recientemente.</p>
-        </div>
-      </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {loading ? (
-          <div className="text-center py-16"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div></div>
-        ) : experiences.length > 0 ? (
-          <>
-            <div className="mb-8"><span className="font-semibold text-gray-900">{experiences.length} experiencias vistas</span></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <Header lang={lang as Language} />
+      
+      <div className="pt-32 pb-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <Breadcrumb items={[
+            { label: t.common.home, href: `/${lang}` }, 
+            { label: t.home.recentlyViewed }
+          ]} />
+          
+          <div className="mt-6 mb-12">
+            <h1 className="text-5xl font-bold text-gray-900 mb-4">{titles[lang] || titles.es}</h1>
+            <p className="text-xl text-gray-600">{subtitles[lang] || subtitles.es}</p>
+          </div>
+
+          {experiences.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {experiences.map((exp) => (
-                <Link key={exp.slug} href={`/es/${exp.city}/${exp.slug}`} className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all">
+                <Link 
+                  key={exp.id} 
+                  href={`/${lang}/${exp.city}/${exp.slug}`} 
+                  className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all"
+                >
                   <div className="relative h-48">
-                    <Image src={exp.image} alt={exp.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="25vw" />
-                    <div className="absolute top-3 left-3 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><History size={12} /> RECIENTE</div>
+                    {exp.image ? (
+                      <Image src={exp.image} alt={exp.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-400">{t.common.noImage}</span>
+                      </div>
+                    )}
                   </div>
                   <div className="p-4">
-                    <p className="text-xs font-semibold text-gray-500 mb-1">{exp.cityName.toUpperCase()}</p>
+                    <p className="text-xs font-semibold text-gray-500 mb-1">{exp.city.toUpperCase()}</p>
                     <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem]">{exp.title}</h3>
-                    {exp.duration && <div className="flex items-center gap-2 text-sm text-gray-600 mb-3"><Clock size={14} /><span>{exp.duration}</span></div>}
+                    {exp.duration && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                        <Clock size={14} />
+                        <span>{exp.duration}</span>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                      <div className="flex items-center gap-1"><Star size={16} className="text-yellow-400 fill-current" /><span className="font-medium text-gray-700">{exp.rating}</span><span className="text-xs text-gray-400">({exp.reviews.toLocaleString('es-ES')})</span></div>
-                      <div className="text-right"><span className="text-xs text-gray-500">Desde</span><p className="font-bold text-lg text-gray-900">€{exp.price}</p></div>
+                      <div className="flex items-center gap-1">
+                        <Star size={16} className="text-yellow-400 fill-current" />
+                        <span className="font-medium text-gray-700">{exp.rating}</span>
+                        <span className="text-xs text-gray-400">({exp.reviews?.toLocaleString('es-ES') || 0})</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs text-gray-500">{t.common.from}</span>
+                        <p className="font-bold text-lg text-gray-900">{formatPrice(exp.price)}</p>
+                      </div>
                     </div>
                   </div>
                 </Link>
               ))}
             </div>
-          </>
-        ) : (
-          <div className="text-center py-16"><div className="text-6xl mb-4">👀</div><h3 className="text-xl font-semibold text-gray-900 mb-2">No has visitado ninguna experiencia</h3><Link href="/es" className="inline-flex bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700">Explorar</Link></div>
-        )}
+          ) : (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">👀</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{emptyTitles[lang] || emptyTitles.es}</h3>
+              <Link href={`/${lang}`} className="inline-flex bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700">
+                {t.footer.explore}
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
-      <Footer lang="es" />
+
+      <Footer lang={lang as Language} />
     </div>
   );
 }
