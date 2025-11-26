@@ -13,13 +13,14 @@
     "categories": "Categorías",
     "featured": "DESTACADO",
     "popular": "POPULAR",
-    "topRated": "Top Rated",
+    "topRated": "TOP VALORADO",
     "save": "Ahorra",
     "instantConfirmation": "Confirmación inmediata",
     "mobileTicket": "Entrada móvil aceptada",
     "freeCancellation": "Cancelación gratuita hasta 24h antes",
     "available": "disponibles",
-    "noResults": "No se encontraron resultados"
+    "noResults": "No se encontraron resultados",
+    "noImage": "Sin imagen"
   },
   "nav": {
     "destinations": "Destinos",
@@ -37,6 +38,11 @@
     "browseCategories": "Explora por categorías",
     "recentlyViewed": "Visto recientemente",
     "worldExperiences": "Experiencias por el mundo"
+  },
+  "city": {
+    "thingsToDo": "Qué hacer en",
+    "allExperiences": "Todas las experiencias en",
+    "iconicMonuments": "Monumentos emblemáticos"
   },
   "experience": {
     "book": "Reservar",

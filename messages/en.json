@@ -13,13 +13,14 @@
     "categories": "Categories",
     "featured": "FEATURED",
     "popular": "POPULAR",
-    "topRated": "Top Rated",
+    "topRated": "TOP RATED",
     "save": "Save",
     "instantConfirmation": "Instant confirmation",
     "mobileTicket": "Mobile ticket accepted",
     "freeCancellation": "Free cancellation up to 24h before",
     "available": "available",
-    "noResults": "No results found"
+    "noResults": "No results found",
+    "noImage": "No image"
   },
   "nav": {
     "destinations": "Destinations",
@@ -30,13 +31,18 @@
     "privacy": "Privacy policy"
   },
   "home": {
-    "heroTitle": "Discover unique experiences around the world",
+    "heroTitle": "Discover unique experiences worldwide",
     "heroSubtitle": "Tours, attractions and activities in the best destinations",
     "popularCities": "Popular cities",
     "topExperiences": "Top rated experiences",
     "browseCategories": "Browse by categories",
     "recentlyViewed": "Recently viewed",
-    "worldExperiences": "Experiences around the world"
+    "worldExperiences": "World experiences"
+  },
+  "city": {
+    "thingsToDo": "Things to do in",
+    "allExperiences": "All experiences in",
+    "iconicMonuments": "Iconic monuments"
   },
   "experience": {
     "book": "Book",
@@ -52,7 +58,7 @@
     "dressCode": "Dress code",
     "restrictions": "Restrictions",
     "cancellationPolicy": "Cancellation policy",
-    "alsoInterested": "You might also like",
+    "alsoInterested": "You may also be interested in",
     "moreExperiencesIn": "More experiences in"
   },
   "tabs": {
@@ -62,7 +68,7 @@
   },
   "footer": {
     "explore": "Explore",
-    "tagline": "Your gateway to the best experiences in the world",
+    "tagline": "Your gateway to the world's best experiences",
     "downloadedBy": "Downloaded by",
     "travelers": "travelers",
     "copyright": "© 2024-2025 Ridatours"

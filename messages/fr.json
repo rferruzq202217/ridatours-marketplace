@@ -13,18 +13,19 @@
     "categories": "Catégories",
     "featured": "EN VEDETTE",
     "popular": "POPULAIRE",
-    "topRated": "Top Rated",
+    "topRated": "TOP NOTÉ",
     "save": "Économisez",
-    "instantConfirmation": "Confirmation instantanée",
+    "instantConfirmation": "Confirmation immédiate",
     "mobileTicket": "Billet mobile accepté",
     "freeCancellation": "Annulation gratuite jusqu'à 24h avant",
     "available": "disponibles",
-    "noResults": "Aucun résultat trouvé"
+    "noResults": "Aucun résultat trouvé",
+    "noImage": "Pas d'image"
   },
   "nav": {
     "destinations": "Destinations",
     "allDestinations": "Toutes les destinations",
-    "support": "Assistance",
+    "support": "Support",
     "helpCenter": "Centre d'aide",
     "terms": "Conditions générales",
     "privacy": "Politique de confidentialité"
@@ -35,16 +36,21 @@
     "popularCities": "Villes populaires",
     "topExperiences": "Expériences les mieux notées",
     "browseCategories": "Explorer par catégories",
-    "recentlyViewed": "Récemment consultés",
+    "recentlyViewed": "Vus récemment",
     "worldExperiences": "Expériences dans le monde"
+  },
+  "city": {
+    "thingsToDo": "Que faire à",
+    "allExperiences": "Toutes les expériences à",
+    "iconicMonuments": "Monuments emblématiques"
   },
   "experience": {
     "book": "Réserver",
     "aboutActivity": "À propos de cette expérience",
     "highlights": "Points forts",
     "whatsIncluded": "Ce qui est inclus",
-    "whatsNotIncluded": "Ce qui N'est PAS inclus",
-    "meetingPoint": "Point de rendez-vous",
+    "whatsNotIncluded": "Ce qui N'EST PAS inclus",
+    "meetingPoint": "Point de rencontre",
     "importantInfo": "Informations importantes",
     "additionalInfo": "Informations supplémentaires",
     "languages": "Langues disponibles",
@@ -56,7 +62,7 @@
     "moreExperiencesIn": "Plus d'expériences à"
   },
   "tabs": {
-    "overview": "Aperçu",
+    "overview": "Description",
     "included": "Inclus",
     "info": "Info"
   },

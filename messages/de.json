@@ -4,7 +4,7 @@
     "from": "Ab",
     "perPerson": "pro Person",
     "reviews": "Bewertungen",
-    "seeAll": "Alle ansehen",
+    "seeAll": "Alle anzeigen",
     "back": "Zurück",
     "home": "Startseite",
     "cities": "Städte",
@@ -13,24 +13,25 @@
     "categories": "Kategorien",
     "featured": "EMPFOHLEN",
     "popular": "BELIEBT",
-    "topRated": "Top Rated",
+    "topRated": "TOP BEWERTET",
     "save": "Sparen",
     "instantConfirmation": "Sofortige Bestätigung",
-    "mobileTicket": "Mobile Ticket akzeptiert",
+    "mobileTicket": "Mobiles Ticket akzeptiert",
     "freeCancellation": "Kostenlose Stornierung bis 24h vorher",
     "available": "verfügbar",
-    "noResults": "Keine Ergebnisse gefunden"
+    "noResults": "Keine Ergebnisse gefunden",
+    "noImage": "Kein Bild"
   },
   "nav": {
     "destinations": "Reiseziele",
     "allDestinations": "Alle Reiseziele",
-    "support": "Hilfe",
-    "helpCenter": "Hilfecenter",
-    "terms": "AGB",
-    "privacy": "Datenschutz"
+    "support": "Support",
+    "helpCenter": "Hilfezentrum",
+    "terms": "Allgemeine Geschäftsbedingungen",
+    "privacy": "Datenschutzrichtlinie"
   },
   "home": {
-    "heroTitle": "Entdecken Sie einzigartige Erlebnisse auf der ganzen Welt",
+    "heroTitle": "Entdecken Sie einzigartige Erlebnisse weltweit",
     "heroSubtitle": "Touren, Attraktionen und Aktivitäten an den besten Reisezielen",
     "popularCities": "Beliebte Städte",
     "topExperiences": "Bestbewertete Erlebnisse",
@@ -38,12 +39,17 @@
     "recentlyViewed": "Kürzlich angesehen",
     "worldExperiences": "Erlebnisse weltweit"
   },
+  "city": {
+    "thingsToDo": "Aktivitäten in",
+    "allExperiences": "Alle Erlebnisse in",
+    "iconicMonuments": "Ikonische Denkmäler"
+  },
   "experience": {
     "book": "Buchen",
     "aboutActivity": "Über dieses Erlebnis",
     "highlights": "Highlights",
-    "whatsIncluded": "Was ist inbegriffen",
-    "whatsNotIncluded": "Was ist NICHT inbegriffen",
+    "whatsIncluded": "Was ist enthalten",
+    "whatsNotIncluded": "Was ist NICHT enthalten",
     "meetingPoint": "Treffpunkt",
     "importantInfo": "Wichtige Informationen",
     "additionalInfo": "Zusätzliche Informationen",
@@ -51,7 +57,7 @@
     "accessibility": "Barrierefreiheit",
     "dressCode": "Kleiderordnung",
     "restrictions": "Einschränkungen",
-    "cancellationPolicy": "Stornierungsbedingungen",
+    "cancellationPolicy": "Stornierungsrichtlinie",
     "alsoInterested": "Das könnte Sie auch interessieren",
     "moreExperiencesIn": "Mehr Erlebnisse in"
   },

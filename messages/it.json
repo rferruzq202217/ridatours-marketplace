@@ -13,13 +13,14 @@
     "categories": "Categorie",
     "featured": "IN EVIDENZA",
     "popular": "POPOLARE",
-    "topRated": "Top Rated",
+    "topRated": "TOP VALUTATO",
     "save": "Risparmia",
     "instantConfirmation": "Conferma immediata",
     "mobileTicket": "Biglietto mobile accettato",
     "freeCancellation": "Cancellazione gratuita fino a 24h prima",
     "available": "disponibili",
-    "noResults": "Nessun risultato trovato"
+    "noResults": "Nessun risultato trovato",
+    "noImage": "Nessuna immagine"
   },
   "nav": {
     "destinations": "Destinazioni",
@@ -27,7 +28,7 @@
     "support": "Supporto",
     "helpCenter": "Centro assistenza",
     "terms": "Termini e condizioni",
-    "privacy": "Privacy policy"
+    "privacy": "Informativa sulla privacy"
   },
   "home": {
     "heroTitle": "Scopri esperienze uniche in tutto il mondo",
@@ -38,9 +39,14 @@
     "recentlyViewed": "Visti di recente",
     "worldExperiences": "Esperienze nel mondo"
   },
+  "city": {
+    "thingsToDo": "Cosa fare a",
+    "allExperiences": "Tutte le esperienze a",
+    "iconicMonuments": "Monumenti iconici"
+  },
   "experience": {
     "book": "Prenota",
-    "aboutActivity": "Informazioni sull'esperienza",
+    "aboutActivity": "Informazioni su questa esperienza",
     "highlights": "Punti salienti",
     "whatsIncluded": "Cosa è incluso",
     "whatsNotIncluded": "Cosa NON è incluso",
@@ -53,10 +59,10 @@
     "restrictions": "Restrizioni",
     "cancellationPolicy": "Politica di cancellazione",
     "alsoInterested": "Potrebbe interessarti anche",
-    "moreExperiencesIn": "Altre esperienze a"
+    "moreExperiencesIn": "Più esperienze a"
   },
   "tabs": {
-    "overview": "Panoramica",
+    "overview": "Descrizione",
     "included": "Incluso",
     "info": "Info"
   },
