@@ -3,6 +3,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lock, User, Ticket } from 'lucide-react';
 
+const USERS = [
+  { username: 'admin', password: 'Damionline3113' },
+  { username: 'Elisa', password: 'Elisa251126' },
+];
+
 export default function AdminLoginPage() {
   const router = useRouter();
   const [username, setUsername] = useState('');
@@ -15,9 +20,12 @@ export default function AdminLoginPage() {
     setError('');
     setIsLoading(true);
 
-    if (username === 'admin' && password === 'Damionline3113') {
+    const validUser = USERS.find(u => u.username === username && u.password === password);
+    
+    if (validUser) {
       document.cookie = `admin_session=authenticated; path=/; max-age=${60 * 60 * 24 * 7}`;
       localStorage.setItem('admin_authenticated', 'true');
+      localStorage.setItem('admin_user', username);
       router.push('/admin');
     } else {
       setError('Usuario o contraseña incorrectos');
