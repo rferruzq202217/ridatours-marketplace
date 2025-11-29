@@ -4,6 +4,7 @@ import AlertaConfianza from './AlertaConfianza';
 import TablaConversion from './TablaConversion';
 import BotonCTA from './BotonCTA';
 import FAQ from './FAQ';
+import ContentBlock from './ContentBlock';
 
 interface Props {
   blocks: PayloadBlock[];
@@ -24,7 +25,7 @@ export default function RenderBlocks({ blocks }: Props) {
             return <BotonCTA key={index} block={block} />;
           case 'faq':
             return <FAQ key={index} block={block} />;
-          case 'content':
+          case 'content': return <ContentBlock key={index} block={block} />; //
             // Renderizar contenido rich text si lo necesitas
             return null;
           default:
