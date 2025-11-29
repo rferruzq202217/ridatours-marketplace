@@ -20,7 +20,7 @@ function renderRichText(richText: any): React.ReactNode {
       );
     }
     if (node.type === 'heading') {
-      const Tag = `h${node.tag?.replace('h', '') || '2'}` as keyof JSX.IntrinsicElements;
+      const Tag = `h${node.tag?.replace('h', '') || '2'}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
       return (
         <Tag key={index} className="font-bold text-gray-900 mt-6 mb-3">
           {renderChildren(node.children)}

@@ -5,7 +5,6 @@ import TablaConversion from './TablaConversion';
 import BotonCTA from './BotonCTA';
 import FAQ from './FAQ';
 import ContentBlock from './ContentBlock';
-import ContentBlock from './ContentBlock';
 
 interface Props {
   blocks: PayloadBlock[];
