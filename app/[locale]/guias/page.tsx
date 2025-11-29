@@ -44,7 +44,7 @@ export default async function GuiasPage({ params }: PageProps) {
       <Header lang={lang} />
 
       {/* Hero verde */}
-      <div className="bg-gradient-to-br from-green-600 to-green-700 py-16">
+      <div className="bg-gradient-to-br from-green-600 to-green-700 pt-32 pb-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <BookOpen className="mx-auto text-white/80 mb-4" size={48} />
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
