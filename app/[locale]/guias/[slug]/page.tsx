@@ -1,4 +1,5 @@
 // app/[locale]/guias/[slug]/page.tsx
+export const dynamic = "force-dynamic";
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Header from '@/components/Header';
