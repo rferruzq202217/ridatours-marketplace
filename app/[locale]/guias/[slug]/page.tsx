@@ -6,6 +6,9 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
 import GuiaTabs from '@/components/guias/GuiaTabs';
+import AlertaConfianza from '@/components/guias/AlertaConfianza';
+import TablaConversion from '@/components/guias/TablaConversion';
+import BotonCTA from '@/components/guias/BotonCTA';
 import { getGuia, getAllGuias, getMediaUrl } from '@/lib/payload';
 import { getMessages, Locale } from '@/lib/i18n';
 import { Calendar, BookOpen, Shield } from 'lucide-react';
@@ -49,6 +52,13 @@ export default async function GuiaPage({ params }: PageProps) {
       .trim();
   }
 
+  // Separar bloques por tipo
+  const alertaBlock = guia.layout?.find((b: any) => b.blockType === 'alertaConfianza');
+  const tablaBlock = guia.layout?.find((b: any) => b.blockType === 'tablaConversion');
+  const ctaBlock = guia.layout?.find((b: any) => b.blockType === 'botonCTA');
+  const contentBlocks = guia.layout?.filter((b: any) => b.blockType === 'content') || [];
+  const faqBlocks = guia.layout?.filter((b: any) => b.blockType === 'faq') || [];
+
   return (
     <div className="min-h-screen bg-white">
       <Header lang={lang} />
@@ -61,7 +71,7 @@ export default async function GuiaPage({ params }: PageProps) {
             { label: guia.title }
           ]} />
 
-          {/* Hero Section - Estilo Ciudades */}
+          {/* Hero Section */}
           <div className="mt-6 mb-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
               <div className="flex items-center gap-2 text-green-600 font-semibold mb-3">
@@ -100,8 +110,19 @@ export default async function GuiaPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* Contenido con Tabs */}
-          <GuiaTabs blocks={guia.layout} lang={lang} />
+          {/* 1. Alerta de Confianza */}
+          {alertaBlock && <AlertaConfianza block={alertaBlock as any} />}
+
+          {/* 2. Tabla de Conversión (Tarjetas de Productos) */}
+          {tablaBlock && <TablaConversion block={tablaBlock as any} />}
+
+          {/* 3. Tabs: solo Content y FAQ */}
+          <div className="mt-12">
+            <GuiaTabs blocks={[...contentBlocks, ...faqBlocks]} lang={lang} />
+          </div>
+
+          {/* 4. Botón CTA */}
+          {ctaBlock && <BotonCTA block={ctaBlock as any} />}
         </div>
       </div>
 
