@@ -88,7 +88,7 @@ export default async function HomePage({ params }: PageProps) {
     .select(`
       id, title, slug, description, price, rating, reviews, duration, main_image, featured, city_id,
       cities!inner(slug, name),
-      experience_categories(categories(name))
+      
     `)
     .eq('active', true)
     .order('created_at', { ascending: false });
