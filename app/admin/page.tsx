@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Building2, MapPin, Tag, Landmark, Globe, Languages, LogOut, Ticket } from 'lucide-react';
+import { Building2, MapPin, Tag, Landmark, Globe, Languages, LogOut, Ticket, BookOpen, ExternalLink } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 export default function AdminPanel() {
@@ -51,6 +51,7 @@ export default function AdminPanel() {
     { href: '/admin/categories', icon: Tag, title: 'Categorías', desc: 'Gestiona las categorías', count: counts.categories, color: 'blue' },
     { href: '/admin/monuments', icon: Landmark, title: 'Monumentos', desc: 'Lugares emblemáticos', count: counts.monuments, color: 'amber' },
     { href: '/admin/translations', icon: Languages, title: 'Traducciones', desc: 'Gestiona los idiomas', count: counts.translations, color: 'indigo' },
+    { href: 'https://ridatours-cms.vercel.app/admin', icon: BookOpen, title: 'Guías de Viaje', desc: 'CMS de contenido editorial', count: null, color: 'rose', external: true },
   ];
 
   const colorClasses: Record<string, { bg: string; text: string; border: string }> = {
@@ -60,6 +61,7 @@ export default function AdminPanel() {
     blue: { bg: 'bg-blue-100', text: 'text-blue-600', border: 'hover:border-blue-500' },
     amber: { bg: 'bg-amber-100', text: 'text-amber-600', border: 'hover:border-amber-500' },
     indigo: { bg: 'bg-indigo-100', text: 'text-indigo-600', border: 'hover:border-indigo-500' },
+    rose: { bg: 'bg-rose-100', text: 'text-rose-600', border: 'hover:border-rose-500' },
   };
 
   return (
@@ -99,6 +101,32 @@ export default function AdminPanel() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cards.map((card) => {
             const colors = colorClasses[card.color];
+            const isExternal = (card as any).external;
+            
+            if (isExternal) {
+              return (
+                
+                  key={card.href}
+                  href={card.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-6 bg-white rounded-xl border-2 border-gray-200 ${colors.border} transition-all hover:shadow-lg relative`}
+                >
+                  <ExternalLink className="absolute top-4 right-4 text-gray-400" size={16} />
+                  <div className="flex items-start justify-between">
+                    <div className={`p-3 rounded-lg ${colors.bg}`}>
+                      <card.icon className={colors.text} size={24} />
+                    </div>
+                    {card.count !== null && (
+                      <span className={`text-2xl font-bold ${colors.text}`}>{card.count}</span>
+                    )}
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 mt-4">{card.title}</h2>
+                  <p className="text-gray-600 mt-1">{card.desc}</p>
+                </a>
+              );
+            }
+            
             return (
               <Link
                 key={card.href}
