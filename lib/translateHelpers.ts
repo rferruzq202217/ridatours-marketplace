@@ -121,3 +121,33 @@ export async function translateCategories(
     name: translatedNames[i] || cat.name
   }));
 }
+
+// Traducir guía del CMS
+export async function translateGuia(
+  guia: any,
+  targetLang: string
+): Promise<any> {
+  if (targetLang === 'es' || !guia) return guia;
+
+  const textsToTranslate = [
+    guia.title || '',
+  ];
+
+  // Extraer heroIntro si existe
+  let heroIntro = '';
+  if (guia.hero?.richText?.root?.children) {
+    heroIntro = guia.hero.richText.root.children
+      .map((node: any) => node.children?.map((child: any) => child.text).join('') || '')
+      .join(' ')
+      .trim();
+  }
+  textsToTranslate.push(heroIntro);
+
+  const translated = await translateBatch(textsToTranslate, targetLang);
+
+  return {
+    ...guia,
+    title: translated[0] || guia.title,
+    _translatedHeroIntro: translated[1] || heroIntro,
+  };
+}

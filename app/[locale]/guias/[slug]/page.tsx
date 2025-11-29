@@ -11,6 +11,7 @@ import TablaConversion from '@/components/guias/TablaConversion';
 import BotonCTA from '@/components/guias/BotonCTA';
 import { getGuia, getAllGuias, getMediaUrl } from '@/lib/payload';
 import { getMessages, Locale } from '@/lib/i18n';
+import { translateGuia } from '@/lib/translateHelpers';
 import { Calendar, BookOpen, Shield } from 'lucide-react';
 
 interface PageProps {
@@ -27,7 +28,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
-  const guia = await getGuia(slug);
+  let guia = await getGuia(slug);
+  if (guia && locale !== "es") guia = await translateGuia(guia, locale);
   if (!guia) return { title: 'Guía no encontrada' };
   const title = guia.meta?.title || guia.title;
   const description = guia.meta?.description || guia.title;
@@ -38,7 +40,8 @@ export default async function GuiaPage({ params }: PageProps) {
   const { locale, slug } = await params;
   const lang = locale as Locale;
   const t = getMessages(lang);
-  const guia = await getGuia(slug);
+  let guia = await getGuia(slug);
+  if (guia && locale !== "es") guia = await translateGuia(guia, locale);
   if (!guia) notFound();
 
   const heroImage = guia.hero?.media?.url ? getMediaUrl(guia.hero.media.url) : null;

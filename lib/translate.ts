@@ -6,7 +6,7 @@ const supabase = createClient(
 );
 
 const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
-const DEEPL_API_URL = 'https://api-free.deepl.com/v2/translate';
+const DEEPL_API_URL = 'https://api.deepl.com/v2/translate';
 
 // Mapeo de códigos de idioma para DeepL
 const langMap: Record<string, string> = {
