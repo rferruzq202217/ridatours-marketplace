@@ -45,13 +45,13 @@ export default function AdminPanel() {
   };
 
   const cards = [
-    { href: '/admin/experiences', icon: Building2, title: 'Experiencias', desc: 'Tours y actividades', count: counts.experiences, color: 'purple' },
-    { href: '/admin/countries', icon: Globe, title: 'Países', desc: 'Gestiona los países', count: counts.countries, color: 'emerald' },
-    { href: '/admin/cities', icon: MapPin, title: 'Ciudades', desc: 'Gestiona los destinos', count: counts.cities, color: 'green' },
-    { href: '/admin/categories', icon: Tag, title: 'Categorías', desc: 'Gestiona las categorías', count: counts.categories, color: 'blue' },
-    { href: '/admin/monuments', icon: Landmark, title: 'Monumentos', desc: 'Lugares emblemáticos', count: counts.monuments, color: 'amber' },
-    { href: '/admin/translations', icon: Languages, title: 'Traducciones', desc: 'Gestiona los idiomas', count: counts.translations, color: 'indigo' },
-    { href: 'https://ridatours-cms.vercel.app/admin', icon: BookOpen, title: 'Guías de Viaje', desc: 'CMS de contenido editorial', count: null, color: 'rose', external: true },
+    { href: '/admin/experiences', icon: Building2, title: 'Experiencias', desc: 'Tours y actividades', count: counts.experiences, color: 'purple', external: false },
+    { href: '/admin/countries', icon: Globe, title: 'Países', desc: 'Gestiona los países', count: counts.countries, color: 'emerald', external: false },
+    { href: '/admin/cities', icon: MapPin, title: 'Ciudades', desc: 'Gestiona los destinos', count: counts.cities, color: 'green', external: false },
+    { href: '/admin/categories', icon: Tag, title: 'Categorías', desc: 'Gestiona las categorías', count: counts.categories, color: 'blue', external: false },
+    { href: '/admin/monuments', icon: Landmark, title: 'Monumentos', desc: 'Lugares emblemáticos', count: counts.monuments, color: 'amber', external: false },
+    { href: '/admin/translations', icon: Languages, title: 'Traducciones', desc: 'Gestiona los idiomas', count: counts.translations, color: 'indigo', external: false },
+    { href: 'https://ridatours-cms.vercel.app/admin', icon: BookOpen, title: 'Guías de Viaje', desc: 'CMS de contenido editorial', count: 0, color: 'rose', external: true },
   ];
 
   const colorClasses: Record<string, { bg: string; text: string; border: string }> = {
@@ -66,7 +66,6 @@ export default function AdminPanel() {
 
   return (
     <>
-      {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-8 py-4">
           <div className="flex items-center justify-between">
@@ -95,17 +94,16 @@ export default function AdminPanel() {
         </div>
       </header>
 
-      {/* Content */}
       <div className="max-w-7xl mx-auto px-8 py-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cards.map((card) => {
             const colors = colorClasses[card.color];
-            const isExternal = (card as any).external;
+            const CardIcon = card.icon;
             
-            if (isExternal) {
+            if (card.external) {
               return (
-                
+                <a
                   key={card.href}
                   href={card.href}
                   target="_blank"
@@ -115,11 +113,8 @@ export default function AdminPanel() {
                   <ExternalLink className="absolute top-4 right-4 text-gray-400" size={16} />
                   <div className="flex items-start justify-between">
                     <div className={`p-3 rounded-lg ${colors.bg}`}>
-                      <card.icon className={colors.text} size={24} />
+                      <CardIcon className={colors.text} size={24} />
                     </div>
-                    {card.count !== null && (
-                      <span className={`text-2xl font-bold ${colors.text}`}>{card.count}</span>
-                    )}
                   </div>
                   <h2 className="text-xl font-bold text-gray-900 mt-4">{card.title}</h2>
                   <p className="text-gray-600 mt-1">{card.desc}</p>
@@ -135,7 +130,7 @@ export default function AdminPanel() {
               >
                 <div className="flex items-start justify-between">
                   <div className={`p-3 rounded-lg ${colors.bg}`}>
-                    <card.icon className={colors.text} size={24} />
+                    <CardIcon className={colors.text} size={24} />
                   </div>
                   <span className={`text-2xl font-bold ${colors.text}`}>{card.count}</span>
                 </div>
