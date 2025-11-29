@@ -7,33 +7,42 @@ const supabase = createClient(
 );
 
 export async function GET() {
-  const { data: experiences, error: expError } = await supabase
+  // Query EXACTA de la home
+  const { data: allExperiences, error: expError } = await supabase
     .from('experiences')
-    .select('id, title, rating, reviews, featured, active')
+    .select(`
+      id, title, slug, description, price, rating, reviews, duration, main_image, featured, city_id,
+      cities(slug, name)
+    `)
     .eq('active', true)
-    .limit(10);
+    .order('created_at', { ascending: false });
 
-  const { data: categories, error: catError } = await supabase
-    .from('categories')
-    .select('*')
-    .limit(10);
+  const experiencesRaw = allExperiences?.map((exp: any) => ({
+    city: exp.cities?.slug || '',
+    slug: exp.slug,
+    title: exp.title,
+    cityName: exp.cities?.name || '',
+    image: exp.main_image || '',
+    price: exp.price,
+    rating: exp.rating,
+    reviews: exp.reviews,
+    duration: exp.duration || '',
+    featured: exp.featured
+  })) || [];
 
-  const { data: cities, error: citiesError } = await supabase
-    .from('cities')
-    .select('id, name, slug')
-    .limit(5);
-
-  const popularCount = experiences?.filter(e => e.featured || e.reviews > 5000).length || 0;
-  const worldBestCount = experiences?.filter(e => e.rating >= 4.7).length || 0;
+  const popularActivities = experiencesRaw.filter(e => e.featured || e.reviews > 5000).slice(0, 6);
+  const worldBest = experiencesRaw.filter(e => e.rating >= 4.7).slice(0, 6);
+  const ridatoursRecommended = experiencesRaw.slice(0, 6);
 
   return NextResponse.json({
-    experiences: { count: experiences?.length, sample: experiences?.slice(0,3), error: expError },
-    categories: { count: categories?.length, sample: categories?.slice(0,3), error: catError },
-    cities: { count: cities?.length, sample: cities, error: citiesError },
-    filters: { popularCount, worldBestCount },
-    env: {
-      hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-      hasSupabaseKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    queryError: expError,
+    totalExperiences: allExperiences?.length || 0,
+    experiencesRawCount: experiencesRaw.length,
+    sampleRaw: experiencesRaw.slice(0, 3),
+    sections: {
+      popularActivities: { count: popularActivities.length, items: popularActivities },
+      worldBest: { count: worldBest.length, items: worldBest },
+      ridatoursRecommended: { count: ridatoursRecommended.length, items: ridatoursRecommended }
     }
   });
 }
