@@ -4,12 +4,12 @@ import type { TablaConversionBlock } from '@/lib/payload';
 
 type Producto = TablaConversionBlock['productos'][number];
 
-const texts: Record<string, { perPerson: string; bookNow: string; book: string; ticket: string; price: string }> = {
-  es: { perPerson: 'por persona', bookNow: 'Reservar ahora', book: 'Reservar', ticket: 'Entrada', price: 'Precio' },
-  en: { perPerson: 'per person', bookNow: 'Book now', book: 'Book', ticket: 'Ticket', price: 'Price' },
-  fr: { perPerson: 'par personne', bookNow: 'Réserver', book: 'Réserver', ticket: 'Billet', price: 'Prix' },
-  it: { perPerson: 'a persona', bookNow: 'Prenota ora', book: 'Prenota', ticket: 'Biglietto', price: 'Prezzo' },
-  de: { perPerson: 'pro Person', bookNow: 'Jetzt buchen', book: 'Buchen', ticket: 'Ticket', price: 'Preis' },
+const texts: Record<string, { perPerson: string; from: string; bookNow: string; book: string; ticket: string; price: string }> = {
+  es: { perPerson: "por persona", from: "Desde", bookNow: 'Reservar ahora', book: 'Reservar', ticket: 'Entrada', price: 'Precio' },
+  en: { perPerson: "per person", from: "From", bookNow: 'Book now', book: 'Book', ticket: 'Ticket', price: 'Price' },
+  fr: { perPerson: "par personne", from: "À partir de", bookNow: 'Réserver', book: 'Réserver', ticket: 'Billet', price: 'Prix' },
+  it: { perPerson: "a persona", from: "Da", bookNow: 'Prenota ora', book: 'Prenota', ticket: 'Biglietto', price: 'Prezzo' },
+  de: { perPerson: "pro Person", from: "Ab", bookNow: 'Jetzt buchen', book: 'Buchen', ticket: 'Ticket', price: 'Preis' },
 };
 
 function ProductCard({ producto, lang = 'es' }: { producto: Producto; lang?: string }) {
@@ -62,7 +62,7 @@ function ProductCard({ producto, lang = 'es' }: { producto: Producto; lang?: str
 
       <div className="mb-5">
         <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-bold text-gray-900">{precio}</span>
+          <span className="text-3xl font-bold text-gray-900">{t.from} {precio}</span>
           {precioOriginal && (
             <span className="text-lg text-gray-400 line-through">
               {precioOriginal}
