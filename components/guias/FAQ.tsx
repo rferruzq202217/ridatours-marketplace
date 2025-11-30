@@ -168,7 +168,7 @@ export default function FAQ({ block }: Props) {
       )}
 
       {/* Acordeón */}
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl border border-gray-200 overflow-hidden">
+      <div className="max-w-3xl bg-white rounded-2xl border border-gray-200 overflow-hidden">
         {preguntas.map((pregunta, index) => (
           <FAQItem
             key={index}
