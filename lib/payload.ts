@@ -150,3 +150,55 @@ export async function getAllPages(): Promise<PayloadPage[]> {
 export const getGuia = getPage;
 export const getAllGuias = getAllPages;
 export type PayloadGuia = PayloadPage;
+
+// === POSTS/BLOG ===
+
+export interface PayloadPost {
+  id: number;
+  title: string;
+  slug: string;
+  heroImage?: PayloadMedia;
+  content?: any; // Lexical rich text
+  categories?: { id: number; title: string; slug: string }[];
+  authors?: { id: number; name: string }[];
+  populatedAuthors?: { id: number; name: string }[];
+  meta?: {
+    title?: string;
+    description?: string;
+    image?: PayloadMedia;
+  };
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  _status?: string;
+}
+
+export async function getPost(slug: string): Promise<PayloadPost | null> {
+  try {
+    const res = await fetch(
+      `${PAYLOAD_URL}/api/posts?where[slug][equals]=${slug}&depth=2`,
+      { next: { revalidate: 60 } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.docs?.[0] || null;
+  } catch (error) {
+    console.error('Error fetching post:', error);
+    return null;
+  }
+}
+
+export async function getAllPosts(): Promise<PayloadPost[]> {
+  try {
+    const res = await fetch(
+      `${PAYLOAD_URL}/api/posts?limit=100&depth=1&where[_status][equals]=published`,
+      { next: { revalidate: 60 } }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.docs || [];
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    return [];
+  }
+}
