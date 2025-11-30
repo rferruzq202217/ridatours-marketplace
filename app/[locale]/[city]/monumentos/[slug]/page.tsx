@@ -36,10 +36,7 @@ export default async function MonumentPage({ params }: PageProps) {
 
   const { data: monument } = await supabase
     .from('monuments')
-    .select(`
-      *,
-      monument_categories(categories(name))
-    `)
+    .select('*')
     .eq('slug', slug)
     .eq('city_id', city.id)
     .single();
