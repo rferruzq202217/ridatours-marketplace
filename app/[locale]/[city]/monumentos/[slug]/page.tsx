@@ -50,7 +50,7 @@ export default async function MonumentPage({ params }: PageProps) {
 
   // Obtener experiencias relacionadas con el monumento
   const { data: monumentExperiences } = await supabase
-    .from('monument_experiences')
+    .from('monument_recommended_experiences')
     .select('experience_id, display_order, experiences (id, title, slug, main_image, price, rating, reviews, duration, featured)')
     .eq('monument_id', monument.id)
     .order('display_order');
