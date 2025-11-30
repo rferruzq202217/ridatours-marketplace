@@ -198,7 +198,7 @@ export default function MonumentsPage() {
         const expInserts = formData.recommendedExperiences.map((eid, idx) => ({
           monument_id: editingId,
           experience_id: eid,
-          order_index: idx
+          display_order: idx
         }));
         await supabase.from('monument_recommended_experiences').insert(expInserts);
       }
@@ -236,7 +236,7 @@ export default function MonumentsPage() {
           const expInserts = formData.recommendedExperiences.map((eid, idx) => ({
             monument_id: newMonument.id,
             experience_id: eid,
-            order_index: idx
+            display_order: idx
           }));
           await supabase.from('monument_recommended_experiences').insert(expInserts);
         }
@@ -262,7 +262,7 @@ export default function MonumentsPage() {
       .from('monument_recommended_experiences')
       .select('experience_id')
       .eq('monument_id', monument.id)
-      .order('order_index');
+      .order('display_order');
 
 
     const { data: crossExps } = await supabase

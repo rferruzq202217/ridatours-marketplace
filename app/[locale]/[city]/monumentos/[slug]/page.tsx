@@ -408,7 +408,7 @@ export default async function MonumentPage({ params }: PageProps) {
               </h2>
               <p className="text-gray-600 mb-6">{texts.discoverMore[lang]}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {cityExperiences.slice(0, 8).map((exp: any) => (
+                {cityExperiences.map((exp: any) => (
                   <Link
                     key={exp.id}
                     href={`/${lang}/${city.slug}/${exp.slug}`}
