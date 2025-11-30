@@ -48,6 +48,25 @@ export default async function MonumentPage({ params }: PageProps) {
   // Traducir monumento
   const translatedMonument = await translateMonument(monument, lang);
 
+  // Obtener experiencias relacionadas con el monumento
+  const { data: monumentExperiences } = await supabase
+    .from('monument_experiences')
+    .select('experience_id, display_order, experiences (id, title, slug, main_image, price, rating, reviews, duration, featured)')
+    .eq('monument_id', monument.id)
+    .order('display_order');
+
+  const relatedExperiences = monumentExperiences?.map((me: any) => me.experiences).filter(Boolean) || [];
+
+  // Obtener otras experiencias de la ciudad para cross-selling
+  const relatedIds = relatedExperiences.map((e: any) => e.id);
+  const { data: cityExperiences } = await supabase
+    .from('experiences')
+    .select('id, title, slug, main_image, price, rating, reviews, duration, featured')
+    .eq('city_id', city.id)
+    .eq('active', true)
+    .order('rating', { ascending: false })
+    .limit(8);
+
   const categoryNames = translatedMonument.monument_categories?.map(
     (mc: any) => mc.categories.name
   ) || [];
@@ -261,20 +280,59 @@ export default async function MonumentPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* RESERVA TU VISITA - CARRUSEL TIQETS */}
-          {translatedMonument.tiqets_venue_id && (
+          {/* RESERVA TU VISITA - EXPERIENCIAS DEL MONUMENTO */}
+          {relatedExperiences.length > 0 && (
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
                 {texts.bookVisit[lang]} {translatedMonument.name}
               </h2>
               <p className="text-gray-600 mb-6">{texts.chooseExperience[lang]}</p>
-              <TiqetsDiscoveryGrid
-                destinationType="venue"
-                destinationId={translatedMonument.tiqets_venue_id}
-                campaign={translatedMonument.tiqets_campaign || ''}
-                itemCount={translatedMonument.tiqets_item_count || 12}
-                lang={lang}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {relatedExperiences.map((exp: any) => (
+                  <Link
+                    key={exp.id}
+                    href={`/${lang}/${city.slug}/${exp.slug}`}
+                    className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all"
+                  >
+                    <div className="relative h-48">
+                      {exp.main_image ? (
+                        <Image src={exp.main_image} alt={exp.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-400">{t.common.noImage}</span>
+                        </div>
+                      )}
+                      {exp.featured && (
+                        <div className="absolute top-3 left-3 bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-xs font-bold">
+                          ⭐ {t.common.featured}
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem]">{exp.title}</h3>
+                      {exp.duration && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                          <Clock size={14} />
+                          <span>{exp.duration}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1">
+                          <Star className="text-yellow-400 fill-yellow-400" size={16} />
+                          <span className="font-semibold text-gray-900">{exp.rating?.toFixed(1)}</span>
+                          <span className="text-gray-500 text-sm">({exp.reviews})</span>
+                        </div>
+                        {exp.price > 0 && (
+                          <div className="text-right">
+                            <p className="text-xs text-gray-500">{t.common.from}</p>
+                            <p className="text-xl font-bold text-amber-600">€{exp.price}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
 
@@ -343,20 +401,44 @@ export default async function MonumentPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* CROSS-SELLING - CARRUSEL CIUDAD */}
-          {translatedMonument.tiqets_venue_id && (
+          {/* CROSS-SELLING - OTRAS EXPERIENCIAS DE LA CIUDAD */}
+          {cityExperiences && cityExperiences.length > 0 && (
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
                 {texts.alsoInterested[lang]} {city.name}
               </h2>
               <p className="text-gray-600 mb-6">{texts.discoverMore[lang]}</p>
-              <TiqetsDiscoveryGrid
-                destinationType="city"
-                destinationId={city.slug}
-                campaign={city.name}
-                itemCount={translatedMonument.tiqets_item_count || 8}
-                lang={lang}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {cityExperiences.slice(0, 8).map((exp: any) => (
+                  <Link
+                    key={exp.id}
+                    href={`/${lang}/${city.slug}/${exp.slug}`}
+                    className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all"
+                  >
+                    <div className="relative h-40">
+                      {exp.main_image ? (
+                        <Image src={exp.main_image} alt={exp.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-400 text-sm">{t.common.noImage}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 mb-2">{exp.title}</h3>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1">
+                          <Star className="text-yellow-400 fill-yellow-400" size={14} />
+                          <span className="font-medium text-gray-900 text-sm">{exp.rating?.toFixed(1)}</span>
+                        </div>
+                        {exp.price > 0 && (
+                          <p className="font-bold text-amber-600">€{exp.price}</p>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
         </div>
