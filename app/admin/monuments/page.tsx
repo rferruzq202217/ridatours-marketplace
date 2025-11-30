@@ -269,6 +269,11 @@ export default function MonumentsPage() {
       .from('monument_cross_selling')
       .select('experience_id')
       .eq('monument_id', monument.id);
+
+    const { data: catRelations } = await supabase
+      .from('monument_categories')
+      .select('category_id')
+      .eq('monument_id', monument.id);
     setEditingId(monument.id);
     setFormData({
       name: monument.name,
@@ -276,7 +281,7 @@ export default function MonumentsPage() {
       city_id: monument.city_id || '',
       description: monument.description || '',
       image: monument.image || '',
-      selectedCategories: monument.monument_categories?.map(mc => mc.categories.id) || [],
+      selectedCategories: catRelations?.map(cr => cr.category_id) || [],
       hero_title: monument.hero_title || '',
       hero_subtitle: monument.hero_subtitle || '',
       why_visit: monument.why_visit?.join('\n') || '',
