@@ -74,7 +74,8 @@ export default function MonumentsPage() {
     tiqets_venue_id: '',
     tiqets_campaign: '',
     tiqets_item_count: 12,
-    recommendedExperiences: [] as string[]
+    recommendedExperiences: [] as string[],
+    crossSellingExperiences: [] as string[]
   });
 
   useEffect(() => {
@@ -188,6 +189,11 @@ export default function MonumentsPage() {
         .delete()
         .eq('monument_id', editingId);
       
+
+      await supabase
+        .from('monument_cross_selling')
+        .delete()
+        .eq('monument_id', editingId);
       if (formData.recommendedExperiences.length > 0) {
         const expInserts = formData.recommendedExperiences.map((eid, idx) => ({
           monument_id: editingId,
@@ -195,6 +201,15 @@ export default function MonumentsPage() {
           order_index: idx
         }));
         await supabase.from('monument_recommended_experiences').insert(expInserts);
+      }
+
+      if (formData.crossSellingExperiences.length > 0) {
+        const crossInserts = formData.crossSellingExperiences.map((eid, idx) => ({
+          monument_id: editingId,
+          experience_id: eid,
+          display_order: idx
+        }));
+        await supabase.from('monument_cross_selling').insert(crossInserts);
       }
     } else {
       const { data: newMonument, error } = await supabase
@@ -225,6 +240,15 @@ export default function MonumentsPage() {
           }));
           await supabase.from('monument_recommended_experiences').insert(expInserts);
         }
+
+        if (formData.crossSellingExperiences.length > 0) {
+          const crossInserts = formData.crossSellingExperiences.map((eid, idx) => ({
+            monument_id: newMonument.id,
+            experience_id: eid,
+            display_order: idx
+          }));
+          await supabase.from('monument_cross_selling').insert(crossInserts);
+        }
       }
     }
 
@@ -240,6 +264,11 @@ export default function MonumentsPage() {
       .eq('monument_id', monument.id)
       .order('order_index');
 
+
+    const { data: crossExps } = await supabase
+      .from('monument_cross_selling')
+      .select('experience_id')
+      .eq('monument_id', monument.id);
     setEditingId(monument.id);
     setFormData({
       name: monument.name,
@@ -261,7 +290,8 @@ export default function MonumentsPage() {
       tiqets_venue_id: monument.tiqets_venue_id || '',
       tiqets_campaign: monument.tiqets_campaign || '',
       tiqets_item_count: monument.tiqets_item_count || 12,
-      recommendedExperiences: recExps?.map(re => re.experience_id) || []
+      recommendedExperiences: recExps?.map(re => re.experience_id) || [],
+      crossSellingExperiences: crossExps?.map(ce => ce.experience_id) || []
     });
     setShowForm(true);
   };
@@ -271,6 +301,7 @@ export default function MonumentsPage() {
     
     await supabase.from('monument_categories').delete().eq('monument_id', id);
     await supabase.from('monument_recommended_experiences').delete().eq('monument_id', id);
+    await supabase.from('monument_cross_selling').delete().eq('monument_id', id);
     
     const { error } = await supabase.from('monuments').delete().eq('id', id);
     if (error) {
@@ -303,7 +334,8 @@ export default function MonumentsPage() {
       tiqets_venue_id: '',
       tiqets_campaign: '',
       tiqets_item_count: 12,
-      recommendedExperiences: []
+      recommendedExperiences: [],
+      crossSellingExperiences: []
     });
   };
 
@@ -439,6 +471,30 @@ export default function MonumentsPage() {
                 {formData.city_id && availableExperiences.length === 0 && (
                   <p className="text-sm text-gray-600">No hay experiencias disponibles para esta ciudad</p>
                 )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">También te puede interesar (Cross-selling)</label>
+                {availableExperiences.length > 0 ? (
+                  <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-lg p-3">
+                    {availableExperiences.map(exp => (
+                      <label key={`cross-${exp.id}`} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={formData.crossSellingExperiences.includes(exp.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setFormData({ ...formData, crossSellingExperiences: [...formData.crossSellingExperiences, exp.id] });
+                            } else {
+                              setFormData({ ...formData, crossSellingExperiences: formData.crossSellingExperiences.filter(id => id !== exp.id) });
+                            }
+                          }}
+                        />
+                        <span className="text-sm text-gray-900">{exp.title}</span>
+                      </label>
+                    ))}
+                  </div>
+                ) : null}
               </div>
 
               <div className="flex gap-3 pt-4">

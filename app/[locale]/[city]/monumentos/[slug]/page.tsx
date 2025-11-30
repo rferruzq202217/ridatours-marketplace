@@ -57,15 +57,14 @@ export default async function MonumentPage({ params }: PageProps) {
 
   const relatedExperiences = monumentExperiences?.map((me: any) => me.experiences).filter(Boolean) || [];
 
-  // Obtener otras experiencias de la ciudad para cross-selling
-  const relatedIds = relatedExperiences.map((e: any) => e.id);
-  const { data: cityExperiences } = await supabase
-    .from('experiences')
-    .select('id, title, slug, main_image, price, rating, reviews, duration, featured')
-    .eq('city_id', city.id)
-    .eq('active', true)
-    .order('rating', { ascending: false })
-    .limit(8);
+  // Obtener experiencias de cross-selling seleccionadas
+  const { data: crossSellingData } = await supabase
+    .from('monument_cross_selling')
+    .select('experience_id, display_order, experiences (id, title, slug, main_image, price, rating, reviews, duration, featured)')
+    .eq('monument_id', monument.id)
+    .order('display_order');
+
+  const cityExperiences = crossSellingData?.map((cs: any) => cs.experiences).filter(Boolean) || [];
 
   const categoryNames = translatedMonument.monument_categories?.map(
     (mc: any) => mc.categories.name
