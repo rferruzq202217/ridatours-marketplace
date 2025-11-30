@@ -346,6 +346,14 @@ export default function MonumentsPage() {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
 
+  // Experiencias que contienen el nombre del monumento (para "Reserva tu visita")
+  const monumentKeyword = formData.name ? formData.name.toLowerCase().split(' ')[0] : '';
+  const monumentExperiences = experiences.filter(exp => 
+    (!formData.city_id || exp.city_id === formData.city_id) &&
+    monumentKeyword && exp.title.toLowerCase().includes(monumentKeyword)
+  );
+
+  // Todas las experiencias de la ciudad (para cross-selling)
   const availableExperiences = experiences.filter(exp => 
     !formData.city_id || exp.city_id === formData.city_id
   );
@@ -446,10 +454,10 @@ export default function MonumentsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">Experiencias Recomendadas</label>
-                {availableExperiences.length > 0 ? (
+                <label className="block text-sm font-medium text-gray-900 mb-2">Experiencias del Monumento ({monumentExperiences.length})</label>
+                {monumentExperiences.length > 0 ? (
                   <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-lg p-3">
-                    {availableExperiences.map(exp => (
+                    {monumentExperiences.map(exp => (
                       <label key={exp.id} className="flex items-center gap-2">
                         <input
                           type="checkbox"
