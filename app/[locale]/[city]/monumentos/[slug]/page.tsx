@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import ImageGallery from '@/components/ImageGallery';
 import Breadcrumb from '@/components/Breadcrumb';
 import TiqetsDiscoveryGrid from '@/components/TiqetsDiscoveryGrid';
 import { Star, MapPin, Clock, Check, Calendar, Info, HelpCircle } from 'lucide-react';
@@ -226,7 +227,13 @@ export default async function MonumentPage({ params }: PageProps) {
               <h2 className="text-3xl font-bold text-gray-900 mb-6">
                 {texts.whyVisit[lang]} {translatedMonument.name}?
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className={`grid gap-4 ${
+                translatedMonument.why_visit.length === 1 
+                  ? 'grid-cols-1' 
+                  : translatedMonument.why_visit.length === 2 
+                    ? 'grid-cols-1 md:grid-cols-2' 
+                    : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+              }`}>
                 {translatedMonument.why_visit.map((reason: string, i: number) => (
                   <div key={i} className="bg-amber-50 rounded-xl p-6 border-2 border-amber-100">
                     <div className="flex items-start gap-3">
@@ -264,18 +271,11 @@ export default async function MonumentPage({ params }: PageProps) {
           {translatedMonument.gallery && translatedMonument.gallery.length > 0 && (
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">{texts.gallery[lang]}</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {translatedMonument.gallery.slice(0, 6).map((img: string, i: number) => (
-                  <div key={i} className="relative h-64 rounded-xl overflow-hidden">
-                    <Image 
-                      src={img} 
-                      alt={`${translatedMonument.name} ${i + 1}`}
-                      fill
-                      className="object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                ))}
-              </div>
+              <ImageGallery
+                mainImage={translatedMonument.image}
+                gallery={translatedMonument.gallery}
+                title={translatedMonument.name}
+              />
             </div>
           )}
 

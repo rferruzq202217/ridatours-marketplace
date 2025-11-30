@@ -239,6 +239,12 @@ export default function ExperiencesPage() {
   };
 
   const handleEdit = async (exp: Experience) => {
+    // Cargar categorías directamente
+    const { data: catRelations } = await supabase
+      .from('experience_categories')
+      .select('category_id')
+      .eq('experience_id', exp.id);
+
     setEditingId(exp.id);
     setFormData({
       title: exp.title,
@@ -247,7 +253,7 @@ export default function ExperiencesPage() {
       long_description: exp.long_description || '',
       city_id: exp.city_id || '',
       monument_id: exp.monument_id || '',
-      selectedCategories: exp.experience_categories?.map(ec => ec.category_id) || [],
+      selectedCategories: catRelations?.map(cr => cr.category_id) || [],
       price: exp.price,
       rating: exp.rating,
       reviews: exp.reviews,
