@@ -162,7 +162,7 @@ export default function FAQ({ block }: Props) {
 
       {/* Título */}
       {titulo && (
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 text-center">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 text-left">
           {titulo}
         </h2>
       )}
