@@ -58,7 +58,7 @@ export async function translateGuiaFull(guia: any, targetLang: string): Promise<
   // 1. Título
   if (guia.title) {
     textMap.push({ path: 'title', startIndex: textsToTranslate.length, count: 1 });
-    textsToTranslate.push(guia.title);
+    textsToTranslate.push(String(guia.title || ""));
   }
   
   // 2. Hero intro
@@ -79,11 +79,11 @@ export async function translateGuiaFull(guia: any, targetLang: string): Promise<
       if (block.blockType === 'alertaConfianza') {
         if (block.titulo) {
           textMap.push({ path: `layout.${i}.titulo`, startIndex: textsToTranslate.length, count: 1 });
-          textsToTranslate.push(block.titulo);
+          textsToTranslate.push(String(block.titulo || ""));
         }
         if (block.mensaje) {
           textMap.push({ path: `layout.${i}.mensaje`, startIndex: textsToTranslate.length, count: 1 });
-          textsToTranslate.push(block.mensaje);
+          textsToTranslate.push(String(block.mensaje || ""));
         }
       }
       
@@ -92,15 +92,15 @@ export async function translateGuiaFull(guia: any, targetLang: string): Promise<
           const opcion = block.opciones[j];
           if (opcion.titulo) {
             textMap.push({ path: `layout.${i}.opciones.${j}.titulo`, startIndex: textsToTranslate.length, count: 1 });
-            textsToTranslate.push(opcion.titulo);
+            textsToTranslate.push(String(opcion.titulo || ""));
           }
           if (opcion.descripcion) {
             textMap.push({ path: `layout.${i}.opciones.${j}.descripcion`, startIndex: textsToTranslate.length, count: 1 });
-            textsToTranslate.push(opcion.descripcion);
+            textsToTranslate.push(String(opcion.descripcion || ""));
           }
           if (opcion.cta) {
             textMap.push({ path: `layout.${i}.opciones.${j}.cta`, startIndex: textsToTranslate.length, count: 1 });
-            textsToTranslate.push(opcion.cta);
+            textsToTranslate.push(String(opcion.cta || ""));
           }
         }
       }
@@ -122,11 +122,11 @@ export async function translateGuiaFull(guia: any, targetLang: string): Promise<
         for (let j = 0; j < block.preguntas.length; j++) {
           if (block.preguntas[j].pregunta) {
             textMap.push({ path: `layout.${i}.preguntas.${j}.pregunta`, startIndex: textsToTranslate.length, count: 1 });
-            textsToTranslate.push(block.preguntas[j].pregunta);
+            textsToTranslate.push(String(block.preguntas[j].pregunta || ""));
           }
           if (block.preguntas[j].respuesta) {
             textMap.push({ path: `layout.${i}.preguntas.${j}.respuesta`, startIndex: textsToTranslate.length, count: 1 });
-            textsToTranslate.push(block.preguntas[j].respuesta);
+            textsToTranslate.push(String(block.preguntas[j].respuesta || ""));
           }
         }
       }
@@ -134,7 +134,7 @@ export async function translateGuiaFull(guia: any, targetLang: string): Promise<
       if (block.blockType === 'botonCTA') {
         if (block.texto) {
           textMap.push({ path: `layout.${i}.texto`, startIndex: textsToTranslate.length, count: 1 });
-          textsToTranslate.push(block.texto);
+          textsToTranslate.push(String(block.texto || ""));
         }
       }
     }
