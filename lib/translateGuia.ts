@@ -87,20 +87,28 @@ export async function translateGuiaFull(guia: any, targetLang: string): Promise<
         }
       }
       
-      if (block.blockType === 'tablaConversion' && block.opciones) {
-        for (let j = 0; j < block.opciones.length; j++) {
-          const opcion = block.opciones[j];
-          if (opcion.titulo) {
+      if (block.blockType === 'tablaConversion' && block.productos) {
+        for (let j = 0; j < block.productos.length; j++) {
+          const opcion = block.productos[j];
+          if (opcion.nombre) {
             textMap.push({ path: `layout.${i}.opciones.${j}.titulo`, startIndex: textsToTranslate.length, count: 1 });
-            textsToTranslate.push(String(opcion.titulo || ""));
+            textsToTranslate.push(String(opcion.nombre || ""));
           }
-          if (opcion.descripcion) {
+          if (opcion.descripcionCorta) {
             textMap.push({ path: `layout.${i}.opciones.${j}.descripcion`, startIndex: textsToTranslate.length, count: 1 });
-            textsToTranslate.push(String(opcion.descripcion || ""));
+            textsToTranslate.push(String(opcion.descripcionCorta || ""));
           }
-          if (opcion.cta) {
+          if (opcion.textoCTA) {
+          if (opcion.etiquetaDestacado) {
+            textMap.push({ path: `layout.${i}.productos.${j}.etiquetaDestacado`, startIndex: textsToTranslate.length, count: 1 });
+            textsToTranslate.push(String(opcion.etiquetaDestacado || ''));
+          }
             textMap.push({ path: `layout.${i}.opciones.${j}.cta`, startIndex: textsToTranslate.length, count: 1 });
-            textsToTranslate.push(String(opcion.cta || ""));
+            textsToTranslate.push(String(opcion.textoCTA || ""));
+          if (opcion.etiquetaDestacado) {
+            textMap.push({ path: `layout.${i}.productos.${j}.etiquetaDestacado`, startIndex: textsToTranslate.length, count: 1 });
+            textsToTranslate.push(String(opcion.etiquetaDestacado || ''));
+          }
           }
         }
       }

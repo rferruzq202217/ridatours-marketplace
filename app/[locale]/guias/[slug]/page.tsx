@@ -117,7 +117,7 @@ export default async function GuiaPage({ params }: PageProps) {
           {alertaBlock && <AlertaConfianza block={alertaBlock as any} />}
 
           {/* 2. Tabla de Conversión (Tarjetas de Productos) */}
-          {tablaBlock && <TablaConversion block={tablaBlock as any} />}
+          {tablaBlock && <TablaConversion block={tablaBlock as any} lang={lang} />}
 
           {/* 3. Tabs: solo Content y FAQ */}
           <div className="mt-12">

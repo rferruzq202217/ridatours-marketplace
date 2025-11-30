@@ -1,11 +1,19 @@
-// components/guias/TablaConversion.tsx
 import { clsx } from 'clsx';
 import { Check, Star } from 'lucide-react';
 import type { TablaConversionBlock } from '@/lib/payload';
 
 type Producto = TablaConversionBlock['productos'][number];
 
-function ProductCard({ producto }: { producto: Producto }) {
+const texts: Record<string, { perPerson: string; bookNow: string; book: string; ticket: string; price: string }> = {
+  es: { perPerson: 'por persona', bookNow: 'Reservar ahora', book: 'Reservar', ticket: 'Entrada', price: 'Precio' },
+  en: { perPerson: 'per person', bookNow: 'Book now', book: 'Book', ticket: 'Ticket', price: 'Price' },
+  fr: { perPerson: 'par personne', bookNow: 'Réserver', book: 'Réserver', ticket: 'Billet', price: 'Prix' },
+  it: { perPerson: 'a persona', bookNow: 'Prenota ora', book: 'Prenota', ticket: 'Biglietto', price: 'Prezzo' },
+  de: { perPerson: 'pro Person', bookNow: 'Jetzt buchen', book: 'Buchen', ticket: 'Ticket', price: 'Preis' },
+};
+
+function ProductCard({ producto, lang = 'es' }: { producto: Producto; lang?: string }) {
+  const t = texts[lang] || texts.es;
   const {
     nombre,
     descripcionCorta,
@@ -27,7 +35,6 @@ function ProductCard({ producto }: { producto: Producto }) {
           : 'border-gray-200 bg-white hover:border-green-300',
       )}
     >
-      {/* Etiqueta destacado */}
       {destacado && etiquetaDestacado && (
         <div className="absolute -top-3 left-4 bg-green-500 text-white text-sm font-bold px-4 py-1 rounded-full flex items-center gap-1">
           <Star size={14} className="fill-current" />
@@ -35,7 +42,6 @@ function ProductCard({ producto }: { producto: Producto }) {
         </div>
       )}
 
-      {/* Nombre y descripción */}
       <div className="mb-4 mt-2">
         <h3 className="text-xl font-bold text-gray-900 mb-1">{nombre}</h3>
         {descripcionCorta && (
@@ -43,7 +49,6 @@ function ProductCard({ producto }: { producto: Producto }) {
         )}
       </div>
 
-      {/* Características */}
       {caracteristicas && caracteristicas.length > 0 && (
         <ul className="mb-4 space-y-2">
           {caracteristicas.map((item, idx) => (
@@ -55,7 +60,6 @@ function ProductCard({ producto }: { producto: Producto }) {
         </ul>
       )}
 
-      {/* Precio */}
       <div className="mb-5">
         <div className="flex items-baseline gap-2">
           <span className="text-3xl font-bold text-gray-900">{precio}</span>
@@ -65,11 +69,10 @@ function ProductCard({ producto }: { producto: Producto }) {
             </span>
           )}
         </div>
-        <p className="text-xs text-gray-500">por persona</p>
+        <p className="text-xs text-gray-500">{t.perPerson}</p>
       </div>
-
-      {/* CTA Button */}
       <a
+      
         href={urlAfiliado}
         target="_blank"
         rel="noopener noreferrer"
@@ -80,13 +83,14 @@ function ProductCard({ producto }: { producto: Producto }) {
             : 'bg-gray-900 text-white hover:bg-gray-800',
         )}
       >
-        {textoCTA || 'Reservar ahora'}
+        {textoCTA || t.bookNow}
       </a>
     </div>
   );
 }
 
-function ProductRow({ producto }: { producto: Producto }) {
+function ProductRow({ producto, lang = 'es' }: { producto: Producto; lang?: string }) {
+  const t = texts[lang] || texts.es;
   const {
     nombre,
     descripcionCorta,
@@ -99,12 +103,7 @@ function ProductRow({ producto }: { producto: Producto }) {
   } = producto;
 
   return (
-    <tr
-      className={clsx(
-        'border-b border-gray-100',
-        destacado && 'bg-green-50',
-      )}
-    >
+    <tr className={clsx('border-b border-gray-100', destacado && 'bg-green-50')}>
       <td className="py-5 px-4">
         <div className="flex items-center gap-3">
           {destacado && etiquetaDestacado && (
@@ -133,7 +132,7 @@ function ProductRow({ producto }: { producto: Producto }) {
           rel="noopener noreferrer"
           className="inline-block bg-green-500 text-white py-3 px-6 rounded-xl font-bold hover:bg-green-600 transition-all text-sm"
         >
-          {textoCTA || 'Reservar'}
+          {textoCTA || t.book}
         </a>
       </td>
     </tr>
@@ -142,18 +141,18 @@ function ProductRow({ producto }: { producto: Producto }) {
 
 interface Props {
   block: TablaConversionBlock;
+  lang?: string;
 }
 
-export default function TablaConversion({ block }: Props) {
+export default function TablaConversion({ block, lang = 'es' }: Props) {
+  const t = texts[lang] || texts.es;
   const { tituloTabla, subtitulo, productos, estiloTabla } = block;
-
   const estilo = estiloTabla ?? 'cards';
 
   if (!productos || productos.length === 0) return null;
 
   return (
     <div className="my-12">
-      {/* Header */}
       {(tituloTabla || subtitulo) && (
         <div className="text-center mb-8">
           {tituloTabla && (
@@ -161,42 +160,37 @@ export default function TablaConversion({ block }: Props) {
               {tituloTabla}
             </h2>
           )}
-          {subtitulo && (
-            <p className="text-gray-600">{subtitulo}</p>
-          )}
+          {subtitulo && <p className="text-gray-600">{subtitulo}</p>}
         </div>
       )}
 
-      {/* Cards Layout */}
       {estilo === 'cards' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {productos.map((producto, index) => (
-            <ProductCard key={index} producto={producto} />
+            <ProductCard key={index} producto={producto} lang={lang} />
           ))}
         </div>
       )}
 
-      {/* Table Layout */}
       {estilo === 'table' && (
         <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="text-left py-4 px-4 font-semibold text-gray-900">Entrada</th>
-                <th className="text-right py-4 px-4 font-semibold text-gray-900">Precio</th>
-                <th className="text-right py-4 px-4 font-semibold text-gray-900">Reservar</th>
+                <th className="text-left py-4 px-4 font-semibold text-gray-900">{t.ticket}</th>
+                <th className="text-right py-4 px-4 font-semibold text-gray-900">{t.price}</th>
+                <th className="text-right py-4 px-4 font-semibold text-gray-900">{t.book}</th>
               </tr>
             </thead>
             <tbody>
               {productos.map((producto, index) => (
-                <ProductRow key={index} producto={producto} />
+                <ProductRow key={index} producto={producto} lang={lang} />
               ))}
             </tbody>
           </table>
         </div>
       )}
 
-      {/* List Layout */}
       {estilo === 'list' && (
         <div className="space-y-4">
           {productos.map((producto, index) => (
@@ -204,9 +198,7 @@ export default function TablaConversion({ block }: Props) {
               key={index}
               className={clsx(
                 'flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border-2',
-                producto.destacado
-                  ? 'border-green-500 bg-green-50'
-                  : 'border-gray-200 bg-white',
+                producto.destacado ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white',
               )}
             >
               <div className="flex-1">
@@ -226,9 +218,7 @@ export default function TablaConversion({ block }: Props) {
                 <div className="text-right">
                   <div className="font-bold text-gray-900 text-lg">{producto.precio}</div>
                   {producto.precioOriginal && (
-                    <div className="text-sm text-gray-400 line-through">
-                      {producto.precioOriginal}
-                    </div>
+                    <div className="text-sm text-gray-400 line-through">{producto.precioOriginal}</div>
                   )}
                 </div>
                 <a
@@ -237,7 +227,7 @@ export default function TablaConversion({ block }: Props) {
                   rel="noopener noreferrer"
                   className="bg-green-500 text-white py-3 px-6 rounded-xl font-bold hover:bg-green-600 transition-all text-sm whitespace-nowrap"
                 >
-                  {producto.textoCTA || 'Reservar'}
+                  {producto.textoCTA || t.book}
                 </a>
               </div>
             </div>
