@@ -202,3 +202,43 @@ export async function getAllPosts(): Promise<PayloadPost[]> {
     return [];
   }
 }
+
+// === CATEGORIES ===
+
+export interface PayloadCategory {
+  id: number;
+  title: string;
+  slug: string;
+  parent?: number | PayloadCategory;
+  breadcrumbs?: { id: string; doc: number; url: string; label: string }[];
+}
+
+export async function getAllCategories(): Promise<PayloadCategory[]> {
+  try {
+    const res = await fetch(
+      `${PAYLOAD_URL}/api/categories?limit=100`,
+      { next: { revalidate: 60 } }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.docs || [];
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+}
+
+export async function getPostsByCategory(categoryId: number): Promise<PayloadPost[]> {
+  try {
+    const res = await fetch(
+      `${PAYLOAD_URL}/api/posts?where[categories][contains]=${categoryId}&depth=1&where[_status][equals]=published`,
+      { next: { revalidate: 60 } }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.docs || [];
+  } catch (error) {
+    console.error('Error fetching posts by category:', error);
+    return [];
+  }
+}

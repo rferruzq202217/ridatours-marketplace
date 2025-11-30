@@ -5,12 +5,14 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
-import { getAllPosts, getMediaUrl } from '@/lib/payload';
+import { getAllPosts, getAllCategories, getMediaUrl } from '@/lib/payload';
 import { getMessages, Locale } from '@/lib/i18n';
 import { Newspaper, Calendar, User, ArrowRight } from 'lucide-react';
+import BlogFilters from '@/components/blog/BlogFilters';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ category?: string }>;
 }
 
 const uiTexts: Record<string, { 
@@ -18,12 +20,13 @@ const uiTexts: Record<string, {
   subtitle: string; 
   readMore: string;
   noPostsYet: string;
+  allCategories: string;
 }> = {
-  es: { title: 'Blog de Viajes', subtitle: 'Consejos, guías y novedades para tus aventuras por Europa', readMore: 'Leer artículo', noPostsYet: 'Próximamente nuevos artículos' },
-  en: { title: 'Travel Blog', subtitle: 'Tips, guides and news for your European adventures', readMore: 'Read article', noPostsYet: 'New articles coming soon' },
-  fr: { title: 'Blog Voyage', subtitle: 'Conseils, guides et actualités pour vos aventures en Europe', readMore: 'Lire l\'article', noPostsYet: 'Nouveaux articles à venir' },
-  it: { title: 'Blog di Viaggio', subtitle: 'Consigli, guide e novità per le tue avventure in Europa', readMore: 'Leggi articolo', noPostsYet: 'Nuovi articoli in arrivo' },
-  de: { title: 'Reiseblog', subtitle: 'Tipps, Reiseführer und Neuigkeiten für Ihre Europa-Abenteuer', readMore: 'Artikel lesen', noPostsYet: 'Neue Artikel in Kürze' },
+  es: { title: 'Blog de Viajes', subtitle: 'Consejos, guías y novedades para tus aventuras por Europa', readMore: 'Leer artículo', noPostsYet: 'Próximamente nuevos artículos', allCategories: 'Todos' },
+  en: { title: 'Travel Blog', subtitle: 'Tips, guides and news for your European adventures', readMore: 'Read article', noPostsYet: 'New articles coming soon', allCategories: 'All' },
+  fr: { title: 'Blog Voyage', subtitle: 'Conseils, guides et actualités pour vos aventures en Europe', readMore: 'Lire l\'article', noPostsYet: 'Nouveaux articles à venir', allCategories: 'Tous' },
+  it: { title: 'Blog di Viaggio', subtitle: 'Consigli, guide e novità per le tue avventure in Europa', readMore: 'Leggi articolo', noPostsYet: 'Nuovi articoli in arrivo', allCategories: 'Tutti' },
+  de: { title: 'Reiseblog', subtitle: 'Tipps, Reiseführer und Neuigkeiten für Ihre Europa-Abenteuer', readMore: 'Artikel lesen', noPostsYet: 'Neue Artikel in Kürze', allCategories: 'Alle' },
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -41,13 +44,24 @@ function formatDate(dateString: string, locale: string): string {
   });
 }
 
-export default async function BlogPage({ params }: PageProps) {
+export default async function BlogPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
+  const { category: categorySlug } = await searchParams;
   const lang = locale as Locale;
   const t = getMessages(lang);
   const ui = uiTexts[lang] || uiTexts.es;
 
-  const posts = await getAllPosts();
+  const [allPosts, categories] = await Promise.all([
+    getAllPosts(),
+    getAllCategories()
+  ]);
+
+  // Filtrar posts por categoría si hay una seleccionada
+  const posts = categorySlug 
+    ? allPosts.filter(post => 
+        post.categories?.some(cat => cat.slug === categorySlug)
+      )
+    : allPosts;
 
   return (
     <div className="min-h-screen bg-white">
@@ -72,6 +86,16 @@ export default async function BlogPage({ params }: PageProps) {
             { label: t.common.home, href: `/${lang}` },
             { label: ui.title }
           ]} />
+
+          {/* Category Filters */}
+          {categories.length > 0 && (
+            <BlogFilters 
+              categories={categories} 
+              activeSlug={categorySlug} 
+              lang={lang}
+              allLabel={ui.allCategories}
+            />
+          )}
 
           {/* Grid de posts */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -98,7 +122,7 @@ export default async function BlogPage({ params }: PageProps) {
 
                   <div className="p-5">
                     {post.categories && post.categories.length > 0 && (
-                      <div className="flex gap-2 mb-3">
+                      <div className="flex gap-2 mb-3 flex-wrap">
                         {post.categories.slice(0, 2).map((cat) => (
                           <span key={cat.id} className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
                             {cat.title}
