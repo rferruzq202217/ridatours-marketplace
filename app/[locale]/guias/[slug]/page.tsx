@@ -14,6 +14,14 @@ import { getMessages, Locale } from '@/lib/i18n';
 import { translateGuiaFull } from '@/lib/translateGuia';
 import { Calendar, BookOpen, Shield } from 'lucide-react';
 
+const uiTexts: Record<string, { guiaRidatours: string; guides: string; updated: string; guaranteedAccess: string }> = {
+  es: { guiaRidatours: "Guía Ridatours", guides: "Guías", updated: "Actualizado", guaranteedAccess: "Acceso garantizado con Tiqets" },
+  en: { guiaRidatours: "Ridatours Guide", guides: "Guides", updated: "Updated", guaranteedAccess: "Guaranteed access with Tiqets" },
+  fr: { guiaRidatours: "Guide Ridatours", guides: "Guides", updated: "Mis à jour", guaranteedAccess: "Accès garanti avec Tiqets" },
+  it: { guiaRidatours: "Guida Ridatours", guides: "Guide", updated: "Aggiornato", guaranteedAccess: "Accesso garantito con Tiqets" },
+  de: { guiaRidatours: "Ridatours Reiseführer", guides: "Reiseführer", updated: "Aktualisiert", guaranteedAccess: "Garantierter Zugang mit Tiqets" },
+};
+
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
@@ -40,6 +48,7 @@ export default async function GuiaPage({ params }: PageProps) {
   const { locale, slug } = await params;
   const lang = locale as Locale;
   const t = getMessages(lang);
+  const ui = uiTexts[lang] || uiTexts.es;
   let guia = await getGuia(slug);
   if (guia && locale !== "es") guia = await translateGuiaFull(guia, locale);
   if (!guia) notFound();
@@ -70,7 +79,7 @@ export default async function GuiaPage({ params }: PageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Breadcrumb items={[
             { label: t.common.home, href: '/' + lang },
-            { label: 'Guías', href: '/' + lang + '/guias' },
+            { label: ui.guides, href: '/' + lang + '/guias' },
             { label: guia.title }
           ]} />
 
@@ -79,7 +88,7 @@ export default async function GuiaPage({ params }: PageProps) {
             <div>
               <div className="flex items-center gap-2 text-green-600 font-semibold mb-3">
                 <BookOpen size={20} />
-                <span>Guía Ridatours</span>
+                <span>{ui.guiaRidatours}</span>
               </div>
               <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
                 {guia.title}
@@ -92,12 +101,12 @@ export default async function GuiaPage({ params }: PageProps) {
               <div className="flex items-center gap-6 flex-wrap">
                 <div className="flex items-center gap-2 text-gray-600">
                   <Calendar size={18} />
-                  <span>Actualizado: {new Date(guia.updatedAt).toLocaleDateString(lang)}</span>
+                  <span>{ui.updated}: {new Date(guia.updatedAt).toLocaleDateString(lang)}</span>
                 </div>
                 <div className="h-5 w-px bg-gray-300 hidden sm:block" />
                 <div className="flex items-center gap-2 text-gray-600">
                   <Shield size={18} className="text-green-600" />
-                  <span>Acceso garantizado con Tiqets</span>
+                  <span>{ui.guaranteedAccess}</span>
                 </div>
               </div>
             </div>

@@ -115,6 +115,10 @@ export async function translateGuiaFull(guia: any, targetLang: string): Promise<
         }
         
         if (block.blockType === 'faq' && block.preguntas) {
+          if (block.titulo) {
+            textMap.push({ path: `layout.${i}.titulo`, startIndex: textsToTranslate.length, count: 1 });
+            textsToTranslate.push(String(block.titulo));
+          }
           for (let j = 0; j < block.preguntas.length; j++) {
             if (block.preguntas[j].pregunta) {
               textMap.push({ path: `layout.${i}.preguntas.${j}.pregunta`, startIndex: textsToTranslate.length, count: 1 });
