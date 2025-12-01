@@ -7,10 +7,10 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.ridatours.com'),
   title: {
-    default: "Ridatours - Tours y Experiencias en Europa",
+    default: "Ridatours - Tours y Experiencias en el mundo",
     template: "%s | Ridatours"
   },
-  description: "Descubre las mejores experiencias turísticas en Europa. Tours, entradas a monumentos, actividades y más en Roma, París, Barcelona, Madrid y otras ciudades.",
+  description: "Descubre las mejores experiencias turísticas por el mundo. Tours, entradas a monumentos, actividades y más en Roma, París, Barcelona, Madrid y otras ciudades.",
   keywords: ["tours", "experiencias", "viajes", "Europa", "Roma", "París", "Barcelona", "entradas", "monumentos", "actividades"],
   authors: [{ name: "Ridatours" }],
   creator: "Ridatours",
@@ -25,21 +25,21 @@ export const metadata: Metadata = {
     locale: "es_ES",
     url: "https://www.ridatours.com",
     siteName: "Ridatours",
-    title: "Ridatours - Tours y Experiencias en Europa",
-    description: "Descubre las mejores experiencias turísticas en Europa. Tours, entradas a monumentos, actividades y más.",
+    title: "Ridatours - Tours y Experiencias en el mundo",
+    description: "Descubre las mejores experiencias turísticas por el mundo. Tours, entradas a monumentos, actividades y más.",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Ridatours - Tours y Experiencias en Europa",
+        alt: "Ridatours - Tours y Experiencias en el mundo",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ridatours - Tours y Experiencias en Europa",
-    description: "Descubre las mejores experiencias turísticas en Europa.",
+    title: "Ridatours - Tours y Experiencias en el mundo",
+    description: "Descubre las mejores experiencias turísticas por el mundo.",
     images: ["/og-image.jpg"],
   },
   robots: {
