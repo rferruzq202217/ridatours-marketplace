@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { Star, Clock, Landmark } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 import { formatPrice } from '@/lib/formatPrice';
+import CityFilters from '@/components/city/CityFilters';
 import { getMessages, Locale } from '@/lib/i18n';
 import { translateExperiences } from '@/lib/translateHelpers';
 
@@ -18,10 +19,12 @@ const supabase = createClient(
 
 interface PageProps {
   params: Promise<{ locale: string; city: string }>;
+  searchParams: Promise<{ category?: string }>;
 }
 
-export default async function CityPage({ params }: PageProps) {
+export default async function CityPage({ params, searchParams }: PageProps) {
   const { locale, city: citySlug } = await params;
+  const { category: selectedCategory } = await searchParams;
   const lang = locale as Locale;
   const t = getMessages(lang);
 
@@ -37,13 +40,35 @@ export default async function CityPage({ params }: PageProps) {
 
   const { data: experiencesRaw } = await supabase
     .from('experiences')
-    .select('*')
+    .select(`
+      *,
+      experience_categories(category_id, categories(id, name, slug))
+    `)
     .eq('city_id', city.id)
     .eq('active', true)
     .order('rating', { ascending: false });
 
+  // Obtener categorías únicas de las experiencias de esta ciudad
+  const cityCategories = new Map<string, { id: string; name: string; slug: string }>();
+  experiencesRaw?.forEach(exp => {
+    exp.experience_categories?.forEach((ec: any) => {
+      if (ec.categories) {
+        cityCategories.set(ec.categories.id, ec.categories);
+      }
+    });
+  });
+  const categories = Array.from(cityCategories.values());
+
+  // Filtrar experiencias por categoría si hay una seleccionada
+  const filteredExperiences = selectedCategory
+    ? experiencesRaw?.filter(exp => 
+        exp.experience_categories?.some((ec: any) => ec.categories?.slug === selectedCategory)
+      )
+    : experiencesRaw;
+
+
   // Traducir experiencias
-  const experiences = await translateExperiences(experiencesRaw || [], lang);
+  const experiences = await translateExperiences(filteredExperiences || [], lang);
 
   const { data: monumentsData } = await supabase
     .from('monuments')
@@ -175,6 +200,11 @@ export default async function CityPage({ params }: PageProps) {
 
           {experiences && experiences.length > 0 ? (
             <div>
+              <CityFilters
+                categories={categories}
+                selectedCategory={selectedCategory}
+                allText="Todos"
+              />
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 {t.city.allExperiences} {city.name}
               </h2>
