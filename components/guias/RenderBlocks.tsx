@@ -12,16 +12,18 @@ interface Props {
 }
 
 export default function RenderBlocks({ blocks }: Props) {
-  console.log('RenderBlocks received:', blocks?.length, 'blocks');
-  console.log('Block types:', blocks?.map(b => (b as any).blockType));
-  
-  if (!blocks || blocks.length === 0) return null;
+  if (!blocks || blocks.length === 0) {
+    return <div className="text-red-500 p-4 bg-red-50">DEBUG: No blocks received</div>;
+  }
 
   return (
     <>
+      <div className="text-blue-500 p-2 bg-blue-50 mb-4">
+        DEBUG: {blocks.length} blocks - Types: {blocks.map((b: any) => b.blockType).join(', ')}
+      </div>
       {blocks.map((block, index) => {
-        console.log('Processing block:', (block as any).blockType);
-        switch ((block as any).blockType) {
+        const blockType = (block as any).blockType;
+        switch (blockType) {
           case 'alertaConfianza':
             return <AlertaConfianza key={index} block={block as any} />;
           case 'tablaConversion':
@@ -33,11 +35,9 @@ export default function RenderBlocks({ blocks }: Props) {
           case 'content':
             return <ContentBlock key={index} block={block as any} />;
           case 'contentAcordeon':
-            console.log('Rendering ContentAcordeon with:', block);
             return <ContentAcordeon key={index} block={block as any} />;
           default:
-            console.log('Bloque no reconocido:', (block as any).blockType);
-            return null;
+            return <div key={index} className="text-orange-500 p-2 bg-orange-50">Bloque no reconocido: {blockType}</div>;
         }
       })}
     </>
