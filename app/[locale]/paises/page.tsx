@@ -44,7 +44,7 @@ export default async function CountriesPage({ params, searchParams }: PageProps)
   const countries = countriesFromDb || [];
 
   const countriesWithStats = await Promise.all(
-    countries.map(async (country) => {
+    countries.map(async (country: any) => {
       const { count: cityCount } = await supabase.from('cities').select('*', { count: 'exact', head: true }).eq('country_id', country.id);
       const { data: citiesData } = await supabase.from('cities').select('id').eq('country_id', country.id);
       let experienceCount = 0;
@@ -95,7 +95,7 @@ export default async function CountriesPage({ params, searchParams }: PageProps)
                 <span className="text-sm font-normal text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{countriesByContinent[continent].length}</span>
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {countriesByContinent[continent].map((country) => (
+                {countriesByContinent[continent].map((country: any) => (
                   <Link key={country.slug} href={'/' + lang + '/paises/' + country.slug} className="group relative overflow-hidden rounded-2xl aspect-[4/3] bg-gray-200 shadow-md hover:shadow-xl transition-shadow">
                     {country.image ? (
                       <Image src={country.image} alt={country.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" sizes="20vw" />
