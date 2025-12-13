@@ -14,16 +14,9 @@ interface GuiaTabsProps {
 export default function GuiaTabs({ blocks, lang = 'es' }: GuiaTabsProps) {
   const [activeTab, setActiveTab] = useState('contenido');
 
-  // DEBUG
-  console.log('GuiaTabs received blocks:', blocks?.length);
-  console.log('GuiaTabs block types:', blocks?.map((b: any) => b.blockType));
-
   // Separar bloques FAQ del resto
   const faqBlocks = blocks?.filter((block: any) => block.blockType === 'faq') || [];
   const contentBlocks = blocks?.filter((block: any) => block.blockType !== 'faq') || [];
-
-  console.log('Content blocks:', contentBlocks?.length);
-  console.log('FAQ blocks:', faqBlocks?.length);
 
   const texts: Record<string, { content: string; faq: string }> = {
     es: { content: 'Guía completa', faq: 'Preguntas frecuentes' },
@@ -42,15 +35,6 @@ export default function GuiaTabs({ blocks, lang = 'es' }: GuiaTabsProps) {
 
   return (
     <div>
-      {/* DEBUG INFO */}
-      <div className="bg-yellow-100 p-4 mb-4 text-sm">
-        <p>DEBUG GuiaTabs:</p>
-        <p>Total blocks: {blocks?.length || 0}</p>
-        <p>Content blocks: {contentBlocks?.length || 0}</p>
-        <p>FAQ blocks: {faqBlocks?.length || 0}</p>
-        <p>Block types: {blocks?.map((b: any) => b.blockType).join(', ') || 'none'}</p>
-      </div>
-
       {/* Tabs */}
       <div className="border-b border-gray-200 mb-8">
         <div className="flex gap-8">

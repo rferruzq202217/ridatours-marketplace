@@ -12,15 +12,10 @@ interface Props {
 }
 
 export default function RenderBlocks({ blocks }: Props) {
-  if (!blocks || blocks.length === 0) {
-    return <div className="text-red-500 p-4 bg-red-50">DEBUG: No blocks received</div>;
-  }
+  if (!blocks || blocks.length === 0) return null;
 
   return (
     <>
-      <div className="text-blue-500 p-2 bg-blue-50 mb-4">
-        DEBUG: {blocks.length} blocks - Types: {blocks.map((b: any) => b.blockType).join(', ')}
-      </div>
       {blocks.map((block, index) => {
         const blockType = (block as any).blockType;
         switch (blockType) {
@@ -37,7 +32,7 @@ export default function RenderBlocks({ blocks }: Props) {
           case 'contentAcordeon':
             return <ContentAcordeon key={index} block={block as any} />;
           default:
-            return <div key={index} className="text-orange-500 p-2 bg-orange-50">Bloque no reconocido: {blockType}</div>;
+            return null;
         }
       })}
     </>
