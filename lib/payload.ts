@@ -43,7 +43,8 @@ export type PayloadBlock =
   | TablaConversionBlock
   | BotonCTABlock
   | FAQBlock
-  | ContentBlock;
+  | ContentBlock
+  | ContentAcordeonBlock;
 
 export interface AlertaConfianzaBlock {
   blockType: 'alertaConfianza';
@@ -109,6 +110,22 @@ export interface ContentBlock {
     enableLink?: boolean;
     link?: any;
   }[];
+}
+
+export interface ContentAcordeonBlock {
+  blockType: 'contentAcordeon';
+  id?: string;
+  titulo?: string;
+  subtitulo?: string;
+  items?: {
+    id?: string;
+    titulo?: string;
+    icono?: 'none' | 'clock' | 'location' | 'money' | 'list' | 'info' | 'star' | 'ticket' | 'camera' | 'person';
+    contenido?: any;
+    abiertoPorDefecto?: boolean;
+  }[];
+  permitirMultiplesAbiertos?: boolean;
+  estilo?: 'cards' | 'minimal' | 'bordered' | 'shadowed';
 }
 
 export function getMediaUrl(url: string | undefined): string {
