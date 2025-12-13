@@ -64,7 +64,7 @@ export default async function CountryPage({ params }: PageProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-8">
           <div className="max-w-7xl mx-auto">
-            <Breadcrumb items={[{ label: t.common.home, href: '/' + lang }, { label: txt.countries, href: '/' + lang + '/paises' }, { label: country.name }]} light />
+            <Breadcrumb items={[{ label: t.common.home, href: '/' + lang }, { label: txt.countries, href: '/' + lang + '/paises' }, { label: country.name }]} />
             <h1 className="text-4xl md:text-5xl font-bold text-white mt-4">{txt.thingsToDo} {country.name}</h1>
             <div className="flex items-center gap-4 mt-3 text-white/80">
               <span className="flex items-center gap-1"><MapPin size={16} />{sortedCities.length} {txt.cities}</span>
