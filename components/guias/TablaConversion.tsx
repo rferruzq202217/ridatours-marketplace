@@ -26,15 +26,18 @@ function ProductCard({ producto, lang = 'es' }: { producto: Producto; lang?: str
     caracteristicas,
   } = producto;
 
+  const cardClasses = clsx(
+    'relative rounded-2xl border-2 p-6 transition-all hover:shadow-xl flex flex-col h-full',
+    destacado ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-green-300'
+  );
+
+  const buttonClasses = clsx(
+    'block w-full text-center py-4 px-6 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02]',
+    destacado ? 'bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/30' : 'bg-gray-900 text-white hover:bg-gray-800'
+  );
+
   return (
-    <div
-      className={clsx(
-        'relative rounded-2xl border-2 p-6 transition-all hover:shadow-xl flex flex-col h-full',
-        destacado
-          ? 'border-green-500 bg-green-50'
-          : 'border-gray-200 bg-white hover:border-green-300',
-      )}
-    >
+    <div className={cardClasses}>
       {destacado && etiquetaDestacado && (
         <div className="absolute -top-3 left-4 bg-green-500 text-white text-sm font-bold px-4 py-1 rounded-full flex items-center gap-1">
           <Star size={14} className="fill-current" />
@@ -42,7 +45,6 @@ function ProductCard({ producto, lang = 'es' }: { producto: Producto; lang?: str
         </div>
       )}
 
-      {/* Contenido que crece */}
       <div className="flex-grow">
         <div className="mb-4 mt-2">
           <h3 className="text-xl font-bold text-gray-900 mb-1">{nombre}</h3>
@@ -63,30 +65,17 @@ function ProductCard({ producto, lang = 'es' }: { producto: Producto; lang?: str
         )}
       </div>
 
-      {/* Precio y botón siempre al fondo */}
       <div className="mt-auto">
         <div className="mb-5">
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-gray-900">{precio}</span>
             {precioOriginal && (
-              <span className="text-lg text-gray-400 line-through">
-                {precioOriginal}
-              </span>
+              <span className="text-lg text-gray-400 line-through">{precioOriginal}</span>
             )}
           </div>
           <p className="text-xs text-gray-500">{t.perPerson}</p>
         </div>
-        
-          href={urlAfiliado}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={clsx(
-            'block w-full text-center py-4 px-6 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02]',
-            destacado
-              ? 'bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/30'
-              : 'bg-gray-900 text-white hover:bg-gray-800',
-          )}
-        >
+        <a href={urlAfiliado} target="_blank" rel="noopener noreferrer" className={buttonClasses}>
           {textoCTA || t.bookNow}
         </a>
       </div>
@@ -161,9 +150,7 @@ export default function TablaConversion({ block, lang = 'es' }: Props) {
       {(tituloTabla || subtitulo) && (
         <div className="text-center mb-8">
           {tituloTabla && (
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-              {tituloTabla}
-            </h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{tituloTabla}</h2>
           )}
           {subtitulo && <p className="text-gray-600">{subtitulo}</p>}
         </div>
@@ -198,45 +185,45 @@ export default function TablaConversion({ block, lang = 'es' }: Props) {
 
       {estilo === 'list' && (
         <div className="space-y-4">
-          {productos.map((producto, index) => (
-            <div
-              key={index}
-              className={clsx(
-                'flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border-2',
-                producto.destacado ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white',
-              )}
-            >
-              <div className="flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  {producto.destacado && producto.etiquetaDestacado && (
-                    <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                      {producto.etiquetaDestacado}
-                    </span>
-                  )}
-                  <span className="font-bold text-gray-900">{producto.nombre}</span>
-                </div>
-                {producto.descripcionCorta && (
-                  <p className="text-sm text-gray-600 mt-1">{producto.descripcionCorta}</p>
-                )}
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <div className="font-bold text-gray-900 text-lg">{producto.precio}</div>
-                  {producto.precioOriginal && (
-                    <div className="text-sm text-gray-400 line-through">{producto.precioOriginal}</div>
+          {productos.map((producto, index) => {
+            const listItemClasses = clsx(
+              'flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border-2',
+              producto.destacado ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white'
+            );
+            return (
+              <div key={index} className={listItemClasses}>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {producto.destacado && producto.etiquetaDestacado && (
+                      <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                        {producto.etiquetaDestacado}
+                      </span>
+                    )}
+                    <span className="font-bold text-gray-900">{producto.nombre}</span>
+                  </div>
+                  {producto.descripcionCorta && (
+                    <p className="text-sm text-gray-600 mt-1">{producto.descripcionCorta}</p>
                   )}
                 </div>
-                
-                  href={producto.urlAfiliado}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-green-500 text-white py-3 px-6 rounded-xl font-bold hover:bg-green-600 transition-all text-sm whitespace-nowrap"
-                >
-                  {producto.textoCTA || t.book}
-                </a>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <div className="font-bold text-gray-900 text-lg">{producto.precio}</div>
+                    {producto.precioOriginal && (
+                      <div className="text-sm text-gray-400 line-through">{producto.precioOriginal}</div>
+                    )}
+                  </div>
+                  
+                    href={producto.urlAfiliado}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-green-500 text-white py-3 px-6 rounded-xl font-bold hover:bg-green-600 transition-all text-sm whitespace-nowrap"
+                  >
+                    {producto.textoCTA || t.book}
+                  </a>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
