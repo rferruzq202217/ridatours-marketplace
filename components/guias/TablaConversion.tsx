@@ -29,7 +29,7 @@ function ProductCard({ producto, lang = 'es' }: { producto: Producto; lang?: str
   return (
     <div
       className={clsx(
-        'relative rounded-2xl border-2 p-6 transition-all hover:shadow-xl',
+        'relative rounded-2xl border-2 p-6 transition-all hover:shadow-xl flex flex-col h-full',
         destacado
           ? 'border-green-500 bg-green-50'
           : 'border-gray-200 bg-white hover:border-green-300',
@@ -42,49 +42,54 @@ function ProductCard({ producto, lang = 'es' }: { producto: Producto; lang?: str
         </div>
       )}
 
-      <div className="mb-4 mt-2">
-        <h3 className="text-xl font-bold text-gray-900 mb-1">{nombre}</h3>
-        {descripcionCorta && (
-          <p className="text-gray-600 text-sm">{descripcionCorta}</p>
-        )}
-      </div>
-
-      {caracteristicas && caracteristicas.length > 0 && (
-        <ul className="mb-4 space-y-2">
-          {caracteristicas.map((item, idx) => (
-            <li key={idx} className="text-sm text-gray-700 flex items-center gap-2">
-              <Check className="text-green-500 flex-shrink-0" size={16} />
-              {item.texto}
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <div className="mb-5">
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-bold text-gray-900">{t.from} {precio}</span>
-          {precioOriginal && (
-            <span className="text-lg text-gray-400 line-through">
-              {precioOriginal}
-            </span>
+      {/* Contenido que crece */}
+      <div className="flex-grow">
+        <div className="mb-4 mt-2">
+          <h3 className="text-xl font-bold text-gray-900 mb-1">{nombre}</h3>
+          {descripcionCorta && (
+            <p className="text-gray-600 text-sm">{descripcionCorta}</p>
           )}
         </div>
-        <p className="text-xs text-gray-500">{t.perPerson}</p>
-      </div>
-      <a
-      
-        href={urlAfiliado}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={clsx(
-          'block w-full text-center py-4 px-6 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02]',
-          destacado
-            ? 'bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/30'
-            : 'bg-gray-900 text-white hover:bg-gray-800',
+
+        {caracteristicas && caracteristicas.length > 0 && (
+          <ul className="mb-4 space-y-2">
+            {caracteristicas.map((item, idx) => (
+              <li key={idx} className="text-sm text-gray-700 flex items-center gap-2">
+                <Check className="text-green-500 flex-shrink-0" size={16} />
+                {item.texto}
+              </li>
+            ))}
+          </ul>
         )}
-      >
-        {textoCTA || t.bookNow}
-      </a>
+      </div>
+
+      {/* Precio y botón siempre al fondo */}
+      <div className="mt-auto">
+        <div className="mb-5">
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-bold text-gray-900">{precio}</span>
+            {precioOriginal && (
+              <span className="text-lg text-gray-400 line-through">
+                {precioOriginal}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-gray-500">{t.perPerson}</p>
+        </div>
+        
+          href={urlAfiliado}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={clsx(
+            'block w-full text-center py-4 px-6 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02]',
+            destacado
+              ? 'bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/30'
+              : 'bg-gray-900 text-white hover:bg-gray-800',
+          )}
+        >
+          {textoCTA || t.bookNow}
+        </a>
+      </div>
     </div>
   );
 }
@@ -126,7 +131,7 @@ function ProductRow({ producto, lang = 'es' }: { producto: Producto; lang?: stri
         )}
       </td>
       <td className="py-5 px-4 text-right">
-        <a
+        
           href={urlAfiliado}
           target="_blank"
           rel="noopener noreferrer"
@@ -221,7 +226,7 @@ export default function TablaConversion({ block, lang = 'es' }: Props) {
                     <div className="text-sm text-gray-400 line-through">{producto.precioOriginal}</div>
                   )}
                 </div>
-                <a
+                
                   href={producto.urlAfiliado}
                   target="_blank"
                   rel="noopener noreferrer"
