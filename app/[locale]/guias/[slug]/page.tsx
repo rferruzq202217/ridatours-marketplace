@@ -68,7 +68,11 @@ export default async function GuiaPage({ params }: PageProps) {
   const alertaBlock = guia.layout?.find((b: any) => b.blockType === 'alertaConfianza');
   const tablaBlock = guia.layout?.find((b: any) => b.blockType === 'tablaConversion');
   const ctaBlock = guia.layout?.find((b: any) => b.blockType === 'botonCTA');
-  const contentBlocks = guia.layout?.filter((b: any) => b.blockType === 'content') || [];
+  
+  // Bloques para tabs: content, contentAcordeon y faq
+  const contentBlocks = guia.layout?.filter((b: any) => 
+    b.blockType === 'content' || b.blockType === 'contentAcordeon'
+  ) || [];
   const faqBlocks = guia.layout?.filter((b: any) => b.blockType === 'faq') || [];
 
   return (
@@ -128,7 +132,7 @@ export default async function GuiaPage({ params }: PageProps) {
           {/* 2. Tabla de Conversión (Tarjetas de Productos) */}
           {tablaBlock && <TablaConversion block={tablaBlock as any} lang={lang} />}
 
-          {/* 3. Tabs: solo Content y FAQ */}
+          {/* 3. Tabs: Content, ContentAcordeon y FAQ */}
           <div className="mt-12">
             <GuiaTabs blocks={[...contentBlocks, ...faqBlocks]} lang={lang} />
           </div>
