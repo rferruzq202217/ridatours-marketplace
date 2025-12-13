@@ -107,8 +107,8 @@ export default async function CountryPage({ params }: PageProps) {
               {experiences.map((exp: any) => (
                 <Link key={exp.id} href={'/' + lang + '/' + exp.cities?.slug + '/' + exp.slug} className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
                   <div className="relative aspect-[4/3]">
-                    {exp.image ? (
-                      <Image src={exp.image} alt={exp.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="25vw" />
+                    {exp.main_image ? (
+                      <Image src={exp.main_image} alt={exp.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="25vw" />
                     ) : (
                       <div className="absolute inset-0 bg-gray-200 flex items-center justify-center"><Ticket size={32} className="text-gray-400" /></div>
                     )}
