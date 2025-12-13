@@ -5,6 +5,7 @@ import TablaConversion from './TablaConversion';
 import BotonCTA from './BotonCTA';
 import FAQ from './FAQ';
 import ContentBlock from './ContentBlock';
+import ContentAcordeon from './ContentAcordeon';
 
 interface Props {
   blocks: PayloadBlock[];
@@ -25,9 +26,10 @@ export default function RenderBlocks({ blocks }: Props) {
             return <BotonCTA key={index} block={block} />;
           case 'faq':
             return <FAQ key={index} block={block} />;
-          case 'content': return <ContentBlock key={index} block={block} />; // return <ContentBlock key={index} block={block} />; //
-            // Renderizar contenido rich text si lo necesitas
-            return null;
+          case 'content':
+            return <ContentBlock key={index} block={block} />;
+          case 'contentAcordeon':
+            return <ContentAcordeon key={index} block={block} />;
           default:
             console.log('Bloque no reconocido:', (block as any).blockType);
             return null;
