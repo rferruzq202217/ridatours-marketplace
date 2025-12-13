@@ -1,21 +1,22 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
-import { Globe, MapPin, Ticket, Star } from 'lucide-react';
+import { Globe, MapPin, Ticket, Star, Clock } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import { getMessages, Locale } from '@/lib/i18n';
+import { formatPrice } from '@/lib/formatPrice';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
 
 const texts = {
-  es: { thingsToDo: 'Cosas que hacer en', topCities: 'Los mejores lugares para visitar en', topExperiences: 'Top experiencias en', cities: 'ciudades', experiences: 'experiencias', from: 'Desde', seeAll: 'Ver todas', citiesIn: 'Ciudades en', countries: 'Países' },
-  en: { thingsToDo: 'Things to do in', topCities: 'Top places to visit in', topExperiences: 'Top experiences in', cities: 'cities', experiences: 'experiences', from: 'From', seeAll: 'See all', citiesIn: 'Cities in', countries: 'Countries' },
-  fr: { thingsToDo: 'Choses à faire à', topCities: 'Les meilleurs endroits à visiter en', topExperiences: 'Top expériences en', cities: 'villes', experiences: 'expériences', from: 'À partir de', seeAll: 'Voir tout', citiesIn: 'Villes en', countries: 'Pays' },
-  it: { thingsToDo: 'Cose da fare in', topCities: 'I migliori posti da visitare in', topExperiences: 'Top esperienze in', cities: 'città', experiences: 'esperienze', from: 'Da', seeAll: 'Vedi tutto', citiesIn: 'Città in', countries: 'Paesi' },
-  de: { thingsToDo: 'Aktivitäten in', topCities: 'Die besten Orte in', topExperiences: 'Top Erlebnisse in', cities: 'Städte', experiences: 'Erlebnisse', from: 'Ab', seeAll: 'Alle anzeigen', citiesIn: 'Städte in', countries: 'Länder' },
+  es: { thingsToDo: 'Cosas que hacer en', topCities: 'Los mejores lugares para visitar en', topExperiences: 'Top experiencias en', cities: 'ciudades', experiences: 'experiencias', citiesIn: 'Ciudades en', countries: 'Países', noImage: 'Sin imagen', featured: 'Destacado' },
+  en: { thingsToDo: 'Things to do in', topCities: 'Top places to visit in', topExperiences: 'Top experiences in', cities: 'cities', experiences: 'experiences', citiesIn: 'Cities in', countries: 'Countries', noImage: 'No image', featured: 'Featured' },
+  fr: { thingsToDo: 'Choses à faire à', topCities: 'Les meilleurs endroits à visiter en', topExperiences: 'Top expériences en', cities: 'villes', experiences: 'expériences', citiesIn: 'Villes en', countries: 'Pays', noImage: 'Pas d\'image', featured: 'En vedette' },
+  it: { thingsToDo: 'Cose da fare in', topCities: 'I migliori posti da visitare in', topExperiences: 'Top esperienze in', cities: 'città', experiences: 'esperienze', citiesIn: 'Città in', countries: 'Paesi', noImage: 'Nessuna immagine', featured: 'In evidenza' },
+  de: { thingsToDo: 'Aktivitäten in', topCities: 'Die besten Orte in', topExperiences: 'Top Erlebnisse in', cities: 'Städte', experiences: 'Erlebnisse', citiesIn: 'Städte in', countries: 'Länder', noImage: 'Kein Bild', featured: 'Empfohlen' },
 };
 
 interface PageProps {
@@ -59,11 +60,10 @@ export default async function CountryPage({ params }: PageProps) {
       
       <div className="pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-4">
-          {/* Breadcrumb arriba */}
           <Breadcrumb items={[{ label: t.common.home, href: '/' + lang }, { label: txt.countries, href: '/' + lang + '/paises' }, { label: country.name }]} />
 
           {/* Hero Section */}
-          <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden mb-12">
+          <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden mb-12 mt-6">
             {country.image ? (
               <Image src={country.image} alt={country.name} fill className="object-cover" priority />
             ) : (
@@ -103,19 +103,41 @@ export default async function CountryPage({ params }: PageProps) {
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">{txt.topExperiences} {country.name}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {experiences.map((exp: any) => (
-                  <Link key={exp.id} href={'/' + lang + '/' + exp.cities?.slug + '/' + exp.slug} className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
-                    <div className="relative aspect-[4/3]">
+                  <Link key={exp.id} href={'/' + lang + '/' + exp.cities?.slug + '/' + exp.slug} className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all">
+                    <div className="relative h-48">
                       {exp.main_image ? (
-                        <Image src={exp.main_image} alt={exp.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="25vw" />
+                        <Image src={exp.main_image} alt={exp.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="25vw" />
                       ) : (
-                        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center"><Ticket size={32} className="text-gray-400" /></div>
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-400">{txt.noImage}</span>
+                        </div>
+                      )}
+                      {exp.featured && (
+                        <div className="absolute top-3 left-3 bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-xs font-bold">
+                          ⭐ {txt.featured}
+                        </div>
                       )}
                     </div>
                     <div className="p-4">
-                      <p className="text-xs text-emerald-600 font-medium mb-1">{exp.cities?.name}</p>
-                      <h3 className="font-bold text-gray-900 line-clamp-2 mb-2">{exp.name}</h3>
-                      {exp.rating && <div className="flex items-center gap-1 mb-2"><Star size={14} className="text-yellow-400 fill-current" /><span className="text-sm text-gray-600">{exp.rating}</span></div>}
-                      {exp.price && <p className="text-lg font-bold text-gray-900">{txt.from} {exp.price}€</p>}
+                      <p className="text-xs font-semibold text-gray-500 mb-1">{exp.cities?.name?.toUpperCase()}</p>
+                      <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem]">{exp.title}</h3>
+                      {exp.duration && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                          <Clock size={14} />
+                          <span>{exp.duration}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <div className="flex items-center gap-1">
+                          <Star size={16} className="text-yellow-400 fill-current" />
+                          <span className="font-medium text-gray-700">{exp.rating}</span>
+                          <span className="text-xs text-gray-400">({exp.reviews?.toLocaleString('es-ES') || 0})</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xs text-gray-500">{t.common.from}</span>
+                          <p className="font-bold text-lg text-gray-900">{formatPrice(exp.price)}</p>
+                        </div>
+                      </div>
                     </div>
                   </Link>
                 ))}
