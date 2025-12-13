@@ -9,6 +9,7 @@ import GuiaTabs from '@/components/guias/GuiaTabs';
 import AlertaConfianza from '@/components/guias/AlertaConfianza';
 import TablaConversion from '@/components/guias/TablaConversion';
 import BotonCTA from '@/components/guias/BotonCTA';
+import ContentAcordeon from '@/components/guias/ContentAcordeon';
 import { getGuia, getAllGuias, getMediaUrl } from '@/lib/payload';
 import { getMessages, Locale } from '@/lib/i18n';
 import { translateGuiaFull } from '@/lib/translateGuia';
@@ -68,11 +69,8 @@ export default async function GuiaPage({ params }: PageProps) {
   const alertaBlock = guia.layout?.find((b: any) => b.blockType === 'alertaConfianza');
   const tablaBlock = guia.layout?.find((b: any) => b.blockType === 'tablaConversion');
   const ctaBlock = guia.layout?.find((b: any) => b.blockType === 'botonCTA');
-  
-  // Bloques para tabs: content, contentAcordeon y faq
-  const contentBlocks = guia.layout?.filter((b: any) => 
-    b.blockType === 'content' || b.blockType === 'contentAcordeon'
-  ) || [];
+  const acordeonBlocks = guia.layout?.filter((b: any) => b.blockType === 'contentAcordeon') || [];
+  const contentBlocks = guia.layout?.filter((b: any) => b.blockType === 'content') || [];
   const faqBlocks = guia.layout?.filter((b: any) => b.blockType === 'faq') || [];
 
   return (
@@ -129,10 +127,22 @@ export default async function GuiaPage({ params }: PageProps) {
           {/* 1. Alerta de Confianza */}
           {alertaBlock && <AlertaConfianza block={alertaBlock as any} />}
 
-          {/* 2. Tabla de Conversión (Tarjetas de Productos) */}
+          {/* 2. Tabla de Conversión */}
           {tablaBlock && <TablaConversion block={tablaBlock as any} lang={lang} />}
 
-          {/* 3. Tabs: Content, ContentAcordeon y FAQ */}
+          {/* DEBUG: Mostrar acordeones directamente */}
+          <div className="my-8 p-4 bg-blue-50 border border-blue-200 rounded">
+            <p className="font-bold">DEBUG: Acordeones encontrados: {acordeonBlocks.length}</p>
+            <p>Content blocks: {contentBlocks.length}</p>
+            <p>FAQ blocks: {faqBlocks.length}</p>
+          </div>
+
+          {/* Renderizar acordeones directamente */}
+          {acordeonBlocks.map((block: any, index: number) => (
+            <ContentAcordeon key={index} block={block} />
+          ))}
+
+          {/* 3. Tabs */}
           <div className="mt-12">
             <GuiaTabs blocks={[...contentBlocks, ...faqBlocks]} lang={lang} />
           </div>
