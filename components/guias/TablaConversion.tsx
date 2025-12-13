@@ -26,18 +26,16 @@ function ProductCard({ producto, lang = 'es' }: { producto: Producto; lang?: str
     caracteristicas,
   } = producto;
 
-  const cardClasses = clsx(
-    'relative rounded-2xl border-2 p-6 transition-all hover:shadow-xl flex flex-col h-full',
-    destacado ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-green-300'
-  );
+  const cardClass = destacado
+    ? 'relative rounded-2xl border-2 p-6 transition-all hover:shadow-xl flex flex-col h-full border-green-500 bg-green-50'
+    : 'relative rounded-2xl border-2 p-6 transition-all hover:shadow-xl flex flex-col h-full border-gray-200 bg-white hover:border-green-300';
 
-  const buttonClasses = clsx(
-    'block w-full text-center py-4 px-6 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02]',
-    destacado ? 'bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/30' : 'bg-gray-900 text-white hover:bg-gray-800'
-  );
+  const buttonClass = destacado
+    ? 'block w-full text-center py-4 px-6 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/30'
+    : 'block w-full text-center py-4 px-6 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] bg-gray-900 text-white hover:bg-gray-800';
 
   return (
-    <div className={cardClasses}>
+    <div className={cardClass}>
       {destacado && etiquetaDestacado && (
         <div className="absolute -top-3 left-4 bg-green-500 text-white text-sm font-bold px-4 py-1 rounded-full flex items-center gap-1">
           <Star size={14} className="fill-current" />
@@ -75,7 +73,7 @@ function ProductCard({ producto, lang = 'es' }: { producto: Producto; lang?: str
           </div>
           <p className="text-xs text-gray-500">{t.perPerson}</p>
         </div>
-        <a href={urlAfiliado} target="_blank" rel="noopener noreferrer" className={buttonClasses}>
+        <a href={urlAfiliado} target="_blank" rel="noopener noreferrer" className={buttonClass}>
           {textoCTA || t.bookNow}
         </a>
       </div>
@@ -96,8 +94,10 @@ function ProductRow({ producto, lang = 'es' }: { producto: Producto; lang?: stri
     etiquetaDestacado,
   } = producto;
 
+  const rowClass = destacado ? 'border-b border-gray-100 bg-green-50' : 'border-b border-gray-100';
+
   return (
-    <tr className={clsx('border-b border-gray-100', destacado && 'bg-green-50')}>
+    <tr className={rowClass}>
       <td className="py-5 px-4">
         <div className="flex items-center gap-3">
           {destacado && etiquetaDestacado && (
@@ -120,12 +120,7 @@ function ProductRow({ producto, lang = 'es' }: { producto: Producto; lang?: stri
         )}
       </td>
       <td className="py-5 px-4 text-right">
-        
-          href={urlAfiliado}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block bg-green-500 text-white py-3 px-6 rounded-xl font-bold hover:bg-green-600 transition-all text-sm"
-        >
+        <a href={urlAfiliado} target="_blank" rel="noopener noreferrer" className="inline-block bg-green-500 text-white py-3 px-6 rounded-xl font-bold hover:bg-green-600 transition-all text-sm">
           {textoCTA || t.book}
         </a>
       </td>
@@ -186,12 +181,11 @@ export default function TablaConversion({ block, lang = 'es' }: Props) {
       {estilo === 'list' && (
         <div className="space-y-4">
           {productos.map((producto, index) => {
-            const listItemClasses = clsx(
-              'flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border-2',
-              producto.destacado ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white'
-            );
+            const listClass = producto.destacado
+              ? 'flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border-2 border-green-500 bg-green-50'
+              : 'flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border-2 border-gray-200 bg-white';
             return (
-              <div key={index} className={listItemClasses}>
+              <div key={index} className={listClass}>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     {producto.destacado && producto.etiquetaDestacado && (
@@ -212,12 +206,7 @@ export default function TablaConversion({ block, lang = 'es' }: Props) {
                       <div className="text-sm text-gray-400 line-through">{producto.precioOriginal}</div>
                     )}
                   </div>
-                  
-                    href={producto.urlAfiliado}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-green-500 text-white py-3 px-6 rounded-xl font-bold hover:bg-green-600 transition-all text-sm whitespace-nowrap"
-                  >
+                  <a href={producto.urlAfiliado} target="_blank" rel="noopener noreferrer" className="bg-green-500 text-white py-3 px-6 rounded-xl font-bold hover:bg-green-600 transition-all text-sm whitespace-nowrap">
                     {producto.textoCTA || t.book}
                   </a>
                 </div>
