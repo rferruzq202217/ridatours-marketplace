@@ -12,24 +12,29 @@ interface Props {
 }
 
 export default function RenderBlocks({ blocks }: Props) {
+  console.log('RenderBlocks received:', blocks?.length, 'blocks');
+  console.log('Block types:', blocks?.map(b => (b as any).blockType));
+  
   if (!blocks || blocks.length === 0) return null;
 
   return (
     <>
       {blocks.map((block, index) => {
-        switch (block.blockType) {
+        console.log('Processing block:', (block as any).blockType);
+        switch ((block as any).blockType) {
           case 'alertaConfianza':
-            return <AlertaConfianza key={index} block={block} />;
+            return <AlertaConfianza key={index} block={block as any} />;
           case 'tablaConversion':
-            return <TablaConversion key={index} block={block} />;
+            return <TablaConversion key={index} block={block as any} />;
           case 'botonCTA':
-            return <BotonCTA key={index} block={block} />;
+            return <BotonCTA key={index} block={block as any} />;
           case 'faq':
-            return <FAQ key={index} block={block} />;
+            return <FAQ key={index} block={block as any} />;
           case 'content':
-            return <ContentBlock key={index} block={block} />;
+            return <ContentBlock key={index} block={block as any} />;
           case 'contentAcordeon':
-            return <ContentAcordeon key={index} block={block} />;
+            console.log('Rendering ContentAcordeon with:', block);
+            return <ContentAcordeon key={index} block={block as any} />;
           default:
             console.log('Bloque no reconocido:', (block as any).blockType);
             return null;
