@@ -16,7 +16,7 @@ interface SearchBarProps {
 }
 
 interface SearchResult {
-  type: 'city' | 'monument' | 'experience';
+  type: 'city' | 'monument' | 'experience' | 'country';
   name: string;
   slug: string;
   citySlug?: string;
@@ -112,6 +112,8 @@ export default function SearchBar({ inHeader = false, lang }: SearchBarProps) {
       router.push(`/${detectedLang}/${result.slug}`);
     } else if (result.type === 'monument') {
       router.push(`/${detectedLang}/${result.citySlug}/monumentos/${result.slug}`);
+    } else if (result.type === 'country') {
+      router.push(`/${detectedLang}/paises/${result.slug}`);
     } else if (result.type === 'experience') {
       router.push(`/${detectedLang}/${result.citySlug}/${result.slug}`);
     }
