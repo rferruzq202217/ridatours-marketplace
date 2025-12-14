@@ -64,7 +64,6 @@ export default function ExperiencesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCity, setFilterCity] = useState<string>('all');
   const [filterCountry, setFilterCountry] = useState<string>('all');
-  const [filterCountry, setFilterCountry] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterWidget, setFilterWidget] = useState<string>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
