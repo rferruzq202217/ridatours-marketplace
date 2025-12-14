@@ -195,11 +195,11 @@ export default async function HomePage({ params }: PageProps) {
       <CategoryCarousel categories={categories} lang={lang} />
       <RecentlyViewedCarousel lang={lang} />
 
-      {countriesWithStats.length > 0 && (
+      {countriesWithStats.filter(c => c.experienceCount > 0).length > 0 && (
         <CountryCarousel
           title={countryTxt.title}
           subtitle={countryTxt.subtitle}
-          countries={countriesWithStats}
+          countries={countriesWithStats.filter(c => c.experienceCount > 0)}
           viewAllLink={`/${lang}/paises`}
           lang={lang}
         />
