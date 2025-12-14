@@ -208,7 +208,7 @@ export default async function HomePage({ params }: PageProps) {
       <CityCarousel
         title={t.home.popularCities}
         subtitle={lang === 'es' ? 'Explora las ciudades más fascinantes de Europa' : 'Explore the most fascinating cities in Europe'}
-        cities={citiesWithCount}
+        cities={citiesWithCount.filter(c => c.experienceCount > 0)}
         viewAllLink={`/${lang}/ciudades`}
         lang={lang}
       />
