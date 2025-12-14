@@ -177,7 +177,7 @@ export default function ExperiencesPage() {
       const matchesCategory = filterCategory === 'all' || 
         (exp.experience_categories && exp.experience_categories.some(ec => ec.category_id === filterCategory));
       
-      return matchesSearch return matchesSearch && matchesCity && matchesStatusreturn matchesSearch && matchesCity && matchesStatus matchesCity return matchesSearch && matchesCity && matchesStatusreturn matchesSearch && matchesCity && matchesStatus matchesCountry && matchesStatus && matchesWidget && matchesCategory && matchesTranslation;
+      return matchesSearch && matchesCity && matchesCountry && matchesStatus && matchesWidget && matchesCategory && matchesTranslation;
     });
   }, [experiences, searchTerm, filterCity, filterCountry, filterStatus, filterWidget, filterCategory, filterTranslation, cities]);
 
