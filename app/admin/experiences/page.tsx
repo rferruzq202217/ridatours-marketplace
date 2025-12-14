@@ -41,9 +41,11 @@ interface Experience {
   translations?: string[];
 }
 
-interface City { id: string; name: string; slug: string; }
+interface City { id: string; name: string; slug: string; country_id?: string; }
 interface Category { id: string; name: string; slug: string; }
 interface Monument { id: string; name: string; slug: string; city_id: string; }
+interface Country { id: string; name: string; slug: string; }
+interface Country { id: string; name: string; slug: string; }
 
 const inputClass = "w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent";
 const textareaClass = "w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent";
@@ -54,11 +56,15 @@ export default function ExperiencesPage() {
   const [cities, setCities] = useState<City[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [monuments, setMonuments] = useState<Monument[]>([]);
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [countries, setCountries] = useState<Country[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCity, setFilterCity] = useState<string>('all');
+  const [filterCountry, setFilterCountry] = useState<string>('all');
+  const [filterCountry, setFilterCountry] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterWidget, setFilterWidget] = useState<string>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -120,13 +126,16 @@ export default function ExperiencesPage() {
       setExperiences(expWithCategories);
     }
 
-    const { data: citiesData } = await supabase.from('cities').select('id, name, slug').order('name');
+    const { data: citiesData } = await supabase.from('cities').select('id, name, slug, country_id').order('name');
     if (citiesData) setCities(citiesData);
 
     const { data: categoriesData } = await supabase.from('categories').select('id, name, slug').order('name');
     if (categoriesData) setCategories(categoriesData);
 
     const { data: monumentsData } = await supabase.from('monuments').select('id, name, slug, city_id').order('name');
+
+    const { data: countriesData } = await supabase.from('countries').select('id, name, slug').order('name');
+    if (countriesData) setCountries(countriesData);
     if (monumentsData) setMonuments(monumentsData);
   };
 
@@ -141,6 +150,8 @@ export default function ExperiencesPage() {
         (exp.description && normalizeText(exp.description).includes(normalizedSearch));
       
       const matchesCity = filterCity === 'all' || exp.city_id === filterCity;
+      const cityData = cities.find(c => c.id === exp.city_id);
+      const matchesCountry = filterCountry === 'all' || cityData?.country_id === filterCountry;
       const matchesStatus = filterStatus === 'all' || 
         (filterStatus === 'active' && exp.active) ||
         (filterStatus === 'inactive' && !exp.active);
@@ -166,13 +177,14 @@ export default function ExperiencesPage() {
       const matchesCategory = filterCategory === 'all' || 
         (exp.experience_categories && exp.experience_categories.some(ec => ec.category_id === filterCategory));
       
-      return matchesSearch && matchesCity && matchesStatus && matchesWidget && matchesCategory && matchesTranslation;
+      return matchesSearch return matchesSearch && matchesCity && matchesStatusreturn matchesSearch && matchesCity && matchesStatus matchesCity return matchesSearch && matchesCity && matchesStatusreturn matchesSearch && matchesCity && matchesStatus matchesCountry && matchesStatus && matchesWidget && matchesCategory && matchesTranslation;
     });
-  }, [experiences, searchTerm, filterCity, filterStatus, filterWidget, filterCategory, filterTranslation]);
+  }, [experiences, searchTerm, filterCity, filterCountry, filterStatus, filterWidget, filterCategory, filterTranslation, cities]);
 
   const clearFilters = () => {
     setSearchTerm('');
     setFilterCity('all');
+    setFilterCountry('all');
     setFilterStatus('all');
     setFilterWidget('all');
     setFilterCategory('all');
@@ -517,6 +529,20 @@ export default function ExperiencesPage() {
               )}
             </div>
 
+
+            <div>
+              <select
+                value={filterCountry}
+                onChange={(e) => { setFilterCountry(e.target.value); setFilterCity('all'); }}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">Todos los países</option>
+                {countries.map(country => (
+                  <option key={country.id} value={country.id}>{country.name}</option>
+                ))}
+              </select>
+            </div>
+
             <div>
               <select
                 value={filterCity}
@@ -524,7 +550,7 @@ export default function ExperiencesPage() {
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">Todas las ciudades</option>
-                {cities.map(city => (
+                {(filterCountry === 'all' ? cities : cities.filter(c => c.country_id === filterCountry)).map(city => (
                   <option key={city.id} value={city.id}>{city.name}</option>
                 ))}
               </select>
