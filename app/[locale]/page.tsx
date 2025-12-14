@@ -5,6 +5,7 @@ import ExperienceCarousel from '@/components/ExperienceCarousel';
 import RecentlyViewedCarousel from '@/components/RecentlyViewedCarousel';
 import CategoryCarousel from '@/components/CategoryCarousel';
 import CityCarousel from '@/components/CityCarousel';
+import CountryCarousel from '@/components/CountryCarousel';
 import TrustBadges from '@/components/TrustBadges';
 import LinkFarm from '@/components/LinkFarm';
 import ContactBlock from '@/components/ContactBlock';
@@ -17,24 +18,6 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-const cityCountries: Record<string, string> = {
-  'roma': 'Italia',
-  'paris': 'Francia',
-  'barcelona': 'España',
-  'madrid': 'España',
-  'londres': 'Reino Unido',
-  'amsterdam': 'Países Bajos',
-  'berlin': 'Alemania',
-  'viena': 'Austria',
-  'praga': 'República Checa',
-  'lisboa': 'Portugal',
-  'florencia': 'Italia',
-  'venecia': 'Italia',
-  'atenas': 'Grecia',
-  'dublin': 'Irlanda',
-  'bruselas': 'Bélgica',
-};
-
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
@@ -44,9 +27,48 @@ export default async function HomePage({ params }: PageProps) {
   const lang = locale as Locale;
   const t = getMessages(lang);
 
+  // Cargar países
+  const { data: countriesFromDb } = await supabase
+    .from('countries')
+    .select('id, name, slug, image')
+    .order('name');
+
+  const countriesWithStats = await Promise.all(
+    (countriesFromDb || []).map(async (country) => {
+      const { count: cityCount } = await supabase
+        .from('cities')
+        .select('*', { count: 'exact', head: true })
+        .eq('country_id', country.id);
+
+      const { data: citiesData } = await supabase
+        .from('cities')
+        .select('id')
+        .eq('country_id', country.id);
+
+      let experienceCount = 0;
+      if (citiesData && citiesData.length > 0) {
+        const cityIds = citiesData.map(c => c.id);
+        const { count } = await supabase
+          .from('experiences')
+          .select('*', { count: 'exact', head: true })
+          .in('city_id', cityIds)
+          .eq('active', true);
+        experienceCount = count || 0;
+      }
+
+      return {
+        name: country.name,
+        slug: country.slug,
+        image: country.image,
+        cityCount: cityCount || 0,
+        experienceCount
+      };
+    })
+  );
+
   const { data: citiesFromDb } = await supabase
     .from('cities')
-    .select('id, name, slug, image')
+    .select('id, name, slug, image, country_id, countries(name)')
     .order('name');
 
   const { data: categoriesData } = await supabase
@@ -66,7 +88,7 @@ export default async function HomePage({ params }: PageProps) {
   );
 
   const citiesWithCount = await Promise.all(
-    (citiesFromDb || []).map(async (city) => {
+    (citiesFromDb || []).map(async (city: any) => {
       const { count } = await supabase
         .from('experiences')
         .select('*', { count: 'exact', head: true })
@@ -77,7 +99,7 @@ export default async function HomePage({ params }: PageProps) {
         name: city.name,
         slug: city.slug,
         image: city.image || '',
-        country: cityCountries[city.slug] || '',
+        country: city.countries?.name || '',
         experienceCount: count || 0
       };
     })
@@ -88,7 +110,6 @@ export default async function HomePage({ params }: PageProps) {
     .select(`
       id, title, slug, description, price, rating, reviews, duration, main_image, featured, city_id,
       cities(slug, name)
-      
     `)
     .eq('active', true)
     .order('created_at', { ascending: false });
@@ -106,14 +127,12 @@ export default async function HomePage({ params }: PageProps) {
     featured: exp.featured
   })) || [];
 
-  // Traducir experiencias
   const experiences = await translateExperiences(experiencesRaw, lang);
 
   const popularActivities = experiences.filter(e => e.featured || e.reviews > 5000).sort((a, b) => b.reviews - a.reviews).slice(0, 6);
   const worldBest = experiences.filter(e => e.rating >= 4.7).sort((a, b) => b.rating - a.rating || b.reviews - a.reviews).slice(0, 6);
   const ridatoursRecommended = experiences.slice(0, 6);
 
-  // Mapear y traducir categorías
   const categoriesRaw = categoriesWithCount.map(cat => ({
     name: cat.name,
     slug: cat.slug,
@@ -138,6 +157,16 @@ export default async function HomePage({ params }: PageProps) {
     name: c.name,
     slug: c.slug
   }));
+
+  const countryTexts: Record<string, { title: string; subtitle: string }> = {
+    es: { title: 'Explora por países', subtitle: 'Descubre destinos únicos en cada rincón del mundo' },
+    en: { title: 'Explore by country', subtitle: 'Discover unique destinations around the world' },
+    fr: { title: 'Explorer par pays', subtitle: 'Découvrez des destinations uniques dans le monde' },
+    it: { title: 'Esplora per paese', subtitle: 'Scopri destinazioni uniche in tutto il mondo' },
+    de: { title: 'Nach Ländern erkunden', subtitle: 'Entdecken Sie einzigartige Reiseziele weltweit' },
+  };
+
+  const countryTxt = countryTexts[lang] || countryTexts.es;
 
   return (
     <div className="min-h-screen bg-white">
@@ -165,6 +194,16 @@ export default async function HomePage({ params }: PageProps) {
       <TrustBadges lang={lang} />
       <CategoryCarousel categories={categories} lang={lang} />
       <RecentlyViewedCarousel lang={lang} />
+
+      {countriesWithStats.length > 0 && (
+        <CountryCarousel
+          title={countryTxt.title}
+          subtitle={countryTxt.subtitle}
+          countries={countriesWithStats}
+          viewAllLink={`/${lang}/paises`}
+          lang={lang}
+        />
+      )}
 
       <CityCarousel
         title={t.home.popularCities}
