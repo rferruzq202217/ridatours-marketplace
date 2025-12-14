@@ -57,7 +57,6 @@ export default function ExperiencesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [monuments, setMonuments] = useState<Monument[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
-  const [countries, setCountries] = useState<Country[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
