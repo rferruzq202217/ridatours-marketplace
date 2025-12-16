@@ -20,7 +20,7 @@ const uiTexts: Record<string, {
   noGuidesYet: string;
   guidesCount: string;
 }> = {
-  es: { title: 'Guías de Viaje', subtitle: 'Todo lo que necesitas saber para visitar los mejores monumentos de Europa. Consejos de expertos, entradas sin colas y trucos para aprovechar al máximo tu visita.', readGuide: 'Leer guía', noGuidesYet: 'Próximamente nuevas guías', guidesCount: 'guías disponibles' },
+  es: { title: 'Guías de Viaje', subtitle: 'Todo lo que necesitas saber para visitar los mejores monumentos del Mundo. Consejos de expertos, entradas sin colas y trucos para aprovechar al máximo tu visita.', readGuide: 'Leer guía', noGuidesYet: 'Próximamente nuevas guías', guidesCount: 'guías disponibles' },
   en: { title: 'Travel Guides', subtitle: 'Everything you need to know to visit the best monuments in Europe. Expert tips, skip-the-line tickets and tricks to make the most of your visit.', readGuide: 'Read guide', noGuidesYet: 'New guides coming soon', guidesCount: 'guides available' },
   fr: { title: 'Guides de Voyage', subtitle: 'Tout ce que vous devez savoir pour visiter les meilleurs monuments d\'Europe. Conseils d\'experts et astuces pour profiter au maximum de votre visite.', readGuide: 'Lire le guide', noGuidesYet: 'Nouveaux guides à venir', guidesCount: 'guides disponibles' },
   it: { title: 'Guide di Viaggio', subtitle: 'Tutto quello che devi sapere per visitare i migliori monumenti d\'Europa. Consigli di esperti e trucchi per sfruttare al massimo la tua visita.', readGuide: 'Leggi guida', noGuidesYet: 'Nuove guide in arrivo', guidesCount: 'guide disponibili' },
