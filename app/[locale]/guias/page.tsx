@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
 import { getAllPages, getMediaUrl } from '@/lib/payload';
 import { getMessages, Locale } from '@/lib/i18n';
-import { BookOpen, Calendar, ArrowRight, MapPin, Globe, ChevronRight } from 'lucide-react';
+import { BookOpen, Calendar, ArrowRight, MapPin, Globe } from 'lucide-react';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -39,22 +39,17 @@ const continentNames: Record<string, Record<string, string>> = {
   oceania: { es: 'Oceanía', en: 'Oceania', fr: 'Océanie', it: 'Oceania', de: 'Ozeanien' },
 };
 
-const countryNames: Record<string, Record<string, string>> = {
-
 const countryToContinent: Record<string, string> = {
-  // Europa
   'espana': 'europa', 'italia': 'europa', 'francia': 'europa', 'reino-unido': 'europa',
   'alemania': 'europa', 'portugal': 'europa', 'grecia': 'europa', 'paises-bajos': 'europa',
   'austria': 'europa', 'belgica': 'europa', 'republica-checa': 'europa', 'irlanda': 'europa',
   'suiza': 'europa', 'croacia': 'europa', 'hungria': 'europa', 'polonia': 'europa',
-  // Asia
   'turquia': 'asia', 'japon': 'asia', 'tailandia': 'asia',
-  // África
   'marruecos': 'africa',
-  // América del Norte
   'estados-unidos': 'america-norte', 'mexico': 'america-norte',
 };
 
+const countryNames: Record<string, Record<string, string>> = {
   espana: { es: 'España', en: 'Spain', fr: 'Espagne', it: 'Spagna', de: 'Spanien' },
   italia: { es: 'Italia', en: 'Italy', fr: 'Italie', it: 'Italia', de: 'Italien' },
   francia: { es: 'Francia', en: 'France', fr: 'France', it: 'Francia', de: 'Frankreich' },
@@ -107,16 +102,16 @@ export default async function GuiasPage({ params }: PageProps) {
     return acc;
   }, {} as Record<string, { name: string; slug: string; guias: typeof guias; image: string | null }>);
 
-  // Ordenar ciudades alfabéticamente
   const citiesSorted = Object.values(guiasByCity)
     .filter(c => c.slug !== 'otros')
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  // Agrupar países por continente
+  // Agrupar países por continente (usando mapeo automático)
   const countriesByContinent = guias.reduce((acc, guia) => {
-    const continent = countryToContinent[guia.country || ''] || 'europa';
     const country = guia.country;
     if (!country) return acc;
+    
+    const continent = countryToContinent[country] || 'europa';
     
     if (!acc[continent]) acc[continent] = {};
     if (!acc[continent][country]) {
@@ -175,7 +170,7 @@ export default async function GuiasPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Ciudades destacadas - Carrusel horizontal */}
+          {/* Ciudades destacadas */}
           {citiesSorted.length > 0 && (
             <section className="mb-16">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">{ui.citiesTitle}</h2>
