@@ -40,6 +40,21 @@ const continentNames: Record<string, Record<string, string>> = {
 };
 
 const countryNames: Record<string, Record<string, string>> = {
+
+const countryToContinent: Record<string, string> = {
+  // Europa
+  'espana': 'europa', 'italia': 'europa', 'francia': 'europa', 'reino-unido': 'europa',
+  'alemania': 'europa', 'portugal': 'europa', 'grecia': 'europa', 'paises-bajos': 'europa',
+  'austria': 'europa', 'belgica': 'europa', 'republica-checa': 'europa', 'irlanda': 'europa',
+  'suiza': 'europa', 'croacia': 'europa', 'hungria': 'europa', 'polonia': 'europa',
+  // Asia
+  'turquia': 'asia', 'japon': 'asia', 'tailandia': 'asia',
+  // África
+  'marruecos': 'africa',
+  // América del Norte
+  'estados-unidos': 'america-norte', 'mexico': 'america-norte',
+};
+
   espana: { es: 'España', en: 'Spain', fr: 'Espagne', it: 'Spagna', de: 'Spanien' },
   italia: { es: 'Italia', en: 'Italy', fr: 'Italie', it: 'Italia', de: 'Italien' },
   francia: { es: 'Francia', en: 'France', fr: 'France', it: 'Francia', de: 'Frankreich' },
@@ -99,7 +114,7 @@ export default async function GuiasPage({ params }: PageProps) {
 
   // Agrupar países por continente
   const countriesByContinent = guias.reduce((acc, guia) => {
-    const continent = guia.continent || 'europa';
+    const continent = countryToContinent[guia.country || ''] || 'europa';
     const country = guia.country;
     if (!country) return acc;
     
