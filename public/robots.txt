@@ -1,4 +1,11 @@
+# *
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api
 
-Sitemap: https://www.ridatours.com/sitemap.xml
+# Host
+Host: https://ridatours.com
+
+# Sitemaps
+Sitemap: https://ridatours.com/sitemap.xml

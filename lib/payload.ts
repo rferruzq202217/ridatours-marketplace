@@ -20,6 +20,10 @@ export interface PayloadPage {
   publishedAt?: string;
   createdAt: string;
   updatedAt: string;
+  city?: string;
+  citySlug?: string;
+  country?: string;
+  continent?: string;
 }
 
 export interface PayloadMedia {
