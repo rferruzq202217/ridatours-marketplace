@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Building2, MapPin, Tag, Landmark, Globe, Languages, LogOut, Ticket, BookOpen, ExternalLink } from 'lucide-react';
+import { Building2, MapPin, Tag, Landmark, Globe, Languages, LogOut, Ticket, BookOpen, ExternalLink, Layout } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 export default function AdminPanel() {
@@ -52,6 +52,7 @@ export default function AdminPanel() {
     { href: '/admin/monuments', icon: Landmark, title: 'Monumentos', desc: 'Lugares emblemáticos', count: counts.monuments, color: 'amber', external: false },
     { href: '/admin/translations', icon: Languages, title: 'Traducciones', desc: 'Gestiona los idiomas', count: counts.translations, color: 'indigo', external: false },
     { href: 'https://ridatours-cms.vercel.app/admin', icon: BookOpen, title: 'Guías de Viaje', desc: 'CMS de contenido editorial', count: 0, color: 'rose', external: true },
+    { href: 'https://ridatech-landings-cms.vercel.app/admin', icon: Layout, title: 'Landing Pages', desc: 'Páginas de aterrizaje', count: 0, color: 'cyan', external: true },
   ];
 
   const colorClasses: Record<string, { bg: string; text: string; border: string }> = {
@@ -62,6 +63,7 @@ export default function AdminPanel() {
     amber: { bg: 'bg-amber-100', text: 'text-amber-600', border: 'hover:border-amber-500' },
     indigo: { bg: 'bg-indigo-100', text: 'text-indigo-600', border: 'hover:border-indigo-500' },
     rose: { bg: 'bg-rose-100', text: 'text-rose-600', border: 'hover:border-rose-500' },
+    cyan: { bg: 'bg-cyan-100', text: 'text-cyan-600', border: 'hover:border-cyan-500' },
   };
 
   return (
@@ -103,13 +105,7 @@ export default function AdminPanel() {
             
             if (card.external) {
               return (
-                <a
-                  key={card.href}
-                  href={card.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`p-6 bg-white rounded-xl border-2 border-gray-200 ${colors.border} transition-all hover:shadow-lg relative`}
-                >
+                <a key={card.href} href={card.href} target="_blank" rel="noopener noreferrer" className={`p-6 bg-white rounded-xl border-2 border-gray-200 ${colors.border} transition-all hover:shadow-lg relative`}>
                   <ExternalLink className="absolute top-4 right-4 text-gray-400" size={16} />
                   <div className="flex items-start justify-between">
                     <div className={`p-3 rounded-lg ${colors.bg}`}>
@@ -123,11 +119,7 @@ export default function AdminPanel() {
             }
             
             return (
-              <Link
-                key={card.href}
-                href={card.href}
-                className={`p-6 bg-white rounded-xl border-2 border-gray-200 ${colors.border} transition-all hover:shadow-lg`}
-              >
+              <Link key={card.href} href={card.href} className={`p-6 bg-white rounded-xl border-2 border-gray-200 ${colors.border} transition-all hover:shadow-lg`}>
                 <div className="flex items-start justify-between">
                   <div className={`p-3 rounded-lg ${colors.bg}`}>
                     <CardIcon className={colors.text} size={24} />
