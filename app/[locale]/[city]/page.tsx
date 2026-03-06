@@ -26,7 +26,10 @@ interface PageProps {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; city: string }> }): Promise<Metadata> {
   const { locale, city: citySlug } = await params;
   return {
-    alternates: generateAlternates(`/${citySlug}`),
+    alternates: {
+      ...generateAlternates(`/${citySlug}`),
+      canonical: `https://www.ridatours.com/${locale}/${citySlug}`,
+    },
   };
 }
 

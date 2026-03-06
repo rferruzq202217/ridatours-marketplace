@@ -52,7 +52,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description,
-    alternates: generateAlternates(path),
+    alternates: {
+      ...generateAlternates(path),
+      canonical: `https://www.ridatours.com/${locale}/${citySlug}/${slug}`,
+    },
     openGraph: {
       title,
       description,
