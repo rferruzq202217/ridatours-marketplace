@@ -9,7 +9,6 @@ import { Star, Clock, Landmark } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 import { formatPrice } from '@/lib/formatPrice';
 import CityFilters from '@/components/city/CityFilters';
-import { Metadata } from 'next';
 import { generateCitySchema, generateAlternates } from '@/lib/schema';
 import { getMessages, Locale } from '@/lib/i18n';
 import { translateExperiences } from '@/lib/translateHelpers';

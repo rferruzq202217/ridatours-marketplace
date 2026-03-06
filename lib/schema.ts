@@ -76,7 +76,7 @@ export function generateExperienceSchema(params: {
 // ─────────────────────────────────────────────
 // 4. Hreflang alternates para generateMetadata
 // ─────────────────────────────────────────────
-export function generateAlternates(path: string) {
+export function generateAlternates(path: string): { languages: Record<string, string> } {
   const locales = ['es', 'en', 'fr', 'it', 'de'];
   const base = 'https://www.ridatours.com';
   const languages: Record<string, string> = {};
