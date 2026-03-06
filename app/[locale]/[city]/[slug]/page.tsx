@@ -14,7 +14,7 @@ import { translateExperience } from '@/lib/translateExperience';
 import { Star, Clock, Check } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 import SaveRecentlyViewed from '@/components/SaveRecentlyViewed';
-import { generateExperienceSchema } from '@/lib/schema';
+import { generateExperienceSchema, generateAlternates } from '@/lib/schema';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -48,9 +48,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = `${experience.title} - ${city.name}`;
   const description = experience.description || `Reserva ${experience.title} en ${city.name}. Desde ${experience.price}€. Valoración: ${experience.rating}/5 (${experience.reviews} opiniones).`;
 
+  const path = `/${citySlug}/${slug}`;
   return {
     title,
     description,
+    alternates: generateAlternates(path),
     openGraph: {
       title,
       description,

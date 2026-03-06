@@ -9,7 +9,8 @@ import { Star, Clock, Landmark } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 import { formatPrice } from '@/lib/formatPrice';
 import CityFilters from '@/components/city/CityFilters';
-import { generateCitySchema } from '@/lib/schema';
+import { Metadata } from 'next';
+import { generateCitySchema, generateAlternates } from '@/lib/schema';
 import { getMessages, Locale } from '@/lib/i18n';
 import { translateExperiences } from '@/lib/translateHelpers';
 
@@ -21,6 +22,13 @@ const supabase = createClient(
 interface PageProps {
   params: Promise<{ locale: string; city: string }>;
   searchParams: Promise<{ category?: string }>;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; city: string }> }): Promise<Metadata> {
+  const { locale, city: citySlug } = await params;
+  return {
+    alternates: generateAlternates(`/${citySlug}`),
+  };
 }
 
 export default async function CityPage({ params, searchParams }: PageProps) {

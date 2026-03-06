@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
-import { generateWebSiteSchema } from '@/lib/schema';
+import { Metadata } from 'next';
+import { generateWebSiteSchema, generateAlternates } from '@/lib/schema';
 import Footer from '@/components/Footer';
 import SearchBar from '@/components/SearchBar';
 import ExperienceCarousel from '@/components/ExperienceCarousel';
@@ -21,6 +22,13 @@ const supabase = createClient(
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    alternates: generateAlternates(''),
+  };
 }
 
 export default async function HomePage({ params }: PageProps) {
