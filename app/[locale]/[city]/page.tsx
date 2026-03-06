@@ -9,6 +9,7 @@ import { Star, Clock, Landmark } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 import { formatPrice } from '@/lib/formatPrice';
 import CityFilters from '@/components/city/CityFilters';
+import { generateCitySchema } from '@/lib/schema';
 import { getMessages, Locale } from '@/lib/i18n';
 import { translateExperiences } from '@/lib/translateHelpers';
 
@@ -101,8 +102,22 @@ export default async function CityPage({ params, searchParams }: PageProps) {
     de: 'Ikonische Denkmäler'
   };
 
+  const schemaData = generateCitySchema({
+    cityName: city.name,
+    citySlug: city.slug,
+    description: city.description || defaultDescriptions[lang] || defaultDescriptions.es,
+    image: city.image,
+    locale: lang,
+    avgRating,
+    totalReviews,
+    totalExperiences,
+  });
+
   return (
     <div className="min-h-screen bg-white">
+      {schemaData.map((schema, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      ))}
       <Header lang={lang} />
       
       <div className="pt-32 pb-16">

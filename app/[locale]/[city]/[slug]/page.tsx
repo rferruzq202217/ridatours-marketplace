@@ -14,6 +14,7 @@ import { translateExperience } from '@/lib/translateExperience';
 import { Star, Clock, Check } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 import SaveRecentlyViewed from '@/components/SaveRecentlyViewed';
+import { generateExperienceSchema } from '@/lib/schema';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -125,8 +126,26 @@ export default async function ExperiencePage({ params }: PageProps) {
 
   const validGallery = experience.gallery?.filter((img: string) => img?.trim()) || [];
 
+  const schemaData = generateExperienceSchema({
+    title: experience.title,
+    description: experience.description || '',
+    image: experience.main_image,
+    price: experience.price,
+    rating: experience.rating,
+    reviews: experience.reviews,
+    duration: experience.duration,
+    cityName: city.name,
+    citySlug: city.slug,
+    slug: experience.slug,
+    locale: lang,
+    featured: experience.featured,
+  });
+
   return (
     <div className="min-h-screen bg-white">
+      {schemaData.map((schema, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      ))}
       <Header lang={lang} />
       <SaveRecentlyViewed 
         experience={{

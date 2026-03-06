@@ -1,4 +1,5 @@
 import Header from '@/components/Header';
+import { generateWebSiteSchema } from '@/lib/schema';
 import Footer from '@/components/Footer';
 import SearchBar from '@/components/SearchBar';
 import ExperienceCarousel from '@/components/ExperienceCarousel';
@@ -168,8 +169,11 @@ export default async function HomePage({ params }: PageProps) {
 
   const countryTxt = countryTexts[lang] || countryTexts.es;
 
+  const schemaData = generateWebSiteSchema(lang);
+
   return (
     <div className="min-h-screen bg-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }} />
       <Header lang={lang} transparent={true} showSearch={true} />
       
       <div className="relative h-[65vh] overflow-hidden">
