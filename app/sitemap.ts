@@ -107,5 +107,39 @@ export default async function sitemap() {
     }
   }
 
+  // Blog posts (Payload CMS)
+  try {
+    const PAYLOAD_URL = process.env.NEXT_PUBLIC_PAYLOAD_URL || process.env.PAYLOAD_URL || 'https://ridatours-cms.vercel.app';
+    const postsRes = await fetch(`${PAYLOAD_URL}/api/posts?limit=100&where[_status][equals]=published`);
+    if (postsRes.ok) {
+      const postsData = await postsRes.json();
+      for (const lang of LANGUAGES) {
+        urls.push({ url: `${BASE_URL}/${lang}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 });
+      }
+      for (const post of postsData.docs || []) {
+        for (const lang of LANGUAGES) {
+          urls.push({ url: `${BASE_URL}/${lang}/blog/${post.slug}`, lastModified: new Date(post.updatedAt || new Date()), changeFrequency: 'monthly', priority: 0.7 });
+        }
+      }
+    }
+  } catch (e) { console.error('Sitemap blog error', e); }
+
+  // Guías de viaje (Payload CMS)
+  try {
+    const PAYLOAD_URL = process.env.NEXT_PUBLIC_PAYLOAD_URL || process.env.PAYLOAD_URL || 'https://ridatours-cms.vercel.app';
+    const pagesRes = await fetch(`${PAYLOAD_URL}/api/pages?limit=100&depth=1`);
+    if (pagesRes.ok) {
+      const pagesData = await pagesRes.json();
+      for (const lang of LANGUAGES) {
+        urls.push({ url: `${BASE_URL}/${lang}/guias`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 });
+      }
+      for (const page of pagesData.docs || []) {
+        for (const lang of LANGUAGES) {
+          urls.push({ url: `${BASE_URL}/${lang}/guias/${page.slug}`, lastModified: new Date(page.updatedAt || new Date()), changeFrequency: 'monthly', priority: 0.7 });
+        }
+      }
+    }
+  } catch (e) { console.error('Sitemap guias error', e); }
+
   return urls;
 }
