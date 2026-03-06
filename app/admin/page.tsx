@@ -107,7 +107,7 @@ export default function AdminPanel() {
             
             if (card.external) {
               return (
-                
+                <a
                   key={card.href}
                   href={card.href}
                   target="_blank"
