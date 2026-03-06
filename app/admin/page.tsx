@@ -1,4 +1,5 @@
-'use client';
+'use client'
+import React from 'react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -123,6 +124,7 @@ export default function AdminPanel() {
                   <h2 className="text-xl font-bold text-gray-900 mt-4">{card.title}</h2>
                   <p className="text-gray-600 mt-1">{card.desc}</p>
                 </a>
+                </React.Fragment>
               );
             }
             
