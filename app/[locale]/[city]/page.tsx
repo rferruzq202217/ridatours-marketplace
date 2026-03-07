@@ -41,7 +41,7 @@ export default async function CityPage({ params, searchParams }: PageProps) {
 
   const { data: city } = await supabase
     .from('cities')
-    .select('*')
+    .select('*, description_long')
     .eq('slug', citySlug)
     .single();
 
@@ -284,6 +284,17 @@ export default async function CityPage({ params, searchParams }: PageProps) {
           ) : (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">{t.common.noResults}</p>
+            </div>
+          )}
+
+          {city.description_long && (
+            <div className="mt-16 bg-gray-50 rounded-2xl p-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">
+                Sobre {city.name}
+              </h2>
+              <p className="text-gray-700 text-lg leading-relaxed text-justify whitespace-pre-line">
+                {city.description_long}
+              </p>
             </div>
           )}
         </div>
