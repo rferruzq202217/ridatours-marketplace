@@ -25,7 +25,30 @@ interface PageProps {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; city: string }> }): Promise<Metadata> {
   const { locale, city: citySlug } = await params;
+
+  // Fetch city data for dynamic metadata
+  const { data: city } = await supabase
+    .from('cities')
+    .select('name, description')
+    .eq('slug', citySlug)
+    .single();
+
+  // Fallback values if city not found
+  const cityName = city?.name || 'tu destino';
+  const title = `Qué hacer en ${cityName} - Entradas y Tours | Ridatours`;
+  const description = `Descubre las mejores experiencias en ${cityName}. Entradas a monumentos, tours y actividades. Reserva online con acceso prioritario.`;
+
   return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `https://www.ridatours.com/${locale}/${citySlug}`,
+      siteName: 'Ridatours',
+      locale: locale,
+      type: 'website',
+    },
     alternates: {
       ...generateAlternates(`/${citySlug}`),
       canonical: `https://www.ridatours.com/${locale}/${citySlug}`,
