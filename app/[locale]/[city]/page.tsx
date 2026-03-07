@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   // Fallback values if city not found
   const cityName = city?.name || 'tu destino';
-  const title = `Qué hacer en ${cityName} - Entradas y Tours | Ridatours`;
+  const title = `Qué hacer en ${cityName} - Entradas y Tours`;
   const description = `Descubre las mejores experiencias en ${cityName}. Entradas a monumentos, tours y actividades. Reserva online con acceso prioritario.`;
 
   return {
