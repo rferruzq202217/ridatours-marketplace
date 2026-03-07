@@ -46,7 +46,7 @@
   },
   "experience": {
     "book": "Reservar",
-    "aboutActivity": "Acerca de esta experiencia",
+    "aboutActivity": "Acerca de esta experiencia"
     "highlights": "Lo más destacado",
     "whatsIncluded": "Qué incluye",
     "whatsNotIncluded": "Qué NO incluye",
@@ -71,6 +71,6 @@
     "tagline": "Tu puerta de entrada a las mejores experiencias del mundo",
     "downloadedBy": "Descargado por",
     "travelers": "viajeros",
-    "copyright": "© 2024-2025 Ridatours"
+    "copyright": "© 2024-2026 Ridatours"
   }
 }
