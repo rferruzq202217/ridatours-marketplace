@@ -1,76 +1,84 @@
 {
-  "common": {
-    "search": "Buscar ciudades, monumentos, experiencias...",
-    "from": "Desde",
-    "perPerson": "por persona",
-    "reviews": "opiniones",
-    "seeAll": "Ver todo",
-    "back": "Volver",
-    "home": "Inicio",
-    "cities": "Ciudades",
-    "experiences": "Experiencias",
-    "monuments": "Monumentos",
-    "categories": "Categorías",
-    "featured": "DESTACADO",
-    "popular": "POPULAR",
-    "topRated": "TOP VALORADO",
-    "save": "Ahorra",
-    "instantConfirmation": "Confirmación inmediata",
-    "mobileTicket": "Entrada móvil aceptada",
-    "freeCancellation": "Cancelación gratuita hasta 24h antes",
-    "available": "disponibles",
-    "noResults": "No se encontraron resultados",
-    "noImage": "Sin imagen"
-  },
-  "nav": {
-    "destinations": "Destinos",
-    "allDestinations": "Todos los destinos",
-    "support": "Soporte",
-    "helpCenter": "Centro de ayuda",
-    "terms": "Términos y condiciones",
-    "privacy": "Política de privacidad"
-  },
-  "home": {
-    "heroTitle": "Descubre experiencias únicas en todo el mundo",
-    "heroSubtitle": "Tours, atracciones y actividades en los mejores destinos",
-    "popularCities": "Ciudades populares",
-    "topExperiences": "Experiencias mejor valoradas",
-    "browseCategories": "Explora por categorías",
-    "recentlyViewed": "Visto recientemente",
-    "worldExperiences": "Experiencias por el mundo"
-  },
-  "city": {
-    "thingsToDo": "Qué hacer en",
-    "allExperiences": "Todas las experiencias en",
-    "iconicMonuments": "Monumentos emblemáticos"
-  },
-  "experience": {
-    "book": "Reservar",
-    "aboutActivity": "Acerca de esta experiencia"
-    "highlights": "Lo más destacado",
-    "whatsIncluded": "Qué incluye",
-    "whatsNotIncluded": "Qué NO incluye",
-    "meetingPoint": "Punto de encuentro",
-    "importantInfo": "Información importante",
-    "additionalInfo": "Información adicional",
-    "languages": "Idiomas disponibles",
-    "accessibility": "Accesibilidad",
-    "dressCode": "Código de vestimenta",
-    "restrictions": "Restricciones",
-    "cancellationPolicy": "Política de cancelación",
-    "alsoInterested": "También te puede interesar",
-    "moreExperiencesIn": "Más experiencias en"
-  },
-  "tabs": {
-    "overview": "Descripción",
-    "included": "Incluido",
-    "info": "Info"
-  },
-  "footer": {
-    "explore": "Explorar",
-    "tagline": "Tu puerta de entrada a las mejores experiencias del mundo",
-    "downloadedBy": "Descargado por",
-    "travelers": "viajeros",
-    "copyright": "© 2024-2026 Ridatours"
-  }
+    "common": {
+          "search": "Buscar ciudades, monumentos, experiencias...",
+          "from": "Desde",
+          "perPerson": "por persona",
+          "reviews": "opiniones",
+          "seeAll": "Ver todo",
+          "back": "Volver",
+          "home": "Inicio",
+          "cities": "Ciudades",
+          "experiences": "Experiencias",
+          "monuments": "Monumentos",
+          "categories": "Categorías",
+          "featured": "DESTACADO",
+          "popular": "POPULAR",
+          "topRated": "TOP VALORADO",
+          "save": "Ahorra",
+          "instantConfirmation": "Confirmación inmediata",
+          "mobileTicket": "Entrada móvil aceptada",
+          "freeCancellation": "Cancelación gratuita hasta 24h antes",
+          "available": "disponibles",
+          "noResults": "No se encontraron resultados",
+          "noImage": "Sin imagen"
+    },
+    "nav": {
+          "destinations": "Destinos",
+          "allDestinations": "Todos los destinos",
+          "support": "Soporte",
+          "helpCenter": "Centro de ayuda",
+          "terms": "Términos y condiciones",
+          "privacy": "Política de privacidad"
+    },
+    "home": {
+          "heroTitle": "Descubre experiencias únicas en todo el mundo",
+          "heroSubtitle": "Tours, atracciones y actividades en los mejores destinos",
+          "popularCities": "Ciudades populares",
+          "topExperiences": "Experiencias mejor valoradas",
+          "browseCategories": "Explora por categorías",
+          "recentlyViewed": "Visto recientemente",
+          "worldExperiences": "Experiencias por el mundo"
+    },
+    "city": {
+          "thingsToDo": "Qué hacer en",
+          "allExperiences": "Todas las experiencias en",
+          "iconicMonuments": "Monumentos emblemáticos"
+    },
+    "experience": {
+          "book": "Reservar",
+          "aboutActivity": "Acerca de esta experiencia",
+          "highlights": "Lo más destacado",
+          "whatsIncluded": "Qué incluye",
+          "whatsNotIncluded": "Qué NO incluye",
+          "meetingPoint": "Punto de encuentro",
+          "importantInfo": "Información importante",
+          "additionalInfo": "Información adicional",
+          "languages": "Idiomas disponibles",
+          "accessibility": "Accesibilidad",
+          "dressCode": "Código de vestimenta",
+          "restrictions": "Restricciones",
+          "cancellationPolicy": "Política de cancelación",
+          "alsoInterested": "También te puede interesar",
+          "moreExperiencesIn": "Más experiencias en"
+    },
+    "tabs": {
+          "overview": "Descripción",
+          "included": "Incluido",
+          "info": "Info"
+    },
+    "footer": {
+          "explore": "Explorar",
+          "tagline": "Tu puerta de entrada a las mejores experiencias del mundo",
+          "downloadedBy": "Descargado por",
+          "travelers": "viajeros",
+          "copyright": "© 2024-2026 Ridatours"
+    },
+    "seo": {
+          "experienceTitle": "{title} en {city} | Entradas sin colas {year} | Ridatours",
+          "experienceDescription": "Reserva {title} en {city} desde {price}€. ⭐ {rating}/5 ({reviews} opiniones). Cancelación gratuita. Acceso prioritario garantizado con Ridatours.",
+          "cityTitle": "Qué hacer en {city} {year} — Entradas y Tours sin colas | Ridatours",
+          "cityDescription": "Descubre las mejores experiencias en {city}: museos, monumentos y tours. Reserva online con acceso prioritario y cancelación gratuita. ¡Ahorra tiempo y dinero!",
+          "homeTitle": "Ridatours — Entradas y Tours sin colas en todo el mundo {year}",
+          "homeDescription": "Reserva entradas y tours en más de 100 destinos con acceso prioritario. Sin colas, cancelación gratuita y los mejores precios. Barcelona, Roma, París, Londres y más."
+    }
 }
