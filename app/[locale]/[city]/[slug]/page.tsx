@@ -45,8 +45,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Experiencia no encontrada' };
   }
 
-  const title = `${experience.title} - ${city.name}`;
-  const description = experience.description || `Reserva ${experience.title} en ${city.name}. Desde ${experience.price}€. Valoración: ${experience.rating}/5 (${experience.reviews} opiniones).`;
+    const expTitle = experience.title;
+      const cityName = city.name;
+      const price = experience.price ? `${experience.price}€` : '';
+      const rating = experience.rating ? `${experience.rating}/5` : '';
+      const reviews = experience.reviews || 0;
+
+      // Title: mismo para todos los idiomas (nombre propio + ciudad)
+      const title = `${expTitle} - ${cityName}`;
+
+      // Description persuasiva por idioma con datos dinámicos
+      const descriptionByLocale: Record<string, string> = {
+              es: experience.description || `Reserva ${expTitle} en ${cityName} sin colas. ${price ? `Desde ${price}.` : ''} ${rating ? `Valoración: ${rating} (${reviews} opiniones).` : ''} Acceso prioritario y cancelación gratuita 24h.`,
+              en: experience.description || `Book ${expTitle} in ${cityName} - skip the line. ${price ? `From ${price}.` : ''} ${rating ? `Rated ${rating} (${reviews} reviews).` : ''} Priority access & free cancellation.`,
+              fr: experience.description || `Réservez ${expTitle} à ${cityName} - coupe-file. ${price ? `À partir de ${price}.` : ''} ${rating ? `Note: ${rating} (${reviews} avis).` : ''} Accès prioritaire et annulation gratuite.`,
+              it: experience.description || `Prenota ${expTitle} a ${cityName} - salta fila. ${price ? `Da ${price}.` : ''} ${rating ? `Valutazione: ${rating} (${reviews} recensioni).` : ''} Accesso prioritario e cancellazione gratuita.`,
+              de: experience.description || `Buchen Sie ${expTitle} in ${cityName} - ohne Wartezeit. ${price ? `Ab ${price}.` : ''} ${rating ? `Bewertung: ${rating} (${reviews} Bewertungen).` : ''} Bevorzugter Zugang & kostenlose Stornierung.`,
+      };
+      const description = descriptionByLocale[locale] || descriptionByLocale['en'];
 
   const path = `/${citySlug}/${slug}`;
   return {
