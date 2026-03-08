@@ -85,4 +85,108 @@ export function generateAlternates(path: string): { languages: Record<string, st
   }
   languages['x-default'] = `${base}/es${path}`;
   return { languages };
+
+  // ------------------------------------
+  // 5. Schema para páginas de Guías
+  // ------------------------------------
+  export function generateGuiaSchema(params: {
+      title: string;
+      description: string;
+      slug: string;
+      image?: string;
+      city: string;
+      locale: string;
+      updatedAt?: string;
+      productos?: Array<{
+            nombre: string;
+            descripcionCorta?: string;
+            precio?: string;
+            urlAfiliado?: string;
+      }>;
+      faqs?: Array<{
+            pregunta: string;
+            respuesta: string;
+      }>;
+  }) {
+      const { title, description, slug, image, city, locale, updatedAt, productos, faqs } = params;
+      const guiaUrl = `https://www.ridatours.com/${locale}/guias/${slug}`;
+      const schemas: object[] = [];
+
+      // 1. Article schema — guía como contenido editorial
+      schemas.push({
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            headline: title,
+            description,
+            ...(image && { image }),
+            url: guiaUrl,
+            dateModified: updatedAt || new Date().toISOString(),
+            publisher: {
+                    '@type': 'Organization',
+                    name: 'Ridatours',
+                    url: 'https://www.ridatours.com',
+                    logo: { '@type': 'ImageObject', url: 'https://www.ridatours.com/logo.png' },
+            },
+            inLanguage: locale,
+      });
+
+      // 2. ItemList schema — tickets/tours recomendados en la guía
+      if (productos && productos.length > 0) {
+            schemas.push({
+                    '@context': 'https://schema.org',
+                    '@type': 'ItemList',
+                    name: `Entradas y tours recomendados para ${city}`,
+                    description: `Los mejores tickets y tours para visitar ${city}`,
+                    numberOfItems: productos.length,
+                    itemListElement: productos.map((producto, index) => ({
+                              '@type': 'ListItem',
+                              position: index + 1,
+                              name: producto.nombre,
+                              ...(producto.descripcionCorta && { description: producto.descripcionCorta }),
+                              ...(producto.urlAfiliado && { url: producto.urlAfiliado }),
+                              ...(producto.precio && {
+                                          item: {
+                                                        '@type': 'Product',
+                                                        name: producto.nombre,
+                                                        offers: {
+                                                                        '@type': 'Offer',
+                                                                        price: producto.precio.replace('€', '').trim(),
+                                                                        priceCurrency: 'EUR',
+                                                                        availability: 'https://schema.org/InStock',
+                                                        },
+                                          },
+                              }),
+                    })),
+            });
+      }
+
+      // 3. FAQPage schema — preguntas frecuentes si existen
+      if (faqs && faqs.length > 0) {
+            schemas.push({
+                    '@context': 'https://schema.org',
+                    '@type': 'FAQPage',
+                    mainEntity: faqs.map((faq) => ({
+                              '@type': 'Question',
+                              name: faq.pregunta,
+                              acceptedAnswer: {
+                                          '@type': 'Answer',
+                                          text: faq.respuesta,
+                              },
+                    })),
+            });
+      }
+
+      // 4. BreadcrumbList
+      schemas.push({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Inicio', item: `https://www.ridatours.com/${locale}` },
+              { '@type': 'ListItem', position: 2, name: 'Guías', item: `https://www.ridatours.com/${locale}/guias` },
+              { '@type': 'ListItem', position: 3, name: title, item: guiaUrl },
+                  ],
+      });
+
+      return schemas;
+  }
 }
