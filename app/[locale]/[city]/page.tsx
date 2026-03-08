@@ -24,7 +24,7 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; city: string }> }): Promise<Metadata> {
-  const { locale, city: citySlug } = await params;
+  const { locale, city: citySlug } = await params
 
   // Fetch city data for dynamic metadata
   const { data: city } = await supabase
@@ -35,8 +35,32 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   // Fallback values if city not found
   const cityName = city?.name || 'tu destino';
-  const title = `Qué hacer en ${cityName} - Entradas y Tours`;
-  const description = `Descubre las mejores experiencias en ${cityName}. Entradas a monumentos, tours y actividades. Reserva online con acceso prioritario.`;
+  // Meta copy persuasivo por idioma con keywords de conversión
+    const metaCopy: Record<string, { title: string; description: string }> = {
+          es: {
+                  title: `${cityName}: Entradas Sin Colas + Tours Oficiales | Ridatours`,
+                  description: `Reserva entradas a ${cityName} sin colas. Acceso prioritario, cancelación gratuita 24h y los mejores tours guiados. ¡Ahorra tiempo y dinero!`,
+          },
+          en: {
+                  title: `${cityName}: Skip-the-Line Tickets & Best Tours | Ridatours`,
+                  description: `Book skip-the-line tickets to ${cityName}'s top attractions. Priority access, free cancellation & expert guided tours. Save time and get the best prices!`,
+          },
+          fr: {
+                  title: `${cityName}: Billets Coupe-File & Meilleurs Tours | Ridatours`,
+                  description: `Réservez vos billets coupe-file pour ${cityName}. Accès prioritaire, annulation gratuite 24h et visites guidées. Économisez du temps!`,
+          },
+          it: {
+                  title: `${cityName}: Biglietti Salta Fila & Tour Ufficiali | Ridatours`,
+                  description: `Prenota biglietti salta fila per ${cityName}. Accesso prioritario, cancellazione gratuita e tour guidati. Risparmia tempo e goditi la città!`,
+          },
+          de: {
+                  title: `${cityName}: Tickets ohne Wartezeit & Touren | Ridatours`,
+                  description: `Buchen Sie Tickets ohne Wartezeit für ${cityName}. Bevorzugter Zugang, kostenlose Stornierung 24h & Touren. Zeit sparen und mehr erleben!`,
+          },
+    };
+    const copy = metaCopy[locale] || metaCopy['en'];
+    const title = copy.title;
+    const description = copy.description;
 
   return {
     title,
