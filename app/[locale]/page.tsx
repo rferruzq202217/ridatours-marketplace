@@ -24,13 +24,47 @@ interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> 
   const { locale } = await params;
+    // Meta copy persuasivo por idioma con keywords de conversión
+  const metaCopy: Record<string, { title: string; description: string }> = {
+        es: {
+                title: 'Entradas Sin Colas + Tours Oficiales por el Mundo | Ridatours',
+                description: 'Reserva entradas sin colas a los monumentos más famosos del mundo. Acceso prioritario, cancelación gratuita 24h y los mejores tours guiados. ¡Ahorra tiempo y dinero!',
+        },
+        en: {
+                title: 'Skip-the-Line Tickets & Best Tours Worldwide | Ridatours',
+                description: 'Book skip-the-line tickets to the world\'s top attractions. Priority access, free cancellation & expert guided tours. Save time and get the best prices!',
+        },
+        fr: {
+                title: 'Billets Coupe-File & Meilleurs Tours dans le Monde | Ridatours',
+                description: 'Réservez vos billets coupe-file pour les sites incontournables. Accès prioritaire, annulation gratuite 24h et visites guidées. Économisez du temps et de l\'argent!',
+        },
+        it: {
+                title: 'Biglietti Salta Fila & Tour Ufficiali nel Mondo | Ridatours',
+                description: 'Prenota biglietti salta fila per le attrazioni più famose al mondo. Accesso prioritario, cancellazione gratuita e tour guidati. Risparmia tempo e goditi il viaggio!',
+        },
+        de: {
+                title: 'Tickets ohne Wartezeit & Touren weltweit | Ridatours',
+                description: 'Buchen Sie Tickets ohne Wartezeit für die bekanntesten Sehenswürdigkeiten der Welt. Bevorzugter Zugang, kostenlose Stornierung 24h & Touren. Zeit und Geld sparen!',
+        },
+  };
+  const copy = metaCopy[locale] || metaCopy['en'];
   return {
-    alternates: {
-      ...generateAlternates(''),
-      canonical: `https://www.ridatours.com/${locale}`,
-    },
+        title: copy.title,
+        description: copy.description,
+        openGraph: {
+                title: copy.title,
+                description: copy.description,
+                url: `https://www.ridatours.com/${locale}`,
+                siteName: 'Ridatours',
+                locale: locale,
+                type: 'website',
+        },
+        alternates: {
+                ...generateAlternates(''),
+                canonical: `https://www.ridatours.com/${locale}`,
+        },
   };
 }
 
